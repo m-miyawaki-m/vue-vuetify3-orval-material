@@ -11,9 +11,15 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
     "@fontsource/roboto": "^5.2.10",
     "@mdi/font": "7.4.47",
+    "material-icons": "^1.13.14",
+    "pinia": "^3.0.4",
     "vue": "^3.5.30",
+    "vue-router": "^5.1.0",
     "vuetify": "^4.0.2"
   },
   "devDependencies": {
