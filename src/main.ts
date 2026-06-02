@@ -4,6 +4,8 @@
  * Bootstraps Vuetify and other plugins then mounts the App`
  */
 
+import 'material-icons/iconfont/material-icons.css'
+
 // Composables
 import { createApp } from 'vue'
 
