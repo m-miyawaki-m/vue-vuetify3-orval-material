@@ -2,9 +2,7 @@
   <v-layout>
     <v-app-bar color="primary" elevation="2">
       <template #prepend>
-        <v-btn icon @click="router.back()">
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
+        <v-btn icon="mdi-arrow-left" @click="router.back()" />
       </template>
       <v-app-bar-title>{{ title }}</v-app-bar-title>
     </v-app-bar>

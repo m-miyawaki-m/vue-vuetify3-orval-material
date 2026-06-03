@@ -14,7 +14,7 @@
       <v-rating :model-value="product.rating" readonly color="amber" class="mb-3" />
       <p>{{ product.description }}</p>
     </template>
-    <template #actions>
+    <template v-if="product" #actions>
       <v-spacer />
       <v-btn variant="text" @click="model = false">閉じる</v-btn>
       <v-btn color="primary" variant="elevated" @click="onDetail">詳細を見る</v-btn>
