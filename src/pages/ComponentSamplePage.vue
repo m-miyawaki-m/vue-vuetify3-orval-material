@@ -220,99 +220,204 @@
       <section class="mb-4">
         <p class="text-overline text-medium-emphasis mb-2">時刻</p>
 
-        <!-- 単一時刻 -->
-        <p class="text-body-2 mb-2">単一時刻</p>
-        <v-text-field
-          :model-value="selectedTime ?? ''"
-          label="時刻を選択"
-          variant="outlined"
-          readonly
-          placeholder="HH:mm"
-          class="mb-6"
-        >
-          <template #append-inner>
-            <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openTimeSingle" />
-          </template>
-        </v-text-field>
+        <!-- ── デフォルトパターン ── -->
+        <v-card variant="outlined" class="mb-6 pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">デフォルトパターン（Vuetify 標準）</p>
+          <p class="text-caption text-medium-emphasis mb-4">
+            Vuetify 組み込みの <code>v-time-picker</code> を使用。クロック形式で時・分を選択します。
+          </p>
 
-        <!-- 時間範囲 -->
-        <p class="text-body-2 mb-2">時間範囲</p>
-        <div class="d-flex align-center gap-2 mb-1">
+          <p class="text-body-2 mb-2">単一時刻</p>
           <v-text-field
-            :model-value="timeRangeStart ?? ''"
-            label="開始時刻"
+            :model-value="defTime ?? ''"
+            label="時刻を選択"
             variant="outlined"
             readonly
             placeholder="HH:mm"
-            hide-details
-            style="flex:1"
-          />
-          <span class="text-body-2 mx-1">〜</span>
+            class="mb-4"
+          >
+            <template #append-inner>
+              <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openDefSingle" />
+            </template>
+          </v-text-field>
+
+          <p class="text-body-2 mb-2">時間範囲</p>
+          <div class="d-flex align-center gap-2">
+            <v-text-field
+              :model-value="defRangeStart ?? ''"
+              label="開始時刻"
+              variant="outlined"
+              readonly
+              placeholder="HH:mm"
+              hide-details
+              style="flex:1"
+            />
+            <span class="text-body-2 mx-1">〜</span>
+            <v-text-field
+              :model-value="defRangeEnd ?? ''"
+              label="終了時刻"
+              variant="outlined"
+              readonly
+              placeholder="HH:mm"
+              hide-details
+              style="flex:1"
+            />
+            <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openDefRange" />
+          </div>
+          <p class="text-caption text-medium-emphasis mt-2">
+            {{ defRangeStart && defRangeEnd ? defRangeStart + ' 〜 ' + defRangeEnd : '未選択' }}
+          </p>
+        </v-card>
+
+        <!-- ── 自作パターン ── -->
+        <v-card variant="outlined" class="pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">自作パターン（ホイールピッカー）</p>
+          <p class="text-caption text-medium-emphasis mb-4">
+            CSS scroll-snap で実装したドラムロール型UI。iOS 標準の時刻選択に近い操作感。
+            上下スワイプまたはアイテムタップで値を変更できます。
+          </p>
+
+          <p class="text-body-2 mb-2">単一時刻</p>
           <v-text-field
-            :model-value="timeRangeEnd ?? ''"
-            label="終了時刻"
+            :model-value="wheelTime ?? ''"
+            label="時刻を選択"
             variant="outlined"
             readonly
             placeholder="HH:mm"
-            hide-details
-            style="flex:1"
-          />
-          <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openTimeRange" />
-        </div>
-        <p class="text-caption text-medium-emphasis mt-2">
-          {{ timeRangeStart && timeRangeEnd
-            ? timeRangeStart + ' 〜 ' + timeRangeEnd
-            : timeRangeStart ? timeRangeStart + ' 〜 未選択' : '未選択' }}
-        </p>
+            class="mb-4"
+          >
+            <template #append-inner>
+              <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openWheelSingle" />
+            </template>
+          </v-text-field>
+
+          <p class="text-body-2 mb-2">時間範囲</p>
+          <div class="d-flex align-center gap-2">
+            <v-text-field
+              :model-value="wheelRangeStart ?? ''"
+              label="開始時刻"
+              variant="outlined"
+              readonly
+              placeholder="HH:mm"
+              hide-details
+              style="flex:1"
+            />
+            <span class="text-body-2 mx-1">〜</span>
+            <v-text-field
+              :model-value="wheelRangeEnd ?? ''"
+              label="終了時刻"
+              variant="outlined"
+              readonly
+              placeholder="HH:mm"
+              hide-details
+              style="flex:1"
+            />
+            <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openWheelRange" />
+          </div>
+          <p class="text-caption text-medium-emphasis mt-2">
+            {{ wheelRangeStart && wheelRangeEnd ? wheelRangeStart + ' 〜 ' + wheelRangeEnd : '未選択' }}
+          </p>
+        </v-card>
       </section>
 
-      <!-- 時刻ダイアログ（単一） -->
-      <v-dialog v-model="timeSingleDialog" max-width="320">
+      <!-- ── デフォルト: 単一ダイアログ ── -->
+      <v-dialog v-model="defSingleDialog" max-width="360">
         <v-card>
           <v-card-title class="pt-4 px-4">時刻を選択</v-card-title>
-          <v-card-text class="pb-0">
-            <TimeWheelPicker v-model="tempTime" />
-          </v-card-text>
+          <div class="d-flex justify-center py-2">
+            <v-time-picker v-model="tempDefTime" format="24hr" color="primary" elevation="0" />
+          </div>
           <v-card-actions>
             <v-spacer />
-            <v-btn variant="text" @click="timeSingleDialog = false">キャンセル</v-btn>
-            <v-btn color="primary" variant="elevated" @click="confirmTimeSingle">OK</v-btn>
+            <v-btn variant="text" @click="defSingleDialog = false">キャンセル</v-btn>
+            <v-btn color="primary" variant="elevated" @click="confirmDefSingle">OK</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
-      <!-- 時刻ダイアログ（範囲） -->
-      <v-dialog v-model="timeRangeDialog" max-width="320">
+      <!-- ── デフォルト: 範囲ダイアログ ── -->
+      <v-dialog v-model="defRangeDialog" max-width="360">
         <v-card>
           <v-card-title class="pt-4 px-4">
-            {{ timeRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
+            {{ defRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
+          </v-card-title>
+          <div class="d-flex justify-center py-2">
+            <v-time-picker
+              v-if="defRangeStep === 'start'"
+              v-model="tempDefRangeStart"
+              format="24hr" color="primary" elevation="0"
+            />
+            <v-time-picker
+              v-else
+              v-model="tempDefRangeEnd"
+              format="24hr" color="primary" elevation="0"
+              :min="tempDefRangeStart ?? undefined"
+            />
+          </div>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn variant="text" @click="defRangeDialog = false">キャンセル</v-btn>
+            <v-btn
+              v-if="defRangeStep === 'start'"
+              color="primary" variant="elevated"
+              :disabled="!tempDefRangeStart"
+              @click="defRangeStep = 'end'"
+            >次へ</v-btn>
+            <v-btn
+              v-else
+              color="primary" variant="elevated"
+              :disabled="!tempDefRangeEnd"
+              @click="confirmDefRange"
+            >OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- ── ホイール: 単一ダイアログ ── -->
+      <v-dialog v-model="wheelSingleDialog" max-width="320">
+        <v-card>
+          <v-card-title class="pt-4 px-4">時刻を選択</v-card-title>
+          <v-card-text class="pb-0">
+            <TimeWheelPicker v-model="tempWheelTime" />
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn variant="text" @click="wheelSingleDialog = false">キャンセル</v-btn>
+            <v-btn color="primary" variant="elevated" @click="confirmWheelSingle">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- ── ホイール: 範囲ダイアログ ── -->
+      <v-dialog v-model="wheelRangeDialog" max-width="320">
+        <v-card>
+          <v-card-title class="pt-4 px-4">
+            {{ wheelRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
           </v-card-title>
           <v-card-text class="pb-0">
             <TimeWheelPicker
-              v-if="timeRangeStep === 'start'"
-              v-model="tempTimeStart"
+              v-if="wheelRangeStep === 'start'"
+              v-model="tempWheelRangeStart"
             />
             <TimeWheelPicker
               v-else
-              v-model="tempTimeEnd"
+              v-model="tempWheelRangeEnd"
             />
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn variant="text" @click="timeRangeDialog = false">キャンセル</v-btn>
+            <v-btn variant="text" @click="wheelRangeDialog = false">キャンセル</v-btn>
             <v-btn
-              v-if="timeRangeStep === 'start'"
-              color="primary"
-              variant="elevated"
-              :disabled="!tempTimeStart"
-              @click="timeRangeStep = 'end'"
+              v-if="wheelRangeStep === 'start'"
+              color="primary" variant="elevated"
+              :disabled="!tempWheelRangeStart"
+              @click="wheelRangeStep = 'end'"
             >次へ</v-btn>
             <v-btn
               v-else
-              color="primary"
-              variant="elevated"
-              :disabled="!tempTimeEnd"
-              @click="confirmTimeRange"
+              color="primary" variant="elevated"
+              :disabled="!tempWheelRangeEnd"
+              @click="confirmWheelRange"
             >OK</v-btn>
           </v-card-actions>
         </v-card>
@@ -397,41 +502,69 @@ function formatDate(d: Date): string {
   return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`
 }
 
-// ⑥ 時刻選択
-const selectedTime   = ref<string | null>(null)
-const timeRangeStart = ref<string | null>(null)
-const timeRangeEnd   = ref<string | null>(null)
+// ⑥ 時刻選択 ── デフォルトパターン（v-time-picker）
+const defTime       = ref<string | null>(null)
+const defRangeStart = ref<string | null>(null)
+const defRangeEnd   = ref<string | null>(null)
 
-// ダイアログ制御
-const timeSingleDialog = ref(false)
-const timeRangeDialog  = ref(false)
-const timeRangeStep    = ref<'start' | 'end'>('start')
+const defSingleDialog = ref(false)
+const defRangeDialog  = ref(false)
+const defRangeStep    = ref<'start' | 'end'>('start')
 
-// ダイアログ内の一時選択値
-const tempTime      = ref<string | null>(null)
-const tempTimeStart = ref<string | null>(null)
-const tempTimeEnd   = ref<string | null>(null)
+const tempDefTime       = ref<string | null>(null)
+const tempDefRangeStart = ref<string | null>(null)
+const tempDefRangeEnd   = ref<string | null>(null)
 
-function openTimeSingle() {
-  tempTime.value = selectedTime.value
-  timeSingleDialog.value = true
+function openDefSingle() {
+  tempDefTime.value = defTime.value
+  defSingleDialog.value = true
+}
+function confirmDefSingle() {
+  defTime.value = tempDefTime.value
+  defSingleDialog.value = false
+}
+function openDefRange() {
+  tempDefRangeStart.value = defRangeStart.value
+  tempDefRangeEnd.value   = defRangeEnd.value
+  defRangeStep.value = 'start'
+  defRangeDialog.value = true
+}
+function confirmDefRange() {
+  defRangeStart.value = tempDefRangeStart.value
+  defRangeEnd.value   = tempDefRangeEnd.value
+  defRangeDialog.value = false
 }
 
-function confirmTimeSingle() {
-  selectedTime.value = tempTime.value
-  timeSingleDialog.value = false
-}
+// ⑥ 時刻選択 ── 自作パターン（ホイールピッカー）
+const wheelTime       = ref<string | null>(null)
+const wheelRangeStart = ref<string | null>(null)
+const wheelRangeEnd   = ref<string | null>(null)
 
-function openTimeRange() {
-  tempTimeStart.value = timeRangeStart.value
-  tempTimeEnd.value   = timeRangeEnd.value
-  timeRangeStep.value = 'start'
-  timeRangeDialog.value = true
-}
+const wheelSingleDialog = ref(false)
+const wheelRangeDialog  = ref(false)
+const wheelRangeStep    = ref<'start' | 'end'>('start')
 
-function confirmTimeRange() {
-  timeRangeStart.value = tempTimeStart.value
-  timeRangeEnd.value   = tempTimeEnd.value
-  timeRangeDialog.value = false
+const tempWheelTime       = ref<string | null>(null)
+const tempWheelRangeStart = ref<string | null>(null)
+const tempWheelRangeEnd   = ref<string | null>(null)
+
+function openWheelSingle() {
+  tempWheelTime.value = wheelTime.value
+  wheelSingleDialog.value = true
+}
+function confirmWheelSingle() {
+  wheelTime.value = tempWheelTime.value
+  wheelSingleDialog.value = false
+}
+function openWheelRange() {
+  tempWheelRangeStart.value = wheelRangeStart.value
+  tempWheelRangeEnd.value   = wheelRangeEnd.value
+  wheelRangeStep.value = 'start'
+  wheelRangeDialog.value = true
+}
+function confirmWheelRange() {
+  wheelRangeStart.value = tempWheelRangeStart.value
+  wheelRangeEnd.value   = tempWheelRangeEnd.value
+  wheelRangeDialog.value = false
 }
 </script>
