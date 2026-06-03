@@ -1,10 +1,15 @@
 <template>
   <div class="phone-wrapper">
-    <v-app class="phone-app">
+    <v-app :theme="themeStore.currentTheme" class="phone-app">
       <router-view />
     </v-app>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useThemeStore } from '@/stores/theme'
+const themeStore = useThemeStore()
+</script>
 
 <style>
 /* ── スマホ固定レイアウト（PC ブラウザ確認用） ── */
