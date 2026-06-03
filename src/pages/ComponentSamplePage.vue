@@ -5,29 +5,76 @@
       <!-- ① アコーディオン -->
       <section class="mb-8">
         <p class="text-overline text-medium-emphasis mb-2">アコーディオン</p>
-        <v-expansion-panels v-model="accordion">
-          <v-expansion-panel value="panel1">
-            <v-expansion-panel-title>セクション 1</v-expansion-panel-title>
-            <v-expansion-panel-text>
-              アコーディオンの内容です。クリックで開閉します。
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-          <v-expansion-panel value="panel2">
-            <v-expansion-panel-title>セクション 2</v-expansion-panel-title>
-            <v-expansion-panel-text>
-              複数のパネルを同時に開くことも可能です（multiple プロパティで制御）。
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-          <v-expansion-panel value="panel3">
-            <v-expansion-panel-title>セクション 3</v-expansion-panel-title>
-            <v-expansion-panel-text>
-              詳細検索フィルタなどに活用できます。
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-        <p class="text-caption text-medium-emphasis mt-1">
-          選択中: {{ accordion ?? 'なし' }}
+        <p class="text-caption text-medium-emphasis mb-3">
+          パネル内には任意の部品を配置できます。ボタン・トグル・フォームなど何でも入ります。
         </p>
+        <v-expansion-panels v-model="accordion">
+
+          <!-- ボタン入り -->
+          <v-expansion-panel value="panel1">
+            <v-expansion-panel-title>
+              <v-icon start>mdi-gesture-tap-button</v-icon>ボタンを含むパネル
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <p class="text-body-2 mb-3">パネル内でアクションを実行できます。</p>
+              <div class="d-flex gap-2 flex-wrap">
+                <v-btn color="primary" variant="elevated" prepend-icon="mdi-check" @click="accordionMsg = '保存しました'">保存</v-btn>
+                <v-btn color="error"   variant="outlined" prepend-icon="mdi-delete" @click="accordionMsg = '削除しました'">削除</v-btn>
+                <v-btn variant="text"                     prepend-icon="mdi-refresh" @click="accordionMsg = 'リセットしました'">リセット</v-btn>
+              </div>
+              <v-alert v-if="accordionMsg" type="success" variant="tonal" density="compact" class="mt-3">
+                {{ accordionMsg }}
+              </v-alert>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
+          <!-- トグル・スイッチ入り -->
+          <v-expansion-panel value="panel2">
+            <v-expansion-panel-title>
+              <v-icon start>mdi-toggle-switch</v-icon>トグル・スイッチを含むパネル
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <p class="text-body-2 mb-3">表示切り替えや設定トグルに使えます。</p>
+              <v-btn-toggle v-model="accordionToggle" color="primary" variant="outlined" rounded="lg" class="mb-4">
+                <v-btn value="list"  icon="mdi-view-list" />
+                <v-btn value="grid"  icon="mdi-view-grid" />
+              </v-btn-toggle>
+              <v-switch v-model="accordionSwitch" label="通知を有効にする" color="primary" hide-details />
+              <p class="text-caption text-medium-emphasis mt-2">
+                表示: {{ accordionToggle }}　通知: {{ accordionSwitch ? 'ON' : 'OFF' }}
+              </p>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
+          <!-- フォーム入り -->
+          <v-expansion-panel value="panel3">
+            <v-expansion-panel-title>
+              <v-icon start>mdi-form-textbox</v-icon>フォームを含むパネル
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <p class="text-body-2 mb-3">フィルタ条件や入力フォームとして使えます。</p>
+              <v-text-field
+                v-model="accordionInput"
+                label="キーワード"
+                variant="outlined"
+                density="compact"
+                class="mb-2"
+              />
+              <v-select
+                v-model="accordionSelect"
+                :items="['すべて', 'カテゴリA', 'カテゴリB']"
+                label="カテゴリ"
+                variant="outlined"
+                density="compact"
+                class="mb-3"
+              />
+              <v-btn color="primary" size="small" block @click="accordionMsg = '検索: ' + accordionInput + ' / ' + accordionSelect">
+                この条件で検索
+              </v-btn>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+
+        </v-expansion-panels>
       </section>
 
       <v-divider class="mb-8" />
@@ -320,6 +367,237 @@
         </v-card>
       </section>
 
+      <v-divider class="mb-8" />
+
+      <!-- ⑦ 表示制御パターン -->
+      <section class="mb-8">
+        <p class="text-overline text-medium-emphasis mb-2">表示制御パターン</p>
+
+        <!-- v-if -->
+        <v-card variant="outlined" class="mb-4 pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">v-if — 条件付きレンダリング</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            条件が false のとき DOM から完全に除去されます。追加入力欄の出し入れなどに最適。
+          </p>
+          <v-checkbox v-model="showExtra" label="追加情報を入力する" color="primary" hide-details class="mb-2" />
+          <v-expand-transition>
+            <div v-if="showExtra">
+              <v-text-field label="会社名" variant="outlined" density="compact" class="mb-2" />
+              <v-text-field label="部署名" variant="outlined" density="compact" />
+            </div>
+          </v-expand-transition>
+        </v-card>
+
+        <!-- v-show -->
+        <v-card variant="outlined" class="mb-4 pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">v-show — 表示/非表示切り替え</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            DOM は残り visibility/display だけ切り替えます。頻繁に開閉する場合は v-if より高速。
+          </p>
+          <v-btn
+            :prepend-icon="showDetail ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+            variant="tonal"
+            color="primary"
+            size="small"
+            class="mb-2"
+            @click="showDetail = !showDetail"
+          >{{ showDetail ? '詳細を隠す' : '詳細を表示' }}</v-btn>
+          <div v-show="showDetail" class="pa-3 rounded bg-grey-lighten-4">
+            <p class="text-body-2">v-show で表示制御されたコンテンツです。</p>
+            <p class="text-body-2">DOM に残るため再表示が速いです。</p>
+          </div>
+        </v-card>
+
+        <!-- v-menu -->
+        <v-card variant="outlined" class="pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">v-menu — ポップアップメニュー</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            ボタン近くに小さいドロップダウンを出します。コンテキストメニューや操作メニューに使います。
+          </p>
+          <div class="d-flex align-center gap-3">
+            <span class="text-body-2">操作対象アイテム</span>
+            <v-menu>
+              <template #activator="{ props: menuProps }">
+                <v-btn icon="mdi-dots-vertical" variant="text" v-bind="menuProps" />
+              </template>
+              <v-list density="compact">
+                <v-list-item prepend-icon="mdi-pencil"       title="編集"   @click="menuResult = '編集を選択'" />
+                <v-list-item prepend-icon="mdi-content-copy" title="コピー" @click="menuResult = 'コピーを選択'" />
+                <v-divider />
+                <v-list-item prepend-icon="mdi-delete" title="削除" color="error" @click="menuResult = '削除を選択'" />
+              </v-list>
+            </v-menu>
+          </div>
+          <p v-if="menuResult" class="text-caption text-medium-emphasis mt-2">→ {{ menuResult }}</p>
+        </v-card>
+      </section>
+
+      <v-divider class="mb-8" />
+
+      <!-- ⑧ ダイアログパターン -->
+      <section class="mb-8">
+        <p class="text-overline text-medium-emphasis mb-2">ダイアログパターン</p>
+        <p class="text-caption text-medium-emphasis mb-4">
+          用途に応じて使い分けます。すべてユーザーの注意を集中させる目的で使います。
+        </p>
+        <div class="d-flex flex-column gap-3">
+
+          <!-- 情報ダイアログ -->
+          <v-card variant="outlined" class="pa-4">
+            <p class="text-subtitle-2 font-weight-bold mb-1">情報ダイアログ</p>
+            <p class="text-caption text-medium-emphasis mb-3">メッセージの提示・内容の確認。閉じるボタンのみ。</p>
+            <v-btn color="primary" variant="tonal" prepend-icon="mdi-information" @click="infoDialog = true">
+              情報を表示
+            </v-btn>
+          </v-card>
+
+          <!-- 確認ダイアログ -->
+          <v-card variant="outlined" class="pa-4">
+            <p class="text-subtitle-2 font-weight-bold mb-1">確認ダイアログ（ConfirmDialog）</p>
+            <p class="text-caption text-medium-emphasis mb-3">OK / キャンセルで分岐。削除・送信前の確認に。</p>
+            <v-btn color="error" variant="tonal" prepend-icon="mdi-delete" @click="confirmDialog = true">
+              削除の確認
+            </v-btn>
+            <p v-if="confirmResult" class="text-caption text-medium-emphasis mt-2">→ {{ confirmResult }}</p>
+          </v-card>
+
+          <!-- フォームダイアログ -->
+          <v-card variant="outlined" class="pa-4">
+            <p class="text-subtitle-2 font-weight-bold mb-1">フォームダイアログ</p>
+            <p class="text-caption text-medium-emphasis mb-3">入力フォームを内包。新規作成・編集に使います。</p>
+            <v-btn color="primary" variant="tonal" prepend-icon="mdi-plus" @click="formDialog = true">
+              新規追加
+            </v-btn>
+            <p v-if="formResult" class="text-caption text-medium-emphasis mt-2">→ 登録: {{ formResult }}</p>
+          </v-card>
+
+          <!-- フルスクリーンダイアログ -->
+          <v-card variant="outlined" class="pa-4">
+            <p class="text-subtitle-2 font-weight-bold mb-1">フルスクリーンダイアログ</p>
+            <p class="text-caption text-medium-emphasis mb-3">画面全体を占有。複雑な編集フォームや詳細ページに。</p>
+            <v-btn color="primary" variant="tonal" prepend-icon="mdi-fullscreen" @click="fullscreenDialog = true">
+              フルスクリーンで開く
+            </v-btn>
+          </v-card>
+
+        </div>
+      </section>
+
+      <v-divider class="mb-8" />
+
+      <!-- ⑨ 通知・オーバーレイパターン -->
+      <section class="mb-4">
+        <p class="text-overline text-medium-emphasis mb-2">通知・オーバーレイパターン</p>
+
+        <!-- v-snackbar -->
+        <v-card variant="outlined" class="mb-4 pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">v-snackbar（トースト通知）</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            操作結果の短い通知。自動で消えます。コンテンツ入力には使いません。
+          </p>
+          <div class="d-flex gap-2 flex-wrap">
+            <v-btn color="success" variant="tonal" size="small" prepend-icon="mdi-check-circle"
+              @click="showSnack('success', '保存しました')">成功</v-btn>
+            <v-btn color="error"   variant="tonal" size="small" prepend-icon="mdi-alert-circle"
+              @click="showSnack('error', 'エラーが発生しました')">エラー</v-btn>
+            <v-btn color="info"    variant="tonal" size="small" prepend-icon="mdi-information"
+              @click="showSnack('info', '処理中です...')">情報</v-btn>
+          </div>
+        </v-card>
+
+        <!-- v-bottom-sheet -->
+        <v-card variant="outlined" class="pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">v-bottom-sheet（アクションシート）</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            画面下から出るオーバーレイ。スマホでの選択メニューやフィルタに最適。
+          </p>
+          <v-btn color="primary" variant="tonal" prepend-icon="mdi-menu-up" @click="bottomSheet = true">
+            アクションシートを開く
+          </v-btn>
+          <p v-if="sheetResult" class="text-caption text-medium-emphasis mt-2">→ {{ sheetResult }}</p>
+        </v-card>
+      </section>
+
+      <!-- ⑧ ダイアログ本体 -->
+
+      <!-- 情報ダイアログ -->
+      <BaseDialog v-model="infoDialog" title="お知らせ">
+        <p class="text-body-2">この操作は取り消せません。</p>
+        <p class="text-body-2 mt-2">詳細については利用規約をご確認ください。</p>
+        <template #actions>
+          <v-spacer />
+          <v-btn color="primary" variant="elevated" @click="infoDialog = false">閉じる</v-btn>
+        </template>
+      </BaseDialog>
+
+      <!-- 確認ダイアログ -->
+      <ConfirmDialog
+        v-model="confirmDialog"
+        title="削除の確認"
+        message="このアイテムを削除しますか？この操作は取り消せません。"
+        @confirm="confirmResult = 'OK を選択'; confirmDialog = false"
+        @cancel="confirmResult = 'キャンセルを選択'; confirmDialog = false"
+      />
+
+      <!-- フォームダイアログ -->
+      <BaseDialog v-model="formDialog" title="新規アイテムを追加" max-width="440px">
+        <v-text-field v-model="formName"  label="名前"  variant="outlined" density="compact" class="mb-3" />
+        <v-text-field v-model="formEmail" label="メール" variant="outlined" density="compact" type="email" />
+        <template #actions>
+          <v-spacer />
+          <v-btn variant="text" @click="formDialog = false; formName = ''; formEmail = ''">キャンセル</v-btn>
+          <v-btn
+            color="primary" variant="elevated"
+            :disabled="!formName || !formEmail"
+            @click="formResult = formName + ' / ' + formEmail; formDialog = false; formName = ''; formEmail = ''"
+          >登録</v-btn>
+        </template>
+      </BaseDialog>
+
+      <!-- フルスクリーンダイアログ -->
+      <v-dialog v-model="fullscreenDialog" fullscreen transition="dialog-bottom-transition">
+        <v-card>
+          <v-app-bar color="primary" elevation="0">
+            <template #prepend>
+              <v-btn icon="mdi-close" @click="fullscreenDialog = false" />
+            </template>
+            <v-app-bar-title>フルスクリーン編集</v-app-bar-title>
+            <template #append>
+              <v-btn variant="text" @click="fullscreenDialog = false">保存</v-btn>
+            </template>
+          </v-app-bar>
+          <v-container class="pt-6">
+            <v-text-field label="タイトル" variant="outlined" class="mb-4" />
+            <v-textarea  label="本文"     variant="outlined" rows="6" />
+          </v-container>
+        </v-card>
+      </v-dialog>
+
+      <!-- ⑨ v-snackbar -->
+      <v-snackbar v-model="snackbar" :color="snackColor" :timeout="2500" location="bottom">
+        <v-icon start>{{ snackIcon }}</v-icon>{{ snackText }}
+        <template #actions>
+          <v-btn variant="text" @click="snackbar = false">閉じる</v-btn>
+        </template>
+      </v-snackbar>
+
+      <!-- ⑨ v-bottom-sheet -->
+      <v-bottom-sheet v-model="bottomSheet">
+        <v-card rounded="t-xl">
+          <v-card-title class="pt-4">操作を選択</v-card-title>
+          <v-list>
+            <v-list-item prepend-icon="mdi-share-variant" title="共有する"        @click="sheetResult = '共有'; bottomSheet = false" />
+            <v-list-item prepend-icon="mdi-download"      title="ダウンロード"    @click="sheetResult = 'ダウンロード'; bottomSheet = false" />
+            <v-list-item prepend-icon="mdi-heart-outline" title="お気に入りに追加" @click="sheetResult = 'お気に入り追加'; bottomSheet = false" />
+            <v-divider />
+            <v-list-item prepend-icon="mdi-delete" title="削除" color="error" @click="sheetResult = '削除'; bottomSheet = false" />
+          </v-list>
+          <div class="pa-4">
+            <v-btn block variant="text" @click="bottomSheet = false">キャンセル</v-btn>
+          </div>
+        </v-card>
+      </v-bottom-sheet>
+
       <!-- ── デフォルト: 単一ダイアログ ── -->
       <v-dialog v-model="defSingleDialog" max-width="360">
         <v-card>
@@ -431,9 +709,16 @@
 import { ref } from 'vue'
 import SubLayout from '@/components/layout/SubLayout.vue'
 import TimeWheelPicker from '@/components/ui/TimeWheelPicker.vue'
+import BaseDialog from '@/components/dialog/BaseDialog.vue'
+import ConfirmDialog from '@/components/dialog/ConfirmDialog.vue'
 
 // ① アコーディオン
-const accordion = ref<string | null>(null)
+const accordion       = ref<string | null>(null)
+const accordionMsg    = ref('')
+const accordionToggle = ref('list')
+const accordionSwitch = ref(false)
+const accordionInput  = ref('')
+const accordionSelect = ref('すべて')
 
 // ② ラジオボタン
 const radioValue  = ref('standard')
@@ -496,6 +781,42 @@ function confirmRange() {
 
 function clearRange() {
   tempRange.value = []
+}
+
+// ⑦ 表示制御
+const showExtra  = ref(false)
+const showDetail = ref(false)
+const menuResult = ref('')
+
+// ⑧ ダイアログ
+const infoDialog       = ref(false)
+const confirmDialog    = ref(false)
+const confirmResult    = ref('')
+const formDialog       = ref(false)
+const formResult       = ref('')
+const formName         = ref('')
+const formEmail        = ref('')
+const fullscreenDialog = ref(false)
+
+// ⑨ 通知・オーバーレイ
+const snackbar   = ref(false)
+const snackColor = ref('success')
+const snackText  = ref('')
+const snackIcon  = ref('mdi-check-circle')
+const bottomSheet = ref(false)
+const sheetResult = ref('')
+
+const snackIconMap: Record<string, string> = {
+  success: 'mdi-check-circle',
+  error:   'mdi-alert-circle',
+  info:    'mdi-information',
+}
+
+function showSnack(color: string, text: string) {
+  snackColor.value = color
+  snackText.value  = text
+  snackIcon.value  = snackIconMap[color] ?? 'mdi-information'
+  snackbar.value   = true
 }
 
 function formatDate(d: Date): string {
