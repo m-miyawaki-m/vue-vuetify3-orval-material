@@ -267,17 +267,12 @@
       </section>
 
       <!-- 時刻ダイアログ（単一） -->
-      <v-dialog v-model="timeSingleDialog" max-width="360">
+      <v-dialog v-model="timeSingleDialog" max-width="320">
         <v-card>
-          <v-card-title class="pt-4 pl-4">時刻を選択</v-card-title>
-          <div class="d-flex justify-center pa-2">
-            <v-time-picker
-              v-model="tempTime"
-              format="24hr"
-              color="primary"
-              elevation="0"
-            />
-          </div>
+          <v-card-title class="pt-4 px-4">時刻を選択</v-card-title>
+          <v-card-text class="pb-0">
+            <TimeWheelPicker v-model="tempTime" />
+          </v-card-text>
           <v-card-actions>
             <v-spacer />
             <v-btn variant="text" @click="timeSingleDialog = false">キャンセル</v-btn>
@@ -287,28 +282,21 @@
       </v-dialog>
 
       <!-- 時刻ダイアログ（範囲） -->
-      <v-dialog v-model="timeRangeDialog" max-width="360">
+      <v-dialog v-model="timeRangeDialog" max-width="320">
         <v-card>
-          <v-card-title class="pt-4 pl-4">
+          <v-card-title class="pt-4 px-4">
             {{ timeRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
           </v-card-title>
-          <div class="d-flex justify-center pa-2">
-            <v-time-picker
+          <v-card-text class="pb-0">
+            <TimeWheelPicker
               v-if="timeRangeStep === 'start'"
               v-model="tempTimeStart"
-              format="24hr"
-              color="primary"
-              elevation="0"
             />
-            <v-time-picker
+            <TimeWheelPicker
               v-else
               v-model="tempTimeEnd"
-              format="24hr"
-              color="primary"
-              :min="tempTimeStart ?? undefined"
-              elevation="0"
             />
-          </div>
+          </v-card-text>
           <v-card-actions>
             <v-spacer />
             <v-btn variant="text" @click="timeRangeDialog = false">キャンセル</v-btn>
@@ -337,6 +325,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SubLayout from '@/components/layout/SubLayout.vue'
+import TimeWheelPicker from '@/components/ui/TimeWheelPicker.vue'
 
 // ① アコーディオン
 const accordion = ref<string | null>(null)
