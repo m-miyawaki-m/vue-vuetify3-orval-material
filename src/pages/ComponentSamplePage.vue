@@ -214,6 +214,122 @@
         </v-card>
       </v-dialog>
 
+      <v-divider class="mb-8" />
+
+      <!-- ⑥ 時刻選択 -->
+      <section class="mb-4">
+        <p class="text-overline text-medium-emphasis mb-2">時刻</p>
+
+        <!-- 単一時刻 -->
+        <p class="text-body-2 mb-2">単一時刻</p>
+        <v-text-field
+          :model-value="selectedTime ?? ''"
+          label="時刻を選択"
+          variant="outlined"
+          readonly
+          placeholder="HH:mm"
+          class="mb-6"
+        >
+          <template #append-inner>
+            <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openTimeSingle" />
+          </template>
+        </v-text-field>
+
+        <!-- 時間範囲 -->
+        <p class="text-body-2 mb-2">時間範囲</p>
+        <div class="d-flex align-center gap-2 mb-1">
+          <v-text-field
+            :model-value="timeRangeStart ?? ''"
+            label="開始時刻"
+            variant="outlined"
+            readonly
+            placeholder="HH:mm"
+            hide-details
+            style="flex:1"
+          />
+          <span class="text-body-2 mx-1">〜</span>
+          <v-text-field
+            :model-value="timeRangeEnd ?? ''"
+            label="終了時刻"
+            variant="outlined"
+            readonly
+            placeholder="HH:mm"
+            hide-details
+            style="flex:1"
+          />
+          <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openTimeRange" />
+        </div>
+        <p class="text-caption text-medium-emphasis mt-2">
+          {{ timeRangeStart && timeRangeEnd
+            ? timeRangeStart + ' 〜 ' + timeRangeEnd
+            : timeRangeStart ? timeRangeStart + ' 〜 未選択' : '未選択' }}
+        </p>
+      </section>
+
+      <!-- 時刻ダイアログ（単一） -->
+      <v-dialog v-model="timeSingleDialog" max-width="360">
+        <v-card>
+          <v-card-title class="pt-4 pl-4">時刻を選択</v-card-title>
+          <div class="d-flex justify-center pa-2">
+            <v-time-picker
+              v-model="tempTime"
+              format="24hr"
+              color="primary"
+              elevation="0"
+            />
+          </div>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn variant="text" @click="timeSingleDialog = false">キャンセル</v-btn>
+            <v-btn color="primary" variant="elevated" @click="confirmTimeSingle">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- 時刻ダイアログ（範囲） -->
+      <v-dialog v-model="timeRangeDialog" max-width="360">
+        <v-card>
+          <v-card-title class="pt-4 pl-4">
+            {{ timeRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
+          </v-card-title>
+          <div class="d-flex justify-center pa-2">
+            <v-time-picker
+              v-if="timeRangeStep === 'start'"
+              v-model="tempTimeStart"
+              format="24hr"
+              color="primary"
+              elevation="0"
+            />
+            <v-time-picker
+              v-else
+              v-model="tempTimeEnd"
+              format="24hr"
+              color="primary"
+              :min="tempTimeStart ?? undefined"
+              elevation="0"
+            />
+          </div>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn variant="text" @click="timeRangeDialog = false">キャンセル</v-btn>
+            <v-btn
+              v-if="timeRangeStep === 'start'"
+              color="primary"
+              variant="elevated"
+              :disabled="!tempTimeStart"
+              @click="timeRangeStep = 'end'"
+            >次へ</v-btn>
+            <v-btn
+              v-else
+              color="primary"
+              variant="elevated"
+              :disabled="!tempTimeEnd"
+              @click="confirmTimeRange"
+            >OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
     </v-container>
   </SubLayout>
 </template>
@@ -290,5 +406,43 @@ function clearRange() {
 
 function formatDate(d: Date): string {
   return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`
+}
+
+// ⑥ 時刻選択
+const selectedTime   = ref<string | null>(null)
+const timeRangeStart = ref<string | null>(null)
+const timeRangeEnd   = ref<string | null>(null)
+
+// ダイアログ制御
+const timeSingleDialog = ref(false)
+const timeRangeDialog  = ref(false)
+const timeRangeStep    = ref<'start' | 'end'>('start')
+
+// ダイアログ内の一時選択値
+const tempTime      = ref<string | null>(null)
+const tempTimeStart = ref<string | null>(null)
+const tempTimeEnd   = ref<string | null>(null)
+
+function openTimeSingle() {
+  tempTime.value = selectedTime.value
+  timeSingleDialog.value = true
+}
+
+function confirmTimeSingle() {
+  selectedTime.value = tempTime.value
+  timeSingleDialog.value = false
+}
+
+function openTimeRange() {
+  tempTimeStart.value = timeRangeStart.value
+  tempTimeEnd.value   = timeRangeEnd.value
+  timeRangeStep.value = 'start'
+  timeRangeDialog.value = true
+}
+
+function confirmTimeRange() {
+  timeRangeStart.value = tempTimeStart.value
+  timeRangeEnd.value   = tempTimeEnd.value
+  timeRangeDialog.value = false
 }
 </script>
