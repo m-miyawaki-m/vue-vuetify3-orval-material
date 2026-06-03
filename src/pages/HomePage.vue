@@ -59,5 +59,11 @@ const menuItems = [
     description: 'アプリの設定',
     to: '/settings',
   },
+  {
+    title: 'コンポーネントサンプル',
+    icon: 'mdi-palette-swatch',
+    description: 'アコーディオン・ラジオ・トグル・プルダウン・カレンダー',
+    to: '/samples',
+  },
 ]
 </script>
