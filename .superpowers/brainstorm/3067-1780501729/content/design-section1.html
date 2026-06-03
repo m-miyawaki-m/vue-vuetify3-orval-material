@@ -1,0 +1,67 @@
+<h2>設計提案 ─ Section 1：全体構造とファイル構成</h2>
+<p class="subtitle">MainLayout + SubLayout の2種構成。これが全画面の骨格になります。</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">コンポーネントツリー</div>
+    <div class="mockup-body">
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;background:#181825;padding:16px;border-radius:6px;line-height:2">
+        <div style="color:#cba6f7">App.vue</div>
+        <div style="padding-left:16px;color:#6c7086">└─ &lt;router-view /&gt;</div>
+        <div style="padding-left:32px;margin-top:4px">
+          <div style="color:#89b4fa">MainLayout.vue　<span style="color:#6c7086;font-size:10px">← タブ画面用（BottomNav あり）</span></div>
+          <div style="padding-left:16px;color:#a6e3a1">├─ AppBar　<span style="color:#6c7086;font-size:10px">タイトル・右アイコン</span></div>
+          <div style="padding-left:16px;color:#a6e3a1">├─ &lt;slot /&gt;　<span style="color:#6c7086;font-size:10px">← ページコンテンツがここに入る</span></div>
+          <div style="padding-left:16px;color:#f9e2af">└─ BottomNav　<span style="color:#6c7086;font-size:10px">4タブ固定</span></div>
+        </div>
+        <div style="padding-left:32px;margin-top:8px">
+          <div style="color:#89b4fa">SubLayout.vue　<span style="color:#6c7086;font-size:10px">← 詳細画面用（BottomNav なし）</span></div>
+          <div style="padding-left:16px;color:#a6e3a1">├─ AppBar　<span style="color:#6c7086;font-size:10px">← 戻るボタン・タイトル</span></div>
+          <div style="padding-left:16px;color:#a6e3a1">└─ &lt;slot /&gt;　<span style="color:#6c7086;font-size:10px">← ページコンテンツがここに入る</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">ファイル構成（変更・追加箇所）</div>
+    <div class="mockup-body">
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;background:#181825;padding:16px;border-radius:6px;line-height:1.9">
+        <div style="color:#6c7086">src/</div>
+        <div style="padding-left:16px">
+          <div style="color:#6c7086">components/layout/</div>
+          <div style="padding-left:16px">
+            <div><span style="color:#f38ba8">削除</span>　AppHeader.vue　<span style="color:#6c7086;font-size:10px">← MainLayout/SubLayout に統合</span></div>
+            <div><span style="color:#f38ba8">削除</span>　AppFooter.vue　<span style="color:#6c7086;font-size:10px">← MainLayout に統合</span></div>
+            <div><span style="color:#a6e3a1">新規</span>　MainLayout.vue　<span style="color:#6c7086;font-size:10px">AppBar + slot + BottomNav</span></div>
+            <div><span style="color:#a6e3a1">新規</span>　SubLayout.vue　　<span style="color:#6c7086;font-size:10px">AppBar(戻る) + slot</span></div>
+          </div>
+          <div style="color:#6c7086;margin-top:4px">pages/</div>
+          <div style="padding-left:16px">
+            <div><span style="color:#f9e2af">変更</span>　MenuPage.vue　　<span style="color:#6c7086;font-size:10px">→ MainLayout 使用・ホームタブのコンテンツに</span></div>
+            <div><span style="color:#f9e2af">変更</span>　SearchPage.vue　<span style="color:#6c7086;font-size:10px">→ MainLayout 使用</span></div>
+            <div><span style="color:#f9e2af">変更</span>　DetailPage.vue　<span style="color:#6c7086;font-size:10px">→ SubLayout 使用</span></div>
+            <div><span style="color:#a6e3a1">新規</span>　FavoritePage.vue　<span style="color:#6c7086;font-size:10px">→ MainLayout 使用（プレースホルダー）</span></div>
+            <div><span style="color:#a6e3a1">新規</span>　SettingsPage.vue　<span style="color:#6c7086;font-size:10px">→ MainLayout 使用（プレースホルダー）</span></div>
+          </div>
+          <div style="color:#6c7086;margin-top:4px">router/index.ts　<span style="color:#f9e2af;font-size:10px">変更　← 4タブ分のルート追加</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="options">
+    <div class="option" data-choice="ok" onclick="toggleSelect(this)">
+      <div class="letter">✓</div>
+      <div class="content"><h3>この構造でOK、次へ</h3><p>Section 2（各レイアウトの詳細仕様）を見る</p></div>
+    </div>
+    <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+      <div class="letter">✗</div>
+      <div class="content"><h3>修正したい</h3><p>構造を変えたい部分を教えてください</p></div>
+    </div>
+  </div>
+</div>

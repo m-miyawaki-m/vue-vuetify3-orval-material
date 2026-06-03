@@ -1,0 +1,102 @@
+<h2>ボトムナビのタブ構成はどれにしますか？</h2>
+<p class="subtitle">ボトムナビに並べるタブを決めます。現在の画面（ホーム・検索・詳細）をベースに考えています。</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="4tabs" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:8px;padding:10px;font-size:11px;color:#cdd6f4">
+        <div style="background:#313244;border-radius:4px;padding:4px;display:flex;justify-content:space-around;margin-bottom:6px">
+          <div style="text-align:center">
+            <div style="font-size:16px">🏠</div>
+            <div style="color:#89b4fa;font-size:9px;border-bottom:2px solid #89b4fa">ホーム</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:16px">🔍</div>
+            <div style="color:#6c7086;font-size:9px">検索</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:16px">❤</div>
+            <div style="color:#6c7086;font-size:9px">お気に入り</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:16px">⚙</div>
+            <div style="color:#6c7086;font-size:9px">設定</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:#a6e3a1;background:#181825;border-radius:4px;padding:6px">
+          詳細ページは検索タブから<br>スタック遷移（←戻るボタン）
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: 4タブ（推奨）</h3>
+      <p>ホーム・検索・お気に入り・設定。現在の MenuPage の3メニューをそのままタブに昇格。詳細はスタック遷移。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="3tabs" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:8px;padding:10px;font-size:11px;color:#cdd6f4">
+        <div style="background:#313244;border-radius:4px;padding:4px;display:flex;justify-content:space-around;margin-bottom:6px">
+          <div style="text-align:center">
+            <div style="font-size:16px">🏠</div>
+            <div style="color:#89b4fa;font-size:9px;border-bottom:2px solid #89b4fa">ホーム</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:16px">🔍</div>
+            <div style="color:#6c7086;font-size:9px">検索</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:16px">⚙</div>
+            <div style="color:#6c7086;font-size:9px">設定</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:#a6e3a1;background:#181825;border-radius:4px;padding:6px">
+          お気に入りは設定タブ内に統合
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: 3タブ（ミニマル）</h3>
+      <p>ホーム・検索・設定の3つ。お気に入りは将来追加か設定内に統合。シンプルさ優先。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="5tabs" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:8px;padding:10px;font-size:11px;color:#cdd6f4">
+        <div style="background:#313244;border-radius:4px;padding:4px;display:flex;justify-content:space-around;margin-bottom:6px">
+          <div style="text-align:center">
+            <div style="font-size:14px">🏠</div>
+            <div style="color:#89b4fa;font-size:8px;border-bottom:2px solid #89b4fa">ホーム</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:14px">🔍</div>
+            <div style="color:#6c7086;font-size:8px">検索</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:14px">🛒</div>
+            <div style="color:#6c7086;font-size:8px">カート</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:14px">❤</div>
+            <div style="color:#6c7086;font-size:8px">お気に入り</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:14px">⚙</div>
+            <div style="color:#6c7086;font-size:8px">設定</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:#f9e2af;background:#181825;border-radius:4px;padding:6px">
+          カートタブを追加（PoC想定）
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: 5タブ（拡張）</h3>
+      <p>ホーム・検索・カート・お気に入り・設定。ECアプリとして完全な構成。タブが多くなるが機能が揃う。</p>
+    </div>
+  </div>
+
+</div>
