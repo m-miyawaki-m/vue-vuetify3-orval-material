@@ -137,21 +137,34 @@
           </template>
         </v-text-field>
 
-        <!-- 複数日付 -->
-        <p class="text-body-2 mb-2">複数日付</p>
-        <v-text-field
-          :model-value="selectedDates.length ? selectedDates.map(formatDate).join(', ') : ''"
-          label="日付を複数選択"
-          variant="outlined"
-          readonly
-          placeholder="日付を選んでください"
-        >
-          <template #append-inner>
-            <v-btn icon="mdi-calendar-multiple" variant="text" density="compact" @click="openMultiple" />
-          </template>
-        </v-text-field>
-        <p class="text-caption text-medium-emphasis mt-1">
-          {{ selectedDates.length ? selectedDates.length + '日選択中' : '未選択' }}
+        <!-- 期間選択 -->
+        <p class="text-body-2 mb-2">期間選択</p>
+        <div class="d-flex align-center gap-2 mb-1">
+          <v-text-field
+            :model-value="rangeStart ? formatDate(rangeStart) : ''"
+            label="開始日"
+            variant="outlined"
+            readonly
+            placeholder="yyyy/mm/dd"
+            hide-details
+            style="flex:1"
+          />
+          <span class="text-body-2 mx-1">〜</span>
+          <v-text-field
+            :model-value="rangeEnd ? formatDate(rangeEnd) : ''"
+            label="終了日"
+            variant="outlined"
+            readonly
+            placeholder="yyyy/mm/dd"
+            hide-details
+            style="flex:1"
+          />
+          <v-btn icon="mdi-calendar-range" variant="tonal" color="primary" class="ml-1" @click="openRange" />
+        </div>
+        <p class="text-caption text-medium-emphasis mt-2">
+          {{ rangeStart && rangeEnd
+            ? formatDate(rangeStart) + ' 〜 ' + formatDate(rangeEnd)
+            : rangeStart ? formatDate(rangeStart) + ' 〜 未選択' : '未選択' }}
         </p>
       </section>
 
@@ -173,21 +186,30 @@
         </v-card>
       </v-dialog>
 
-      <!-- カレンダーダイアログ（複数） -->
-      <v-dialog v-model="multipleDialog" max-width="360">
+      <!-- カレンダーダイアログ（期間） -->
+      <v-dialog v-model="rangeDialog" max-width="360">
         <v-card>
-          <v-card-title class="pt-4 pl-4">日付を複数選択</v-card-title>
+          <v-card-title class="pt-4 pl-4">期間を選択</v-card-title>
+          <v-card-subtitle class="pb-0 pl-4">
+            {{ tempRange.length === 0 ? '開始日をタップ' : tempRange.length === 1 ? '終了日をタップ' : '期間が選択されました' }}
+          </v-card-subtitle>
           <v-date-picker
-            v-model="tempDates"
+            v-model="tempRange"
             color="primary"
             show-adjacent-months
-            multiple
+            multiple="range"
             elevation="0"
           />
           <v-card-actions>
+            <v-btn variant="text" @click="clearRange">クリア</v-btn>
             <v-spacer />
-            <v-btn variant="text" @click="multipleDialog = false">キャンセル</v-btn>
-            <v-btn color="primary" variant="elevated" @click="confirmMultiple">OK</v-btn>
+            <v-btn variant="text" @click="rangeDialog = false">キャンセル</v-btn>
+            <v-btn
+              color="primary"
+              variant="elevated"
+              :disabled="tempRange.length < 2"
+              @click="confirmRange"
+            >OK</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -229,16 +251,17 @@ const prefectures = [
 const categories = ['食品', '電子機器', 'ファッション', '家具', 'スポーツ', '書籍', 'おもちゃ']
 
 // ⑤ カレンダー
-const selectedDate  = ref<Date | null>(null)
-const selectedDates = ref<Date[]>([])
+const selectedDate = ref<Date | null>(null)
+const rangeStart   = ref<Date | null>(null)
+const rangeEnd     = ref<Date | null>(null)
 
 // ダイアログ制御
-const singleDialog   = ref(false)
-const multipleDialog = ref(false)
+const singleDialog = ref(false)
+const rangeDialog  = ref(false)
 
 // ダイアログ内の一時選択値
 const tempDate  = ref<Date | null>(null)
-const tempDates = ref<Date[]>([])
+const tempRange = ref<Date[]>([])
 
 function openSingle() {
   tempDate.value = selectedDate.value
@@ -250,14 +273,19 @@ function confirmSingle() {
   singleDialog.value = false
 }
 
-function openMultiple() {
-  tempDates.value = [...selectedDates.value]
-  multipleDialog.value = true
+function openRange() {
+  tempRange.value = [rangeStart.value, rangeEnd.value].filter(Boolean) as Date[]
+  rangeDialog.value = true
 }
 
-function confirmMultiple() {
-  selectedDates.value = [...tempDates.value]
-  multipleDialog.value = false
+function confirmRange() {
+  rangeStart.value = tempRange.value[0] ?? null
+  rangeEnd.value   = tempRange.value[tempRange.value.length - 1] ?? null
+  rangeDialog.value = false
+}
+
+function clearRange() {
+  tempRange.value = []
 }
 
 function formatDate(d: Date): string {
