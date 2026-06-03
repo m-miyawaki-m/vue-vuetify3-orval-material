@@ -1,115 +1,111 @@
 <template>
-  <v-layout>
-    <AppHeader :title="product?.name ?? '詳細'" :show-back="true" />
-    <v-main>
-      <v-container v-if="product" class="pb-6">
-        <v-tabs v-model="tab" class="mb-4" color="primary">
-          <v-tab value="info">商品情報</v-tab>
-          <v-tab value="reviews">レビュー</v-tab>
-          <v-tab value="related">関連商品</v-tab>
-        </v-tabs>
+  <SubLayout :title="product?.name ?? '詳細'">
+    <v-container v-if="product" class="pb-6">
+      <v-tabs v-model="tab" class="mb-4" color="primary">
+        <v-tab value="info">商品情報</v-tab>
+        <v-tab value="reviews">レビュー</v-tab>
+        <v-tab value="related">関連商品</v-tab>
+      </v-tabs>
 
-        <v-window v-model="tab">
-          <!-- 商品情報タブ -->
-          <v-window-item value="info">
-            <v-card>
-              <v-card-title>{{ product.name }}</v-card-title>
-              <v-card-subtitle>{{ product.category }}</v-card-subtitle>
-              <v-card-text>
-                <p class="text-h5 mb-2">¥{{ product.price.toLocaleString() }}</p>
-                <v-chip
-                  :color="product.inStock ? 'success' : 'error'"
-                  variant="tonal"
-                  class="mb-3"
-                >
-                  {{ product.inStock ? '在庫あり' : '在庫なし' }}
-                </v-chip>
-                <v-rating
-                  :model-value="product.rating"
-                  readonly
-                  color="amber"
-                  class="mb-3"
-                />
-                <p class="text-body-1">{{ product.description }}</p>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn
-                  color="primary"
-                  variant="elevated"
-                  size="large"
-                  :disabled="!product.inStock"
-                  prepend-icon="mdi-cart"
-                >
-                  カートに追加
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-window-item>
-
-          <!-- レビュータブ -->
-          <v-window-item value="reviews">
-            <v-radio-group
-              v-model="reviewFilter"
-              label="評価で絞り込み"
-              inline
-              class="mb-3"
-            >
-              <v-radio label="すべて" :value="0" />
-              <v-radio
-                v-for="n in 5"
-                :key="n"
-                :label="`${n}★`"
-                :value="n"
-              />
-            </v-radio-group>
-            <v-expansion-panels v-if="filteredReviews.length > 0">
-              <v-expansion-panel
-                v-for="review in filteredReviews"
-                :key="review.id"
+      <v-window v-model="tab">
+        <!-- 商品情報タブ -->
+        <v-window-item value="info">
+          <v-card>
+            <v-card-title>{{ product.name }}</v-card-title>
+            <v-card-subtitle>{{ product.category }}</v-card-subtitle>
+            <v-card-text>
+              <p class="text-h5 mb-2">¥{{ product.price.toLocaleString() }}</p>
+              <v-chip
+                :color="product.inStock ? 'success' : 'error'"
+                variant="tonal"
+                class="mb-3"
               >
-                <v-expansion-panel-title>
-                  {{ review.author }}
-                  <v-rating
-                    :model-value="review.rating"
-                    readonly
-                    density="compact"
-                    size="small"
-                    color="amber"
-                    class="ml-2"
-                  />
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>{{ review.comment }}</v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-            <v-alert v-else type="info" variant="tonal">
-              該当するレビューがありません。
-            </v-alert>
-          </v-window-item>
-
-          <!-- 関連商品タブ -->
-          <v-window-item value="related">
-            <template v-if="relatedProducts.length > 0">
-              <ProductCard
-                v-for="p in relatedProducts"
-                :key="p.id"
-                :product="p"
-                @click="goDetail(p)"
-                @detail="goDetail(p)"
+                {{ product.inStock ? '在庫あり' : '在庫なし' }}
+              </v-chip>
+              <v-rating
+                :model-value="product.rating"
+                readonly
+                color="amber"
+                class="mb-3"
               />
-            </template>
-            <v-alert v-else type="info" variant="tonal">
-              関連商品はありません。
-            </v-alert>
-          </v-window-item>
-        </v-window>
-      </v-container>
+              <p class="text-body-1">{{ product.description }}</p>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                variant="elevated"
+                size="large"
+                :disabled="!product.inStock"
+                prepend-icon="mdi-cart"
+              >
+                カートに追加
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-window-item>
 
-      <v-container v-else>
-        <v-alert type="error" variant="tonal">商品が見つかりませんでした。</v-alert>
-      </v-container>
-    </v-main>
-    <AppFooter />
-  </v-layout>
+        <!-- レビュータブ -->
+        <v-window-item value="reviews">
+          <v-radio-group
+            v-model="reviewFilter"
+            label="評価で絞り込み"
+            inline
+            class="mb-3"
+          >
+            <v-radio label="すべて" :value="0" />
+            <v-radio
+              v-for="n in 5"
+              :key="n"
+              :label="`${n}★`"
+              :value="n"
+            />
+          </v-radio-group>
+          <v-expansion-panels v-if="filteredReviews.length > 0">
+            <v-expansion-panel
+              v-for="review in filteredReviews"
+              :key="review.id"
+            >
+              <v-expansion-panel-title>
+                {{ review.author }}
+                <v-rating
+                  :model-value="review.rating"
+                  readonly
+                  density="compact"
+                  size="small"
+                  color="amber"
+                  class="ml-2"
+                />
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>{{ review.comment }}</v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+          <v-alert v-else type="info" variant="tonal">
+            該当するレビューがありません。
+          </v-alert>
+        </v-window-item>
+
+        <!-- 関連商品タブ -->
+        <v-window-item value="related">
+          <template v-if="relatedProducts.length > 0">
+            <ProductCard
+              v-for="p in relatedProducts"
+              :key="p.id"
+              :product="p"
+              @click="goDetail(p)"
+              @detail="goDetail(p)"
+            />
+          </template>
+          <v-alert v-else type="info" variant="tonal">
+            関連商品はありません。
+          </v-alert>
+        </v-window-item>
+      </v-window>
+    </v-container>
+
+    <v-container v-else>
+      <v-alert type="error" variant="tonal">商品が見つかりませんでした。</v-alert>
+    </v-container>
+  </SubLayout>
 </template>
 
 <script setup lang="ts">
@@ -117,8 +113,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import type { Product } from '@/types/product'
-import AppHeader from '@/components/layout/AppHeader.vue'
-import AppFooter from '@/components/layout/AppFooter.vue'
+import SubLayout from '@/components/layout/SubLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 
 const props = defineProps<{ id: string }>()
