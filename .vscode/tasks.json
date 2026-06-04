@@ -1,0 +1,69 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev:browser",
+      "type": "shell",
+      "command": "npm run dev",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "problemMatcher": [],
+      "detail": "Mode 1: Vite dev server をブラウザで開く"
+    },
+    {
+      "label": "build:web",
+      "type": "shell",
+      "command": "npm run build",
+      "problemMatcher": ["$tsc"],
+      "detail": "Vite プロダクションビルド"
+    },
+    {
+      "label": "cap:sync",
+      "type": "shell",
+      "command": "npx cap sync android",
+      "dependsOn": "build:web",
+      "problemMatcher": [],
+      "detail": "ビルド後に Android プロジェクトへ反映"
+    },
+    {
+      "label": "emulator:start",
+      "type": "shell",
+      "command": "${env:ANDROID_HOME}/emulator/emulator -avd Pixel6_API33",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "detail": "AVD を起動（エミュレータ画面が別ウィンドウで開く）"
+    },
+    {
+      "label": "android:livereload",
+      "type": "shell",
+      "command": "npx cap run android --livereload --external",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "problemMatcher": [],
+      "detail": "Mode 2: Vite dev server + APK デプロイ（HMR 有効）"
+    },
+    {
+      "label": "android:build:debug",
+      "type": "shell",
+      "command": ".\\gradlew.bat assembleDebug",
+      "options": { "cwd": "${workspaceFolder}/android" },
+      "dependsOn": "cap:sync",
+      "problemMatcher": [],
+      "detail": "Mode 3: デバッグ APK をビルド"
+    },
+    {
+      "label": "android:install:debug",
+      "type": "shell",
+      "command": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+      "problemMatcher": [],
+      "detail": "Mode 3: 接続中のデバイスに APK をインストール"
+    },
+    {
+      "label": "android:open",
+      "type": "shell",
+      "command": "npx cap open android",
+      "dependsOn": "cap:sync",
+      "problemMatcher": [],
+      "detail": "Mode 4: Android Studio でリリースビルド・署名・Logcat"
+    }
+  ]
+}
