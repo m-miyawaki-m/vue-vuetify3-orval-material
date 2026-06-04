@@ -11,7 +11,7 @@
 | ツール | バージョン | 根拠 |
 |---|---|---|
 | Android Studio | Ladybug (2024.2.1) | メモリ制約・AGP 8.5-8.7 対応範囲 |
-| JDK | **21** (Android Studio 内蔵 JBR 21 を使用) | @capacitor/android 7.6.6 が VERSION_21 を生成するため。別途インストール不要 |
+| JDK | **21 (Temurin/Corretto)** | @capacitor/android 7.6.6 が VERSION_21 を生成するため。AS に依存しない独立インストールが必要 |
 | AGP (Android Gradle Plugin) | **8.7.2** | Capacitor 7.6.6 デフォルト生成値（Ladybug 互換） |
 | Gradle | ~8.7 | AGP 8.7 対応 |
 | Capacitor | **7.6.6** (N-1 サポート) | Java 21 互換・安定版 |
@@ -169,7 +169,7 @@ VSCode: task → android:open
 ## 5. 環境変数（Windows システム環境変数）
 
 ```
-JAVA_HOME    = C:\Program Files\Eclipse Adoptium\jdk-17.x.x-hotspot
+JAVA_HOME    = C:\Program Files\Eclipse Adoptium\jdk-21.x.x-hotspot
 ANDROID_HOME = C:\Users\<username>\AppData\Local\Android\Sdk
 
 PATH に追加:
@@ -185,7 +185,7 @@ PATH に追加:
 
 ### フェーズ 1: オンライン機でキャッシュ育成
 
-1. JDK 17 / Android Studio Ladybug / Node.js 22 / VSCode をインストール
+1. JDK 21 / Android Studio Ladybug / Node.js 22 / VSCode をインストール
 2. 環境変数を設定
 3. Android Studio SDK Manager で以下をインストール:
    - `platforms/android-33` (実機ターゲット)
@@ -201,7 +201,7 @@ PATH に追加:
 ```
 📦 offline-package/
 ├── installers/
-│   ├── jdk-17_windows-x64_bin.msi
+│   ├── jdk-21_windows-x64_bin.msi
 │   ├── android-studio-2024.2.1.xx-windows.exe
 │   ├── node-v22.x.x-x64.msi
 │   └── VSCodeSetup-x64.exe
@@ -216,7 +216,7 @@ PATH に追加:
 
 ```powershell
 # 1. インストーラを順番に実行
-#    JDK 17 → Node.js 22 → Android Studio Ladybug → VSCode
+#    JDK 21 → Node.js 22 → Android Studio Ladybug → VSCode
 
 # 2. SDK・キャッシュを復元
 xcopy /E /I offline-package\android-sdk  "$env:LOCALAPPDATA\Android\Sdk"
