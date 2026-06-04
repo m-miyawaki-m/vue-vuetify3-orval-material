@@ -11,10 +11,10 @@
 | ツール | バージョン | 根拠 |
 |---|---|---|
 | Android Studio | Ladybug (2024.2.1) | メモリ制約・AGP 8.5-8.7 対応範囲 |
-| JDK | 17 (Temurin/Corretto) | Capacitor 7 必須最小、LTS |
-| AGP (Android Gradle Plugin) | ~8.5-8.7 | Capacitor 7 デフォルト生成値 |
-| Gradle | ~8.7 | AGP 8.5-8.7 対応 |
-| Capacitor | 7.x (N-1 サポート) | Java 17 互換・安定版 |
+| JDK | **21** (Android Studio 内蔵 JBR 21 を使用) | @capacitor/android 7.6.6 が VERSION_21 を生成するため。別途インストール不要 |
+| AGP (Android Gradle Plugin) | **8.7.2** | Capacitor 7.6.6 デフォルト生成値（Ladybug 互換） |
+| Gradle | ~8.7 | AGP 8.7 対応 |
+| Capacitor | **7.6.6** (N-1 サポート) | Java 21 互換・安定版 |
 | compileSdk / targetSdk | 35 (Android 15) | Capacitor 7 デフォルト |
 | minSdk | 23 (Android 6.0) | Capacitor 7 デフォルト |
 | Node.js | 22 LTS | Vue 3 / Vite 推奨 |
