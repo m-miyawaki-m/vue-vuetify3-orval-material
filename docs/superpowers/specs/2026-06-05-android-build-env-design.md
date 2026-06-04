@@ -139,7 +139,8 @@ VSCode: task → android:open
     {
       "label": "android:build:debug",
       "type": "shell",
-      "command": "cd android && .\\gradlew.bat assembleDebug",
+      "command": ".\\gradlew.bat assembleDebug",
+      "options": { "cwd": "${workspaceFolder}/android" },
       "dependsOn": "cap:sync",
       "problemMatcher": [],
       "detail": "Mode 3: デバッグ APK をビルド"
