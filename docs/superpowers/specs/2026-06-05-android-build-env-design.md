@@ -18,7 +18,7 @@
 | compileSdk / targetSdk | 35 (Android 15) | Capacitor 7 デフォルト |
 | minSdk | 23 (Android 6.0) | Capacitor 7 デフォルト |
 | Node.js | 22 LTS | Vue 3 / Vite 推奨 |
-| Vite | ^5 or ^6 | Capacitor 7 と相性よい安定版 |
+| Vite | ^8.0.0 | プロジェクト採用バージョン（Cap 7 は dist/ を使うだけなので互換あり） |
 | Vuetify | 4.x | 対象フレームワーク |
 
 > WebView 120-130 on Android 13 は compileSdk 35 / minSdk 23 でカバーされる。  
