@@ -1,3 +1,23 @@
+// Centralize plugin classpath resolution (suppresses duplicate buildscript{} in Capacitor plugin subprojects)
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+// Centralize dependency repository resolution.
+// PREFER_SETTINGS: settings repos take precedence; subproject repositories{} blocks are ignored without error.
+// FAIL_ON_PROJECT_REPOS would break Capacitor plugins that declare their own repositories{}.
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')

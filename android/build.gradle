@@ -17,12 +17,7 @@ buildscript {
 
 apply from: "variables.gradle"
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+// allprojects repositories{} is superseded by dependencyResolutionManagement in settings.gradle
 
 task clean(type: Delete) {
     delete rootProject.buildDir

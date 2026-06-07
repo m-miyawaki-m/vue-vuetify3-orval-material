@@ -1,6 +1,8 @@
 {
   "recommendations": [
+    "vue.volar",
     "vuetifyjs.vuetify-vscode",
-    "vue.volar"
+    "vscjava.vscode-gradle",
+    "redhat.vscode-xml"
   ]
 }
