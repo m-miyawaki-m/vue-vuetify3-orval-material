@@ -72,7 +72,7 @@
           <v-list density="compact" bg-color="transparent">
             <v-list-item
               v-for="(item, i) in results"
-              :key="i"
+              :key="`${item.timestamp}-${item.text}`"
               :title="item.text"
               :subtitle="item.format"
             >

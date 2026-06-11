@@ -1,6 +1,6 @@
 import { ref, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
-import { BrowserMultiFormatReader } from '@zxing/browser'
+import { BrowserMultiFormatReader, BarcodeFormat } from '@zxing/browser'
 import type { ScanResult } from '@/types/scanner'
 
 const SCAN_COOLDOWN_MS = 1500
@@ -23,6 +23,7 @@ export function useBarcodeScanner(
 
   async function start() {
     if (!videoRef.value) return
+    if (isScanning.value) stop()
     error.value = null
     try {
       const reader = new BrowserMultiFormatReader()
@@ -36,10 +37,8 @@ export function useBarcodeScanner(
           if (text === lastScanText && now - lastScanTime < SCAN_COOLDOWN_MS) return
           lastScanText = text
           lastScanTime = now
-          // BarcodeFormat は数値 enum。逆引きで名前文字列を取得する
           const fmtNum = result.getBarcodeFormat() as number
-          const fmtName: string = (BrowserMultiFormatReader as any).BarcodeFormat?.[fmtNum]
-            ?? String(fmtNum)
+          const fmtName: string = BarcodeFormat[fmtNum] ?? String(fmtNum)
           options.onScan({ text, format: fmtName, timestamp: now })
         }
       ) as ScannerControls
@@ -51,6 +50,8 @@ export function useBarcodeScanner(
           e.name === 'NotAllowedError' ? 'カメラへのアクセスが拒否されました。設定から許可してください。' :
           e.name === 'NotFoundError'   ? 'カメラが見つかりません。' :
                                          'カメラの起動に失敗しました。'
+      } else {
+        error.value = 'カメラの起動に失敗しました。'
       }
     }
   }
