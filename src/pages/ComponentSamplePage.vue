@@ -701,6 +701,83 @@
         </v-card>
       </v-dialog>
 
+      <v-divider class="mb-8" />
+
+      <!-- ⑩ バーコードスキャナー -->
+      <section class="mb-8">
+        <p class="text-overline text-medium-emphasis mb-2">バーコード スキャナー</p>
+        <p class="text-caption text-medium-emphasis mb-4">
+          カメラを使ってバーコード・QRコードをリアルタイムで読み取ります。
+          <code>npm run dev</code> のブラウザ環境でもWebカメラで動作確認できます。
+        </p>
+
+        <!-- BarcodeInputField（single モード） -->
+        <v-card variant="outlined" class="mb-4 pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">フォーム入力補助（BarcodeInputField）</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            テキストフィールド右端のアイコンをタップするとカメラが起動します。
+            読み取ったコードが自動入力されます。
+          </p>
+          <BarcodeInputField
+            v-model="scannedCode"
+            label="バーコード / QR"
+            variant="outlined"
+            clearable
+          />
+          <p v-if="scannedCode" class="text-caption text-medium-emphasis mt-1">
+            入力値: {{ scannedCode }}
+          </p>
+        </v-card>
+
+        <!-- 連続スキャン → テーブル -->
+        <v-card variant="outlined" class="pa-4">
+          <p class="text-subtitle-2 font-weight-bold mb-1">連続スキャン → テーブル追加（BarcodeScannerOverlay）</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            「連続スキャン」ボタンで複数のコードを続けて読み取り、完了するとテーブルに一括追加します。
+          </p>
+          <div class="d-flex align-center gap-3 mb-3">
+            <v-btn
+              color="primary"
+              variant="tonal"
+              prepend-icon="mdi-barcode-scan"
+              @click="scannerOpen = true"
+            >連続スキャン</v-btn>
+            <v-btn
+              v-if="scanTableRows.length"
+              variant="text"
+              color="error"
+              size="small"
+              @click="scanTableRows = []"
+            >テーブルクリア</v-btn>
+          </div>
+          <v-data-table
+            v-if="scanTableRows.length"
+            :headers="[
+              { title: '読み取り値', key: 'text' },
+              { title: 'フォーマット', key: 'format' },
+              { title: '時刻', key: 'timestamp' },
+            ]"
+            :items="scanTableRows.map(r => ({
+              text: r.text,
+              format: r.format,
+              timestamp: new Date(r.timestamp).toLocaleTimeString(),
+            }))"
+            density="compact"
+            class="elevation-0"
+          />
+          <p v-else class="text-caption text-medium-emphasis">
+            スキャン結果がここに表示されます。
+          </p>
+        </v-card>
+      </section>
+
+      <!-- ⑩ BarcodeScannerOverlay -->
+      <BarcodeScannerOverlay
+        v-model="scannerOpen"
+        mode="continuous"
+        @complete="scanTableRows.push(...$event)"
+      />
+
     </v-container>
   </SubLayout>
 </template>
@@ -711,6 +788,9 @@ import SubLayout from '@/components/layout/SubLayout.vue'
 import TimeWheelPicker from '@/components/ui/TimeWheelPicker.vue'
 import BaseDialog from '@/components/dialog/BaseDialog.vue'
 import ConfirmDialog from '@/components/dialog/ConfirmDialog.vue'
+import BarcodeScannerOverlay from '@/components/scanner/BarcodeScannerOverlay.vue'
+import BarcodeInputField from '@/components/scanner/BarcodeInputField.vue'
+import type { ScanResult } from '@/types/scanner'
 
 // ① アコーディオン
 const accordion       = ref<string | null>(null)
@@ -888,4 +968,9 @@ function confirmWheelRange() {
   wheelRangeEnd.value   = tempWheelRangeEnd.value
   wheelRangeDialog.value = false
 }
+
+// ⑩ バーコードスキャナー
+const scannerOpen    = ref(false)
+const scannedCode    = ref('')
+const scanTableRows  = ref<ScanResult[]>([])
 </script>
