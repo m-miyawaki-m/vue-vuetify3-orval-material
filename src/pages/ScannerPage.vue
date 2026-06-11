@@ -1,25 +1,17 @@
 <template>
-  <v-overlay
-    v-model="model"
-    :scrim="false"
-    persistent
-    class="align-start justify-start"
-    style="z-index: 300;"
-  >
-    <div
-      class="d-flex flex-column"
-      style="width: 100vw; height: 100dvh; background: #000; overflow: hidden;"
-    >
+  <v-layout>
+    <div class="d-flex flex-column" style="width: 100%; height: 100dvh; background: #000; overflow: hidden;">
+
       <!-- ツールバー -->
       <div
         class="d-flex align-center px-3"
         style="height: 52px; background: rgba(0,0,0,0.75); flex-shrink: 0;"
       >
-        <v-btn icon variant="text" color="white" size="small" @click="onCancel">
+        <v-btn icon variant="text" color="white" size="small" @click="store.cancel()">
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
         <span class="flex-1-1 text-center text-white text-body-1 font-weight-bold">
-          {{ title }}
+          {{ store.title ?? 'バーコード スキャン' }}
         </span>
         <v-btn
           icon
@@ -44,7 +36,6 @@
           playsinline
           style="width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0;"
         />
-        <!-- スキャン枠 -->
         <div class="scanner-frame" aria-hidden="true">
           <div class="corner tl" />
           <div class="corner tr" />
@@ -52,7 +43,6 @@
           <div class="corner br" />
           <div class="scanline" />
         </div>
-        <!-- エラー表示 -->
         <div
           v-if="error"
           class="d-flex flex-column align-center justify-center pa-4"
@@ -64,7 +54,7 @@
       </div>
 
       <!-- continuous モード: 履歴リスト -->
-      <template v-if="mode === 'continuous'">
+      <template v-if="store.mode === 'continuous'">
         <div style="flex: 1; overflow-y: auto; background: #111;">
           <p class="text-caption text-medium-emphasis pa-2 pb-1">
             スキャン済み（{{ results.length }}件）
@@ -90,7 +80,6 @@
             </v-list-item>
           </v-list>
         </div>
-        <!-- アクションバー -->
         <div
           class="d-flex align-center gap-2 pa-2"
           style="background: rgba(0,0,0,0.85); flex-shrink: 0;"
@@ -110,73 +99,48 @@
           >完了（{{ results.length }}件）</v-btn>
         </div>
       </template>
+
     </div>
-  </v-overlay>
+  </v-layout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useScannerStore } from '@/stores/scannerStore'
 import { useBarcodeScanner } from '@/composables/useBarcodeScanner'
 import type { ScanResult } from '@/types/scanner'
 
-const props = withDefaults(defineProps<{
-  mode: 'single' | 'continuous'
-  title?: string
-}>(), {
-  title: 'バーコード スキャン',
-})
-
-const emit = defineEmits<{
-  scan: [result: ScanResult]
-  complete: [results: ScanResult[]]
-}>()
-
-const model = defineModel<boolean>()
+const store = useScannerStore()
 const videoRef = ref<HTMLVideoElement | null>(null)
 const results = ref<ScanResult[]>([])
 const torchOn = ref(false)
 
 const { start, stop, error, torchAvailable, switchTorch } = useBarcodeScanner(videoRef, {
   onScan(result) {
-    emit('scan', result)
-    if (props.mode === 'continuous') {
+    if (store.mode === 'continuous') {
       results.value.push(result)
     } else {
-      // single: 読み取り完了 → 自動クローズ（stop は watch の else 節で呼ばれる）
-      model.value = false
+      store.complete([result])
     }
   },
 })
 
 const cameraAreaStyle = computed(() => ({
-  height: props.mode === 'continuous' ? '45%' : 'calc(100dvh - 52px)',
+  height: store.mode === 'continuous' ? '45%' : 'calc(100dvh - 52px)',
   flexShrink: '0',
 }))
 
-watch(model, async (open) => {
-  if (open) {
-    results.value = []
-    torchOn.value = false
-    await nextTick()
-    await start()
-  } else {
-    stop()
-  }
-})
-
-function onCancel() {
-  model.value = false
-}
-
 function onComplete() {
-  emit('complete', [...results.value])
-  model.value = false
+  store.complete([...results.value])
 }
 
 async function onToggleTorch() {
   torchOn.value = !torchOn.value
   await switchTorch(torchOn.value)
 }
+
+onMounted(start)
+onUnmounted(stop)
 </script>
 
 <style scoped>

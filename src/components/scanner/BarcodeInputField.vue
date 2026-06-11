@@ -16,23 +16,16 @@
         variant="text"
         :disabled="disabled"
         tabindex="-1"
-        @click.stop="scannerOpen = true"
+        @click.stop="openScanner"
       >
         <v-icon>mdi-barcode-scan</v-icon>
       </v-btn>
     </template>
   </v-text-field>
-
-  <BarcodeScannerOverlay
-    v-model="scannerOpen"
-    mode="single"
-    @scan="onScan"
-  />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import BarcodeScannerOverlay from './BarcodeScannerOverlay.vue'
+import { useScannerStore } from '@/stores/scannerStore'
 import type { ScanResult } from '@/types/scanner'
 
 defineOptions({ inheritAttrs: false })
@@ -55,10 +48,13 @@ const emit = defineEmits<{
   'scan': [result: ScanResult]
 }>()
 
-const scannerOpen = ref(false)
+const store = useScannerStore()
 
-function onScan(result: ScanResult) {
-  emit('update:modelValue', result.text)
-  emit('scan', result)
+function openScanner() {
+  store.requestScan('single', ([result]) => {
+    if (!result) return
+    emit('update:modelValue', result.text)
+    emit('scan', result)
+  })
 }
 </script>

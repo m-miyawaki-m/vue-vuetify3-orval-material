@@ -5,6 +5,7 @@ import DetailPage from '@/pages/DetailPage.vue'
 import FavoritePage from '@/pages/FavoritePage.vue'
 import SettingsPage from '@/pages/SettingsPage.vue'
 import ComponentSamplePage from '@/pages/ComponentSamplePage.vue'
+import ScannerPage from '@/pages/ScannerPage.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -15,6 +16,7 @@ const router = createRouter({
     { path: '/settings',   component: SettingsPage         },
     { path: '/detail/:id', component: DetailPage, props: true },
     { path: '/samples',    component: ComponentSamplePage  },
+    { path: '/scanner',    component: ScannerPage          },
   ],
 })
 

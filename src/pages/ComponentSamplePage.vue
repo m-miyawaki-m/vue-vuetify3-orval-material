@@ -740,7 +740,7 @@
               color="primary"
               variant="tonal"
               prepend-icon="mdi-barcode-scan"
-              @click="scannerOpen = true"
+              @click="scannerStore.requestScan('continuous', r => scanTableRows.push(...r))"
             >連続スキャン</v-btn>
             <v-btn
               v-if="scanTableRows.length"
@@ -771,13 +771,6 @@
         </v-card>
       </section>
 
-      <!-- ⑩ BarcodeScannerOverlay -->
-      <BarcodeScannerOverlay
-        v-model="scannerOpen"
-        mode="continuous"
-        @complete="scanTableRows.push(...$event)"
-      />
-
     </v-container>
   </SubLayout>
 </template>
@@ -788,8 +781,8 @@ import SubLayout from '@/components/layout/SubLayout.vue'
 import TimeWheelPicker from '@/components/ui/TimeWheelPicker.vue'
 import BaseDialog from '@/components/dialog/BaseDialog.vue'
 import ConfirmDialog from '@/components/dialog/ConfirmDialog.vue'
-import BarcodeScannerOverlay from '@/components/scanner/BarcodeScannerOverlay.vue'
 import BarcodeInputField from '@/components/scanner/BarcodeInputField.vue'
+import { useScannerStore } from '@/stores/scannerStore'
 import type { ScanResult } from '@/types/scanner'
 
 // ① アコーディオン
@@ -970,7 +963,7 @@ function confirmWheelRange() {
 }
 
 // ⑩ バーコードスキャナー
-const scannerOpen    = ref(false)
+const scannerStore   = useScannerStore()
 const scannedCode    = ref('')
 const scanTableRows  = ref<ScanResult[]>([])
 </script>
