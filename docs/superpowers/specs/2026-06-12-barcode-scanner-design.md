@@ -48,6 +48,10 @@ BarcodeScannerOverlay.vue（単体でも使用可）
 ## 型定義（`types/scanner.ts`）
 
 ```ts
+import type { BarcodeFormat } from '@zxing/browser'
+
+export type { BarcodeFormat }  // @zxing/browser の BarcodeFormat enum を再エクスポート
+
 export interface ScanResult {
   text: string       // 読み取り結果文字列
   format: string     // 'QR_CODE' | 'EAN_13' | 'CODE_128' など
@@ -78,8 +82,10 @@ export interface ScanResult {
 
 ### モード別の動作
 
-- **single**: 1件読み取ったら `scan` emit → 自動クローズ
-- **continuous**: 読むたびに `scan` emit、内部履歴リストへ追加。「完了」押下で `complete` emit → クローズ。履歴内の各行に「× 削除」ボタンを持ち完了前に誤読みを除外できる
+- **single**: 1件読み取ったら `scan` emit → 自動クローズ。キャンセルボタン押下は何も emit せず閉じるのみ。
+- **continuous**: 読むたびに `scan` emit、内部履歴リストへ追加。「完了」押下で `complete` emit → クローズ。キャンセル押下は `complete` を emit せず閉じるのみ。履歴内の各行に「× 削除」ボタンを持ち完了前に誤読みを除外できる。
+
+> `complete` emit は continuous モード専用。single モードには存在しない。
 
 ### UI構成
 
