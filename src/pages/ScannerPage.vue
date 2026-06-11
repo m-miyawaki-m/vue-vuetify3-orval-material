@@ -115,11 +115,17 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const results = ref<ScanResult[]>([])
 const torchOn = ref(false)
 
+// Guard: prevent ZXing callback re-firing between complete() and actual unmount
+let completing = false
+
 const { start, stop, error, torchAvailable, switchTorch } = useBarcodeScanner(videoRef, {
   onScan(result) {
+    if (completing) return
     if (store.mode === 'continuous') {
       results.value.push(result)
     } else {
+      completing = true
+      stop()              // stop ZXing immediately before navigating
       store.complete([result])
     }
   },
@@ -131,6 +137,9 @@ const cameraAreaStyle = computed(() => ({
 }))
 
 function onComplete() {
+  if (completing) return
+  completing = true
+  stop()
   store.complete([...results.value])
 }
 
