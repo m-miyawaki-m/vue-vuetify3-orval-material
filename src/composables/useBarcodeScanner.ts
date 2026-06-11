@@ -1,6 +1,7 @@
 import { ref, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
 import { BrowserMultiFormatReader, BarcodeFormat } from '@zxing/browser'
+import { DecodeHintType } from '@zxing/library'
 import type { ScanResult } from '@/types/scanner'
 
 const SCAN_COOLDOWN_MS = 1500
@@ -26,7 +27,9 @@ export function useBarcodeScanner(
     if (isScanning.value) stop()
     error.value = null
     try {
-      const reader = new BrowserMultiFormatReader()
+      const hints = new Map<DecodeHintType, unknown>()
+      hints.set(DecodeHintType.TRY_HARDER, true)
+      const reader = new BrowserMultiFormatReader(hints)
       controls = await reader.decodeFromVideoDevice(
         undefined,
         videoRef.value,
