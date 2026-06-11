@@ -207,14 +207,9 @@ async function onToggleTorch() {
   position: absolute;
   left: 12px;
   right: 12px;
+  top: 50%;
   height: 2px;
-  background: linear-gradient(to right, transparent, #00e676, transparent);
-  box-shadow: 0 0 6px #00e676;
-  animation: scanline 1.8s ease-in-out infinite;
-}
-
-@keyframes scanline {
-  0%, 100% { top: 14px; }
-  50%       { top: calc(100% - 16px); }
+  background: linear-gradient(to right, transparent, #f44336, transparent);
+  box-shadow: 0 0 6px #f44336;
 }
 </style>
