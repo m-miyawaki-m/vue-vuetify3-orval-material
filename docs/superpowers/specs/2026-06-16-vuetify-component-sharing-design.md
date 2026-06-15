@@ -141,17 +141,156 @@ theme.global.name.value = 'light'   // 'dark' | 'light' | 'practice'
 - `color="#E65100"` のように**hex を直書き**する → テーマを切り替えても変わらない（固定）
 - **ルール：テーマで一括管理したいものはセマンティック名、意図的に固定したいものだけ直値**
 
+#### テーマで制御できる範囲（実測値）
+
+| 項目 | 制御できるか | 手段 |
+|---|---|---|
+| 罫線の透明度 | ✅ | `variables['border-opacity']`（デフォルト 0.12） |
+| 罫線の色 | ⚠️ 間接的のみ | `on-surface` カラーを変える（直接の border-color 変数はない） |
+| 文字の色 | ✅ | `on-surface` / `on-background` セマンティックカラー |
+| 文字の強調度 | ✅ | `variables['high-emphasis-opacity']` / `['medium-emphasis-opacity']` |
+| フォントファミリー | ✅ | `variables['--v-font-body']` / `['--v-font-heading']` |
+| フォントサイズ | ❌ Vuetify管轄外 | `.text-h1` 等はCSSハードコード。グローバルCSS上書きが必要 |
+| カスタム変数 | ✅ 自由に追加 | `variables` に任意キーを追加 → `--v-{key}` として生成される |
+
 #### 共通化との相乗効果
 - `MainLayout` の `v-app-bar color="primary"` はセマンティック名のため、テーマ変更で**全ページのAppBarが一括更新**される
 - コンポーネントを共通化せず各ページに `color="#1565C0"` と直書きしていると、テーマ切り替えの恩恵が届かない
 - **「コンポーネント共通化」×「セマンティックカラー」×「テーマ変数」= 1箇所の変更がアプリ全体に伝わる設計**
 
-### 第7章：まとめ
+### 第7章：通信の共通化 — Orval 連携
+
+**伝えたいこと:** コンポーネント共通化と同じ思想で、API 通信も「1箇所に集約して共通化」できる。Orval を使うと OpenAPI 定義から型付きAPI関数が自動生成され、手書きの通信コードがゼロになる。
+
+#### 現状と目指す構成
+
+**現状（モック直参照）:**
+```
+Pinia Store → mockProducts（ハードコード）
+```
+
+**目標（Orval 連携後）:**
+```
+Pinia Store → Orval 生成API関数 → axios カスタムインスタンス → バックエンド
+                                   ↑
+                            共通の認証ヘッダ・エラー処理・タイムアウト
+```
+
+#### 4つの層と共通化の責任範囲
+
+| 層 | ファイル | 共通化する内容 |
+|---|---|---|
+| HTTPクライアント | `src/lib/axios.ts` | baseURL・認証ヘッダ・インターセプター（401 リダイレクト等） |
+| API関数（自動生成） | `src/api/` | Orval が OpenAPI から生成。手書き不要 |
+| 状態管理 | `src/stores/` | Pinia store がAPI関数を呼ぶ。ローディング・エラー状態を持つ |
+| UI層 | `src/pages/`, `src/components/` | Store だけを見る。APIを直接呼ばない |
+
+#### HTTPクライアントの共通化（`src/lib/axios.ts`）
+
+```ts
+import axios from 'axios'
+
+export const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 10000,
+})
+
+// 共通リクエスト処理（認証トークン付与）
+apiClient.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// 共通エラー処理（401 で自動ログアウト等）
+apiClient.interceptors.response.use(
+  res => res,
+  err => {
+    if (err.response?.status === 401) router.push('/login')
+    return Promise.reject(err)
+  }
+)
+```
+
+#### Orval 設定（`orval.config.ts`）
+
+```ts
+export default defineConfig({
+  product: {
+    input: './openapi/product.yaml',
+    output: {
+      target: './src/api/product.ts',
+      client: 'axios',
+      override: {
+        mutator: {
+          path: './src/lib/axios.ts', // カスタムインスタンスを使う
+          name: 'apiClient',
+        },
+      },
+    },
+  },
+})
+```
+
+→ `npx orval` で `src/api/product.ts` に型付き関数が自動生成される。
+
+#### Store での呼び出しパターン（`src/stores/product.ts`）
+
+```ts
+import { getProducts, getProductById } from '@/api/product'
+
+export const useProductStore = defineStore('product', () => {
+  const products = ref<Product[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  async function fetchProducts() {
+    loading.value = true
+    error.value = null
+    try {
+      const res = await getProducts()
+      products.value = res.data
+    } catch (e) {
+      error.value = 'データの取得に失敗しました'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { products, loading, error, fetchProducts }
+})
+```
+
+#### モックからの移行パス
+
+開発フェーズに応じて段階的に切り替えられる：
+
+| フェーズ | データソース | 切り替え方法 |
+|---|---|---|
+| 現在 | `mockProducts`（ハードコード） | — |
+| API開発中 | MSW（Mock Service Worker） | Orval の `mock: true` オプションで自動生成 |
+| 本番 | 実API | `VITE_API_BASE_URL` を環境変数で切り替え |
+
+#### Store が持つべき状態（共通パターン）
+
+```ts
+const data = ref([])      // APIレスポンス
+const loading = ref(false) // 通信中フラグ（v-skeleton-loaderと連動）
+const error = ref(null)    // エラーメッセージ（v-alertと連動）
+```
+
+UI コンポーネントはこの3つを store から受け取るだけでよい。
+
+### 第8章：まとめ
 
 - 共通化の3つのメリット：保守性・一貫性・開発速度
 - テーマ機能との相乗効果：共通化した部品が CSS変数を通じてテーマに追従する
-- このプロジェクトの構成まとめ（レイアウト / UIコンポーネント / Composable / テーマ の4層）
-- チームへの適用方針：「新規ページは MainLayout か SubLayout を選ぶ・色は直書きせず `color="primary"` 等を使う」
+- 通信の共通化：Orval で型安全・Store で状態一元管理・UIはAPIを直接呼ばない
+- このプロジェクトの構成まとめ（レイアウト / UIコンポーネント / Composable / テーマ / 通信 の5層）
+- チームへの適用方針：
+  - 新規ページは `MainLayout` か `SubLayout` を選ぶ
+  - 色は直書きせず `color="primary"` 等セマンティック名を使う
+  - API 通信は必ず Store 経由・Orval 生成関数を使う
 
 ---
 
@@ -193,3 +332,5 @@ theme.global.name.value = 'light'   // 'dark' | 'light' | 'practice'
 | `src/components/dialog/BaseDialog.vue` | 第4章継承パターン例 |
 | `src/components/dialog/ConfirmDialog.vue` | 第4章継承パターン例 |
 | `src/plugins/vuetify.ts` | 第6章テーマ定義例 |
+| `orval.config.ts` | 第7章Orval設定例 |
+| `src/stores/product.ts` | 第7章Store連携例 |
