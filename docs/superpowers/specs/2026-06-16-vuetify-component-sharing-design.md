@@ -281,12 +281,127 @@ const error = ref(null)    // エラーメッセージ（v-alertと連動）
 
 UI コンポーネントはこの3つを store から受け取るだけでよい。
 
-### 第8章：まとめ
+### 第8章：Store の設計方針共通化 — Pinia
+
+**伝えたいこと:** Store は「何でも入れる箱」ではない。種類・責務・書き方を統一することで、チーム間の理解のずれをなくす。
+
+#### このプロジェクトの Store 一覧（実例）
+
+| Store | ファイル | 種類 | 責務 |
+|---|---|---|---|
+| `useProductStore` | `stores/product.ts` | データStore | 商品一覧・フィルター・ページング |
+| `useThemeStore` | `stores/theme.ts` | UI設定Store | テーマ選択・localStorage永続化 |
+| `useScannerStore` | `stores/scannerStore.ts` | 機能連携Store | スキャナーページへの遷移フロー調整 |
+
+#### ルール1：Setup Store 記法に統一する
+
+Pinia には2つの書き方があるが、**このプロジェクトは Setup Store（Composition スタイル）に統一する**。
+
+```ts
+// ❌ Options Store（使わない）
+export const useXxxStore = defineStore('xxx', {
+  state: () => ({ count: 0 }),
+  actions: { increment() { this.count++ } },
+})
+
+// ✅ Setup Store（これを使う）
+export const useXxxStore = defineStore('xxx', () => {
+  const count = ref(0)
+  function increment() { count.value++ }
+  return { count, increment }
+})
+```
+
+理由：Composition API との一貫性・型推論が強い・`<script setup>` と同じ感覚で書ける。
+
+#### ルール2：Store の種類と責務を把握する
+
+**① データStore**（`useProductStore` が代表例）
+
+外部データの取得・加工・フィルタリングを担う。常に `loading` / `error` / `data` の3点セットを持つ。
+
+```ts
+const products = ref<Product[]>([])
+const loading  = ref(false)
+const error    = ref<string | null>(null)
+```
+
+**② UI設定Store**（`useThemeStore` が代表例）
+
+ページをまたいで共有が必要な UI 状態。永続化が必要なものは localStorage に保存する。
+
+```ts
+const saved = localStorage.getItem(STORAGE_KEY) as AppTheme | null
+const currentTheme = ref<AppTheme>(saved ?? 'dark')
+
+function setTheme(theme: AppTheme) {
+  currentTheme.value = theme
+  localStorage.setItem(STORAGE_KEY, theme)  // 同時に保存
+}
+```
+
+**③ 機能連携Store**（`useScannerStore` が代表例）
+
+ページ間の処理フローをつなぐ。コールバックやナビゲーションを仲介する役割。
+
+```ts
+let _callback: ((results: ScanResult[]) => void) | null = null  // コールバックは非リアクティブで持つ
+
+function requestScan(mode, cb) {
+  _callback = cb
+  router.push('/scanner')  // スキャナーページへ遷移
+}
+function complete(results) {
+  _callback?.(results)     // 呼び出し元に結果を返す
+  router.back()
+}
+```
+
+#### ルール3：Store に入れてよいもの・いけないもの
+
+| 入れてよい | 入れてはいけない |
+|---|---|
+| APIレスポンスデータ | コンポーネント固有の開閉状態（`v-dialog` の `model-value` など） |
+| ページをまたぐ共有状態 | 一時的なフォーム入力値 |
+| 永続化が必要なUI設定 | DOM参照（`ref` で取る要素） |
+| ページ間の処理フロー | 他Storeの状態を二重に保持（派生値は `computed` で） |
+
+**判断基準：「このデータは2つ以上のページ/コンポーネントで共有するか？」** → Yesなら Store、NoならコンポーネントのローカルStateで十分。
+
+#### ルール4：コンポーネントからの使い方
+
+```ts
+import { storeToRefs } from 'pinia'
+import { useProductStore } from '@/stores/product'
+
+const store = useProductStore()
+
+// ✅ リアクティブな状態は storeToRefs で分割代入
+const { products, loading, error } = storeToRefs(store)
+
+// ✅ アクションはそのまま分割代入（リアクティビティ不要）
+const { fetchProducts, resetPage } = store
+
+// ❌ これはリアクティビティが失われる
+const { products } = store  // NG — ref でラップされない
+```
+
+#### 命名規則
+
+| 対象 | 規則 | 例 |
+|---|---|---|
+| Store 関数 | `use〇〇Store` | `useProductStore` |
+| Store ID | 小文字キャメル | `'product'`, `'theme'`, `'scanner'` |
+| State | `ref` / `reactive` | `const products = ref([])` |
+| Getter | `computed` | `const filteredProducts = computed(...)` |
+| Action | 動詞から始まる関数 | `fetchProducts`, `setTheme`, `resetPage` |
+
+### 第9章：まとめ
 
 - 共通化の3つのメリット：保守性・一貫性・開発速度
 - テーマ機能との相乗効果：共通化した部品が CSS変数を通じてテーマに追従する
 - 通信の共通化：Orval で型安全・Store で状態一元管理・UIはAPIを直接呼ばない
-- このプロジェクトの構成まとめ（レイアウト / UIコンポーネント / Composable / テーマ / 通信 の5層）
+- このプロジェクトの構成まとめ（レイアウト / UIコンポーネント / Composable / テーマ / 通信 / Store の6層）
 - チームへの適用方針：
   - 新規ページは `MainLayout` か `SubLayout` を選ぶ
   - 色は直書きせず `color="primary"` 等セマンティック名を使う
@@ -333,4 +448,6 @@ UI コンポーネントはこの3つを store から受け取るだけでよい
 | `src/components/dialog/ConfirmDialog.vue` | 第4章継承パターン例 |
 | `src/plugins/vuetify.ts` | 第6章テーマ定義例 |
 | `orval.config.ts` | 第7章Orval設定例 |
-| `src/stores/product.ts` | 第7章Store連携例 |
+| `src/stores/product.ts` | 第7章Store連携例・第8章データStore例 |
+| `src/stores/theme.ts` | 第8章UI設定Store例 |
+| `src/stores/scannerStore.ts` | 第8章機能連携Store例 |
