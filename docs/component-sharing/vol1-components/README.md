@@ -65,7 +65,7 @@ SearchPage.vue にも FavoritesPage.vue にも SettingsPage.vue にもまった�
 </template>
 ```
 
-```ts
+```html
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -185,7 +185,7 @@ const router = useRouter()
 
 ### 3-1 props — 親から子へデータを渡す
 
-```ts
+```html
 <!-- ProductCard.vue —— 型安全な defineProps -->
 <script setup lang="ts">
 import type { Product } from '@/types/product'
@@ -211,7 +211,7 @@ defineProps<{ product: Product }>()
 
 **withDefaults — 省略可能な props にデフォルト値を設定：**
 
-```ts
+```html
 <!-- BaseDialog.vue -->
 <script setup lang="ts">
 withDefaults(defineProps<{
@@ -242,7 +242,7 @@ const model = defineModel<boolean>()
 
 ### 3-2 emit — 子から親へイベントを通知
 
-```ts
+```html
 <!-- ProductCard.vue -->
 <script setup lang="ts">
 import type { Product } from '@/types/product'
@@ -283,7 +283,7 @@ const emit = defineEmits<{
 
 ### 3-3 defineModel — v-model で双方向バインディング
 
-```ts
+```html
 <!-- BaseDialog.vue —— defineModel で開閉状態を受け取る -->
 <script setup lang="ts">
 withDefaults(defineProps<{
@@ -486,13 +486,13 @@ defineEmits<{
     <ProductDialog
       v-model="dialogOpen"            <!-- defineModel: 開閉を同期 -->
       :product="store.selectedProduct" <!-- props で選択商品を渡す -->
-      @detail="goDetail"              <!-- emit: 詳細画面へ遷移 -->
+      @detail="goDetail"              <!-- emit: 詳細画面へ遷移 --> <!-- emitted product payload is forwarded automatically -->
     />
   </MainLayout>
 </template>
 ```
 
-```ts
+```html
 <script setup lang="ts">
 const store = useProductStore()
 const router = useRouter()
