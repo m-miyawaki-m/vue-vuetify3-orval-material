@@ -139,7 +139,7 @@ export const useThemeStore = defineStore('theme', () => {
 | 粒度 | 手段 | 例 |
 |------|------|----|
 | アプリ全体 | `<v-app :theme="name">` | themeStore で切り替え |
-| ページ・セクション単位 | `theme` prop | `<MainLayout theme="light">` |
+| ページ・セクション単位 | `theme` prop | `<v-container theme="light">` （任意の Vuetify コンポーネントに適用可能） |
 | 部品 1 つ | `color` prop 直値 | `<v-btn color="#E65100">` |
 | CSS 変数直書き | `:style` | `:style="{'--v-theme-primary': '255,0,0'}"` |
 
@@ -180,14 +180,13 @@ export const useThemeStore = defineStore('theme', () => {
 `ThemeDefinition.colors` には `[key: string]: Color` の index signature があるため、任意のキーを追加できる。
 
 ```ts
-// src/plugins/vuetify.ts に追加
+// src/plugins/vuetify.ts — darkTheme の colors に追加する例
 const darkTheme: ThemeDefinition = {
   dark: true,
   colors: {
-    primary: '#2196F3',
-    // ... 既存 ...
-    'brand-accent': '#FF6F00',   // カスタムセマンティックカラー
-    'status-ok':    '#00C853',
+    // ... 既存のキー（primary, surface 等）はそのまま ...
+    'brand-accent': '#FF6F00',   // カスタムセマンティックカラー（追加）
+    'status-ok':    '#00C853',   // カスタムセマンティックカラー（追加）
   },
 }
 ```
@@ -212,13 +211,13 @@ color: rgb(var(--v-theme-status-ok));
 
 | 項目 | 制御できるか | 手段 |
 |------|-------------|------|
-| 罫線の透明度 | ✅ | `variables['border-opacity']`（デフォルト 0.12） |
+| 罫線の透明度 | ✅ | `variables['border-opacity']`（デフォルト 0.12）※本プロジェクトでは未設定 |
 | 罫線の色 | ⚠️ 間接的のみ | `on-surface` カラーを変える |
 | 文字の色 | ✅ | `on-surface` / `on-background` |
-| 文字の強調度 | ✅ | `high-emphasis-opacity`（dark: 0.87 / light: 1.0）、`medium-emphasis-opacity`（dark: 0.60 / light: 0.70） |
-| フォントファミリー | ✅ | `--v-font-body` / `--v-font-heading` |
+| 文字の強調度 | ✅ | `high-emphasis-opacity`（dark: 0.87 / light: 1.0）、`medium-emphasis-opacity`（dark: 0.60 / light: 0.70）※本プロジェクトでは未設定 |
+| フォントファミリー | ✅（要確認） | `--v-font-body` / `--v-font-heading`（Vuetify 4 の変数名は公式ドキュメントで要確認）※本プロジェクトでは未設定 |
 | フォントサイズ | ❌ Vuetify 管轄外 | グローバル CSS 上書きが必要（`.text-h1` 等は固定） |
-| カスタム変数 | ✅ 自由に追加 | `variables` に任意キー |
+| カスタム変数 | ✅ 自由に追加 | `variables` に任意キー（本プロジェクトでは未設定、利用可能な標準機能） |
 
 ---
 
@@ -230,4 +229,4 @@ color: rgb(var(--v-theme-status-ok));
 - チーム独自の色は `colors` に **カスタムセマンティックカラー** として追加する
 - `variables` で罫線・強調度・フォントを制御可能
 - フォントサイズは Vuetify の管轄外 — グローバル CSS で対応
-- **チーム規約:** 「色は直書きせず `color="primary"` 等セマンティック名を使う。固定したいときだけ直値（`#E65100`）を許容する。」
+- 「色は直書きせず `color="primary"` 等セマンティック名を使う。固定したいときだけ直値（`#E65100`）を許容する。」
