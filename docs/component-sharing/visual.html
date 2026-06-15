@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コンポーネント共通化 ビジュアルガイド</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:        #1867C0;
+      --blue-dk:     #1251a3;
+      --blue-lt:     #E3F2FD;
+      --blue-mid:    #90CAF9;
+      --orange:      #E65100;
+      --orange-lt:   #FFF3E0;
+      --green:       #2E7D32;
+      --green-lt:    #E8F5E9;
+      --red:         #C62828;
+      --red-lt:      #FFEBEE;
+      --gray:        #757575;
+      --gray-lt:     #F5F5F5;
+      --border:      #E0E0E0;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Hiragino Sans', Meiryo, sans-serif;
+      background: #FAFAFA;
+      color: #212121;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--blue);
+      color: white;
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+    .site-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .site-header p  { opacity: .85; margin-top: 6px; font-size: .9rem; }
+
+    /* ── Page shell ── */
+    main { max-width: 1060px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    section { margin-bottom: 72px; }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .sec-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--blue); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700; flex-shrink: 0;
+    }
+    .sec-head h2 {
+      font-size: 1.2rem; color: var(--blue);
+      border-bottom: 3px solid var(--blue);
+      padding-bottom: 4px; flex: 1;
+    }
+    .sec-desc { color: var(--gray); font-size: .88rem; margin-bottom: 28px; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      padding: 10px 16px; margin-bottom: 28px;
+      background: white; border-radius: 8px; border: 1px solid var(--border);
+      font-size: .82rem;
+    }
+    .legend-item { display: flex; align-items: center; gap: 7px; }
+    .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+    .sw-shared { background: var(--blue); }
+    .sw-slot   { background: var(--orange-lt); border: 2px solid var(--orange); }
+
+    /* ══════════════════════════════════════
+       SECTION 1 — PHONE MOCKUPS
+    ══════════════════════════════════════ */
+    .phones-row {
+      display: flex; gap: 48px; flex-wrap: wrap;
+      justify-content: center; align-items: flex-start;
+    }
+
+    /*
+      Each "phone-unit" is a CSS Grid:
+        col 1 = phone frame (150px)
+        col 2 = annotation labels
+
+      Row heights mirror the phone sections exactly so labels align.
+    */
+    .phone-unit {
+      display: grid;
+      grid-template-columns: 150px max-content;
+      gap: 0 14px;
+    }
+    /* phone occupies all rows, annotations are per-row */
+    .phone-frame {
+      grid-column: 1;
+      grid-row: 1 / -1;           /* span all rows */
+      width: 150px;
+      border-radius: 22px;
+      border: 3px solid #37474F;
+      box-shadow: 0 0 0 1px #90A4AE, 0 10px 28px rgba(0,0,0,.22);
+      overflow: hidden;
+      align-self: start;
+    }
+
+    /* Rows: notch / appbar / content / bottomnav */
+    .ann-notch   { grid-column: 2; grid-row: 1; height: 16px; }
+    .ann-appbar  { grid-column: 2; grid-row: 2; display: flex; align-items: center; }
+    .ann-content { grid-column: 2; grid-row: 3; display: flex; align-items: center; }
+    .ann-nav     { grid-column: 2; grid-row: 4; display: flex; align-items: center; }
+
+    /* Phone internals */
+    .ph-notch {
+      background: #37474F; height: 16px;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .ph-notch::after {
+      content: ''; width: 38px; height: 5px;
+      background: #546E7A; border-radius: 3px;
+    }
+    .ph-appbar {
+      background: var(--blue); color: white;
+      padding: 9px 12px; height: 42px;
+      font-size: .68rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ph-icon { font-size: .95rem; }
+
+    .ph-content {
+      background: var(--orange-lt);
+      border-left: 3px solid var(--orange);
+      min-height: 155px;
+      padding: 8px;
+      font-size: .6rem; color: var(--gray);
+    }
+    .ph-card {
+      background: white; border-radius: 5px;
+      padding: 7px 8px; margin-bottom: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      font-size: .58rem; color: #424242;
+    }
+    .ph-card-title { font-weight: 600; margin-bottom: 1px; }
+    .ph-card-sub   { color: var(--gray); }
+    .ph-home-inner { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .ph-banner {
+      background: linear-gradient(135deg, #1867C0, #42A5F5);
+      border-radius: 5px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: .62rem; font-weight: 600;
+    }
+    .ph-menu {
+      background: white; border-radius: 4px; padding: 5px 8px;
+      font-size: .58rem; color: #424242;
+      box-shadow: 0 1px 2px rgba(0,0,0,.07);
+      display: flex; justify-content: space-between;
+    }
+    .ph-detail { padding: 8px; }
+    .ph-detail-img {
+      background: #E0E0E0; border-radius: 4px; height: 58px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .58rem; color: var(--gray); margin-bottom: 6px;
+    }
+    .ph-detail-txt { font-size: .58rem; color: #424242; line-height: 1.5; }
+
+    .ph-bottomnav {
+      background: white; border-top: 1px solid #E0E0E0; height: 44px;
+      display: flex; justify-content: space-around; align-items: center;
+      padding: 0 4px;
+    }
+    .ph-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
+      font-size: .5rem; color: #BDBDBD;
+    }
+    .ph-nav-item.active { color: var(--blue); }
+    .ph-nav-icon { font-size: .88rem; }
+
+    /* Annotation tags */
+    .ann-tag {
+      font-size: .7rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 10px; white-space: nowrap;
+    }
+    .ann-tag::before {
+      content: '─ '; color: #BDBDBD;
+    }
+    .tag-shared { color: var(--blue); }
+    .tag-slot   { color: var(--orange); }
+
+    /* Phone caption */
+    .phone-caption { text-align: center; margin-top: 10px; }
+    .phone-caption .pg-name  { font-size: .82rem; font-weight: 700; color: #212121; }
+    .phone-caption .pg-comp  { font-size: .72rem; color: var(--gray); margin-top: 1px; }
+
+    /* ══════════════════════════════════════
+       SECTION 2 — COMPONENT TREE
+    ══════════════════════════════════════ */
+    .tree-compare {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    @media (max-width: 660px) { .tree-compare { grid-template-columns: 1fr; } }
+
+    .tree-panel {
+      background: white; border-radius: 10px;
+      padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.1);
+    }
+    .panel-title {
+      font-size: .92rem; font-weight: 700;
+      padding: 8px 14px; border-radius: 6px; margin-bottom: 20px;
+    }
+    .panel-bad  { background: var(--red-lt);   color: var(--red);   }
+    .panel-good { background: var(--green-lt);  color: var(--green); }
+
+    .group-label {
+      font-size: .68rem; font-weight: 600;
+      color: var(--gray); text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: 6px;
+    }
+    .divider { height: 1px; background: var(--border); margin: 10px 0 12px; }
+
+    /* Tree rows */
+    .t-row {
+      display: flex; align-items: center; gap: 6px; margin: 3px 0;
+      padding-left: calc(var(--d, 0) * 20px);
+    }
+    .t-node {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 5px;
+      font-size: .74rem; font-weight: 600;
+    }
+    .n-page   { background: var(--green-lt); color: var(--green);  border: 1px solid #A5D6A7; }
+    .n-layout { background: var(--blue);     color: white; }
+    .n-shared { background: var(--blue-lt);  color: var(--blue-dk); border: 1px solid var(--blue-mid); }
+    .n-dupe   { background: var(--red-lt);   color: var(--red);    border: 1px solid #EF9A9A; }
+    .n-slot   { background: var(--orange-lt);color: var(--orange);  border: 1px solid #FFCC80; }
+    .n-conn   { color: #BDBDBD; font-size: .8rem; flex-shrink: 0; }
+
+    .dupe-badge {
+      font-size: .58rem; background: var(--red); color: white;
+      padding: 1px 5px; border-radius: 8px;
+    }
+    .hint { font-size: .7rem; color: var(--gray); }
+
+    .tree-note {
+      margin-top: 14px; padding: 10px 14px;
+      border-radius: 6px; font-size: .8rem; font-weight: 500;
+    }
+    .note-bad  { background: var(--red-lt);  color: var(--red);   border-left: 3px solid #EF5350; }
+    .note-good { background: var(--green-lt);color: var(--green); border-left: 3px solid #66BB6A; }
+
+    /* ── Back link ── */
+    .back { display: inline-block; margin-top: 8px; margin-bottom: 32px;
+            color: var(--blue); font-size: .85rem; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>コンポーネント共通化 — ビジュアルガイド</h1>
+  <p>Vue 3 + Vuetify 4 のページパターンと部品の共通化をビジュアルで解説</p>
+</header>
+
+<main>
+  <a class="back" href="index.html">← 資料一覧へ</a>
+
+  <!-- ══════════════════════════════════════
+       SECTION 1 : ページのパターン
+  ══════════════════════════════════════ -->
+  <section id="page-patterns">
+    <div class="sec-head">
+      <div class="sec-num">1</div>
+      <h2>ページのパターン</h2>
+    </div>
+    <p class="sec-desc">
+      このアプリには <strong>2種類のページパターン</strong> があります。
+      青い部分が <code>MainLayout</code> / <code>SubLayout</code> が提供する <strong>共通 UI</strong>、
+      オレンジ枠が <strong>ページ固有コンテンツ（slot）</strong> です。
+    </p>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="swatch sw-shared"></div>
+        <span>共通部品（MainLayout / SubLayout が提供）</span>
+      </div>
+      <div class="legend-item">
+        <div class="swatch sw-slot"></div>
+        <span>ページ固有コンテンツ（slot に差し込む）</span>
+      </div>
+    </div>
+
+    <div class="phones-row">
+
+      <!-- ── Phone 1: HomePage ── -->
+      <div>
+        <div class="phone-unit">
+
+          <div class="phone-frame">
+            <div class="ph-notch"></div>
+            <div class="ph-appbar">
+              <span>VuetifyPoC</span>
+              <span class="ph-icon">☰</span>
+            </div>
+            <div class="ph-content">
+              <div class="ph-home-inner">
+                <div class="ph-banner">ようこそ</div>
+                <div class="ph-menu"><span>商品を検索</span><span>›</span></div>
+                <div class="ph-menu"><span>バーコードスキャン</span><span>›</span></div>
+              </div>
+            </div>
+            <div class="ph-bottomnav">
+              <div class="ph-nav-item active">
+                <span class="ph-nav-icon">🏠</span><span>ホーム</span>
+              </div>
+              <div class="ph-nav-item">
+                <span class="ph-nav-icon">🔍</span><span>検索</span>
+              </div>
+              <div class="ph-nav-item">
+                <span class="ph-nav-icon">⚙</span><span>設定</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ann-notch"></div>
+          <div class="ann-appbar">
+            <span class="ann-tag tag-shared">AppBar（共通）</span>
+          </div>
+          <div class="ann-content">
+            <span class="ann-tag tag-slot">slot（ページ固有）</span>
+          </div>
+          <div class="ann-nav">
+            <span class="ann-tag tag-shared">BottomNav（共通）</span>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <div class="pg-name">HomePage</div>
+          <div class="pg-comp">&lt;MainLayout&gt;</div>
+        </div>
+      </div>
+
+      <!-- ── Phone 2: SearchPage ── -->
+      <div>
+        <div class="phone-unit">
+
+          <div class="phone-frame">
+            <div class="ph-notch"></div>
+            <div class="ph-appbar">
+              <span>VuetifyPoC</span>
+              <span class="ph-icon">☰</span>
+            </div>
+            <div class="ph-content" style="padding:6px;">
+              <div class="ph-card">
+                <div class="ph-card-title">商品 A</div>
+                <div class="ph-card-sub">¥ 1,200</div>
+              </div>
+              <div class="ph-card">
+                <div class="ph-card-title">商品 B</div>
+                <div class="ph-card-sub">¥ 3,500</div>
+              </div>
+              <div class="ph-card">
+                <div class="ph-card-title">商品 C</div>
+                <div class="ph-card-sub">¥ 890</div>
+              </div>
+            </div>
+            <div class="ph-bottomnav">
+              <div class="ph-nav-item">
+                <span class="ph-nav-icon">🏠</span><span>ホーム</span>
+              </div>
+              <div class="ph-nav-item active">
+                <span class="ph-nav-icon">🔍</span><span>検索</span>
+              </div>
+              <div class="ph-nav-item">
+                <span class="ph-nav-icon">⚙</span><span>設定</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ann-notch"></div>
+          <div class="ann-appbar">
+            <span class="ann-tag tag-shared">AppBar（共通）</span>
+          </div>
+          <div class="ann-content">
+            <span class="ann-tag tag-slot">slot（ページ固有）</span>
+          </div>
+          <div class="ann-nav">
+            <span class="ann-tag tag-shared">BottomNav（共通）</span>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <div class="pg-name">SearchPage</div>
+          <div class="pg-comp">&lt;MainLayout&gt;</div>
+        </div>
+      </div>
+
+      <!-- ── Phone 3: DetailPage ── -->
+      <div>
+        <div class="phone-unit">
+
+          <div class="phone-frame">
+            <div class="ph-notch"></div>
+            <div class="ph-appbar">
+              <span class="ph-icon">←</span>
+              <span>商品詳細</span>
+              <span></span>
+            </div>
+            <div class="ph-content" style="min-height:199px;"><!-- fills to same total height as others (155+44) -->
+              <div class="ph-detail">
+                <div class="ph-detail-img">[ 商品画像 ]</div>
+                <div class="ph-detail-txt">
+                  商品の詳細説明テキストがここに入ります。価格や仕様などの情報を表示します。
+                </div>
+              </div>
+            </div>
+            <!-- SubLayout には BottomNav がない -->
+          </div>
+
+          <div class="ann-notch"></div>
+          <div class="ann-appbar">
+            <span class="ann-tag tag-shared">AppBar + 戻る（共通）</span>
+          </div>
+          <div class="ann-content" style="align-items:center;">
+            <span class="ann-tag tag-slot">slot（ページ固有）</span>
+          </div>
+          <div class="ann-nav" style="visibility:hidden;">
+            <span class="ann-tag tag-shared">BottomNav（なし）</span>
+          </div>
+        </div>
+        <div class="phone-caption">
+          <div class="pg-name">DetailPage</div>
+          <div class="pg-comp">&lt;SubLayout&gt;</div>
+        </div>
+      </div>
+
+    </div><!-- /phones-row -->
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SECTION 2 : 部品の共通化（Before / After）
+  ══════════════════════════════════════ -->
+  <section id="component-sharing">
+    <div class="sec-head">
+      <div class="sec-num">2</div>
+      <h2>部品の共通化 — Before / After</h2>
+    </div>
+    <p class="sec-desc">
+      共通化前は各ページが AppBar・BottomNav を個別に実装するため、変更のたびに全ページを修正する必要があります。
+      共通化後は <strong>レイアウトコンポーネント 1 か所を変えれば全ページに反映</strong> されます。
+    </p>
+
+    <div class="tree-compare">
+
+      <!-- ─── BEFORE ─── -->
+      <div class="tree-panel">
+        <div class="panel-title panel-bad">❌ 共通化前（コピー &amp; ペースト）</div>
+
+        <div class="group-label">HomePage.vue</div>
+        <div class="t-row" style="--d:0"><span class="t-node n-page">HomePage.vue</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar <span class="dupe-badge">コピー</span></span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">ホームコンテンツ</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-dupe">v-bottom-navigation <span class="dupe-badge">コピー</span></span></div>
+
+        <div class="divider"></div>
+
+        <div class="group-label">SearchPage.vue</div>
+        <div class="t-row" style="--d:0"><span class="t-node n-page">SearchPage.vue</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar <span class="dupe-badge">コピー</span></span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">ProductCard × n</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-dupe">v-bottom-navigation <span class="dupe-badge">コピー</span></span></div>
+
+        <div class="divider"></div>
+
+        <div class="group-label">DetailPage.vue</div>
+        <div class="t-row" style="--d:0"><span class="t-node n-page">DetailPage.vue</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar（戻るボタン付き） <span class="dupe-badge">コピー</span></span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-slot">詳細コンテンツ</span></div>
+
+        <div class="tree-note note-bad">
+          AppBar を変更 → 3 ページそれぞれを個別に修正する必要がある
+        </div>
+      </div>
+
+      <!-- ─── AFTER ─── -->
+      <div class="tree-panel">
+        <div class="panel-title panel-good">✅ 共通化後（レイアウト分離）</div>
+
+        <div class="group-label">共通レイアウト（1 か所に定義）</div>
+        <div class="t-row" style="--d:0"><span class="t-node n-layout">MainLayout.vue</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-shared">v-app-bar</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">slot（ページ内容を受け取る）</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-shared">v-bottom-navigation</span></div>
+
+        <div style="margin-top:10px;"></div>
+        <div class="t-row" style="--d:0"><span class="t-node n-layout">SubLayout.vue</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-shared">v-app-bar（戻るボタン付き）</span></div>
+        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-slot">slot（ページ内容を受け取る）</span></div>
+
+        <div class="divider"></div>
+
+        <div class="group-label">各ページ（コンテンツのみに専念）</div>
+
+        <div class="t-row" style="--d:0"><span class="t-node n-page">HomePage.vue</span></div>
+        <div class="t-row" style="--d:1">
+          <span class="n-conn">└─</span>
+          <span class="t-node n-layout">MainLayout</span>
+          <span class="hint">← 使うだけ</span>
+        </div>
+
+        <div style="margin-top:6px;"></div>
+        <div class="t-row" style="--d:0"><span class="t-node n-page">SearchPage.vue</span></div>
+        <div class="t-row" style="--d:1">
+          <span class="n-conn">└─</span>
+          <span class="t-node n-layout">MainLayout</span>
+          <span class="hint">← 使うだけ</span>
+        </div>
+
+        <div style="margin-top:6px;"></div>
+        <div class="t-row" style="--d:0"><span class="t-node n-page">DetailPage.vue</span></div>
+        <div class="t-row" style="--d:1">
+          <span class="n-conn">└─</span>
+          <span class="t-node n-layout">SubLayout</span>
+          <span class="hint">← 使うだけ</span>
+        </div>
+
+        <div class="tree-note note-good">
+          AppBar を変更 → MainLayout.vue の 1 か所だけ直せば全ページに反映
+        </div>
+      </div>
+
+    </div><!-- /tree-compare -->
+  </section>
+
+</main>
+
+</body>
+</html>
