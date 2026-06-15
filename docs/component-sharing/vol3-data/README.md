@@ -127,7 +127,7 @@ export const useProductStore = defineStore('product', () => {
     currentPage.value = 1
   }
 
-  return { products, keyword, filteredProducts, resetPage }
+  return { products, keyword, filteredProducts, resetPage /* ...他フィールド省略 */ }
 })
 ```
 
@@ -199,8 +199,8 @@ function requestScan(
 
 ```ts
 const store = useProductStore()
-const { products } = store
-// → products は ref ではなく生の値になってしまう
+const { products, filteredProducts, pagedProducts, totalPages, keyword, currentPage } = store
+// → 各値は ref ではなく生の値になってしまう
 ```
 
 **OK — storeToRefs で分割代入:**
@@ -237,4 +237,3 @@ Store ID は DevTools や SSR のキーになる → 必ずユニークに。
 - State の置き場所は **4段階** で判断する
 - 分割代入には必ず `storeToRefs` を使う
 - 命名は `use〇〇Store` / 動詞Action に統一
-- **APIはStore経由のみ・UIはAPIを直接呼ばない・Setup Storeに統一**
