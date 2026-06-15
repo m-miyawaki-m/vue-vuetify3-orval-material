@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vol.3 データ・通信・Store 設計</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css" />
+  <style>
+    :root { --r-main-font-size: 22px; }
+    .reveal pre { font-size: 0.65em; }
+    .reveal .slide-number { color: #aaa; }
+    .bad  { color: #ff6b6b; }
+    .good { color: #69db7c; }
+    .note { font-size: 0.7em; color: #aaa; }
+    table { font-size: 0.75em; }
+    .rule-box {
+      border: 2px solid #69db7c;
+      border-radius: 8px;
+      padding: 0.6em 1em;
+      margin-top: 0.8em;
+      background: rgba(105, 219, 124, 0.08);
+      font-size: 0.85em;
+      color: #69db7c;
+    }
+    .warn { color: #FFB74D; }
+    .flow {
+      font-family: monospace;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      padding: 0.5em 1em;
+      margin: 0.5em 0;
+      font-size: 0.8em;
+      text-align: left;
+    }
+    .label-now  { color: #FFB74D; font-weight: bold; }
+    .label-goal { color: #69db7c; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- Slide 1: Title -->
+    <section>
+      <h1>データ・通信・<br>Store 設計</h1>
+      <h3>Vol.3</h3>
+      <p class="note">Pinia / Orval / axios — このプロジェクトの実コードで解説</p>
+    </section>
+
+    <!-- Slide 2: 通信の4層アーキテクチャ -->
+    <section>
+      <h2>通信の4層アーキテクチャ</h2>
+      <p class="label-now">現状：</p>
+      <div class="flow">
+        Pinia Store → mockProducts（ハードコード）
+      </div>
+      <p class="label-goal">目標：</p>
+      <div class="flow">
+        Pinia Store → Orval生成API関数 → axios共通インスタンス → バックエンド
+      </div>
+      <table style="margin-top:0.8em; width:100%;">
+        <thead>
+          <tr><th>層</th><th>ファイル</th><th>共通化する内容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>HTTPクライアント</td><td>src/lib/axios.ts</td><td>baseURL・認証・インターセプター</td></tr>
+          <tr><td>API関数（自動生成）</td><td>src/api/</td><td>Orval が OpenAPI から生成</td></tr>
+          <tr><td>状態管理</td><td>src/stores/</td><td>loading・error・data</td></tr>
+          <tr><td>UI層</td><td>src/pages/, src/components/</td><td>Store だけを見る</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Slide 3: axios 共通インスタンス -->
+    <section>
+      <h2>axios 共通インスタンス</h2>
+      <p class="note">src/lib/axios.ts（実装予定）</p>
+      <pre><code class="ts" data-trim>
+import axios from 'axios'
+
+export const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 10000,
+})
+
+apiClient.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+apiClient.interceptors.response.use(
+  res => res,
+  err => {
+    if (err.response?.status === 401) router.push('/login')
+    return Promise.reject(err)
+  }
+)
+      </code></pre>
+      <p class="note">全APIリクエストがここを通る → 認証・エラー処理を一箇所に集約</p>
+    </section>
+
+    <!-- Slide 4: Orval 設定 -->
+    <section>
+      <h2>Orval 設定</h2>
+      <p class="note">orval.config.ts — 現在はコメントアウト中・今後追加予定</p>
+      <pre><code class="ts" data-trim>
+export default defineConfig({
+  product: {
+    input: './openapi/product.yaml',
+    output: {
+      target: './src/api/product.ts',
+      client: 'axios',
+      override: {
+        mutator: {
+          path: './src/lib/axios.ts',
+          name: 'apiClient',
+        },
+      },
+    },
+  },
+})
+      </code></pre>
+      <p class="note"><code>npx orval</code> を実行すると <code>src/api/product.ts</code> に型付きAPI関数が自動生成される</p>
+    </section>
+
+    <!-- Slide 5: モックからの移行パス -->
+    <section>
+      <h2>モックからの移行パス</h2>
+      <table style="width:100%;">
+        <thead>
+          <tr><th>フェーズ</th><th>データソース</th><th>切り替え方法</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>現在</td>
+            <td>mockProducts（ハードコード）</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>API開発中</td>
+            <td>MSW</td>
+            <td>Orval の <code>mock: true</code> オプション</td>
+          </tr>
+          <tr>
+            <td>本番</td>
+            <td>実API</td>
+            <td><code>VITE_API_BASE_URL</code> 環境変数</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:0.8em;">Store 内のデータ取得箇所を差し替えるだけ — UI層は変更不要</p>
+    </section>
+
+    <!-- Slide 6: Pinia Setup Store に統一 -->
+    <section>
+      <h2>Pinia Setup Store に統一</h2>
+      <div style="display:flex; gap:1em; font-size:0.85em;">
+        <div style="flex:1;">
+          <p class="bad">❌ Options Store（旧スタイル）</p>
+          <pre><code class="ts" data-trim>
+defineStore('product', {
+  state: () => ({
+    products: [],
+    keyword: '',
+  }),
+  getters: {
+    filtered: (state) => ...
+  },
+  actions: {
+    resetPage() { ... }
+  },
+})
+          </code></pre>
+        </div>
+        <div style="flex:1;">
+          <p class="good">✅ Setup Store（このプロジェクト統一）</p>
+          <pre><code class="ts" data-trim>
+// src/stores/product.ts
+export const useProductStore =
+  defineStore('product', () => {
+  const products = ref&lt;Product[]&gt;(mockProducts)
+  const keyword  = ref('')
+
+  const filteredProducts = computed(() =>
+    products.value.filter(p =>
+      !keyword.value
+      || p.name.includes(keyword.value)
+    )
+  )
+
+  function resetPage() { currentPage.value = 1 }
+
+  return { products, keyword,
+           filteredProducts, resetPage }
+})
+          </code></pre>
+        </div>
+      </div>
+      <p class="note">Composition API と同じ書き方 → TypeScript 推論が効きやすい</p>
+    </section>
+
+    <!-- Slide 7: Store の3種類と責務 -->
+    <section>
+      <h2>Store の3種類と責務</h2>
+      <table style="width:100%; margin-bottom:0.6em;">
+        <thead>
+          <tr><th>種類</th><th>実例ファイル</th><th>責務</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>データStore</td><td>stores/product.ts</td><td>APIデータ・フィルター・ページング</td></tr>
+          <tr><td>UI設定Store</td><td>stores/theme.ts</td><td>テーマ選択・localStorage永続化</td></tr>
+          <tr><td>機能連携Store</td><td>stores/scannerStore.ts</td><td>スキャナーページへの遷移フロー</td></tr>
+        </tbody>
+      </table>
+      <div style="display:flex; gap:0.6em; font-size:0.7em;">
+        <pre style="flex:1;"><code class="ts" data-trim>
+// product.ts（データStore）
+const pagedProducts = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filteredProducts.value
+    .slice(start, start + PAGE_SIZE)
+})
+        </code></pre>
+        <pre style="flex:1;"><code class="ts" data-trim>
+// theme.ts（UI設定Store）
+function setTheme(theme: AppTheme) {
+  currentTheme.value = theme
+  localStorage.setItem(STORAGE_KEY, theme)
+}
+        </code></pre>
+        <pre style="flex:1;"><code class="ts" data-trim>
+// scannerStore.ts（機能連携Store）
+function requestScan(m, cb, t?) {
+  mode.value = m
+  _callback = cb
+  router.push('/scanner')
+}
+        </code></pre>
+      </div>
+    </section>
+
+    <!-- Slide 8: State の置き場所（4段階） -->
+    <section>
+      <h2>State の置き場所（4段階）</h2>
+      <table style="width:100%; margin-bottom:0.6em;">
+        <thead>
+          <tr><th>置き場所</th><th>使うべき場面</th><th>実例</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>コンポーネントローカル ref</td>
+            <td>そのコンポーネントだけ</td>
+            <td>dialogOpen（SearchPage）</td>
+          </tr>
+          <tr>
+            <td>props / emit</td>
+            <td>親子間1〜2階層</td>
+            <td>ProductCard への product 渡し</td>
+          </tr>
+          <tr>
+            <td>Pinia Store</td>
+            <td>複数ページが参照</td>
+            <td>selectedProduct・currentTheme</td>
+          </tr>
+          <tr>
+            <td>URL（router クエリ）</td>
+            <td>リロードで復元したい</td>
+            <td>検索キーワード・ページ番号</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="flow">
+        複数ページで使うか？<br>
+        &nbsp;&nbsp;→ <span class="bad">No</span>: ローカル ref か props/emit<br>
+        &nbsp;&nbsp;→ <span class="good">Yes</span>: リロードで復元したいか？<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="good">Yes</span>: URL / localStorage<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="bad">No</span>: Pinia Store
+      </div>
+    </section>
+
+    <!-- Slide 9: storeToRefs の使い方 -->
+    <section>
+      <h2>storeToRefs の使い方</h2>
+      <pre><code class="ts" data-trim>
+// ❌ これはリアクティビティが失われる
+const store = useProductStore()
+const { products } = store
+// → products は ref ではなく生の値になってしまう
+
+// ✅ storeToRefs で分割代入
+const store = useProductStore()
+const { products, filteredProducts, pagedProducts,
+        totalPages, keyword, currentPage } = storeToRefs(store)
+
+// actions はリアクティブ不要なのでそのまま取り出す
+const { resetPage, selectProduct } = store
+      </code></pre>
+      <p class="note">SearchPage.vue では <code>store.keyword</code> のように直接参照しているが、<br>
+        分割代入する場合は必ず storeToRefs を使う</p>
+    </section>
+
+    <!-- Slide 10: 命名規則 -->
+    <section>
+      <h2>命名規則</h2>
+      <table style="width:100%;">
+        <thead>
+          <tr><th>対象</th><th>規則</th><th>例</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Store関数</td>
+            <td>use〇〇Store</td>
+            <td><code>useProductStore</code></td>
+          </tr>
+          <tr>
+            <td>Store ID</td>
+            <td>小文字キャメル</td>
+            <td><code>'product'</code>、<code>'theme'</code>、<code>'scanner'</code></td>
+          </tr>
+          <tr>
+            <td>State</td>
+            <td>ref / reactive</td>
+            <td><code>const products = ref([])</code></td>
+          </tr>
+          <tr>
+            <td>Getter</td>
+            <td>computed</td>
+            <td><code>const filteredProducts = computed(...)</code></td>
+          </tr>
+          <tr>
+            <td>Action</td>
+            <td>動詞から始まる</td>
+            <td><code>fetchProducts</code>、<code>setTheme</code>、<code>resetPage</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:0.8em;">Store ID は DevTools や SSR のキーになる → 必ずユニークに</p>
+    </section>
+
+    <!-- Slide 11: まとめ・チーム規約 -->
+    <section>
+      <h2>まとめ・チーム規約</h2>
+      <ul style="font-size:0.85em;">
+        <li>通信は<strong>4層</strong>に分離：axios → Orval生成関数 → Store → UI</li>
+        <li>Store は<strong>Setup Store</strong>に統一（Options Store は使わない）</li>
+        <li>State の置き場所は<strong>4段階</strong>で判断する</li>
+        <li>分割代入には必ず <code>storeToRefs</code> を使う</li>
+        <li>命名は <code>use〇〇Store</code> / 動詞Action に統一</li>
+      </ul>
+      <div class="rule-box">
+        <strong>チーム規約</strong><br>
+        「APIはStore経由のみ・UIはAPIを直接呼ばない・Setup Storeに統一」
+      </div>
+      <p class="note" style="margin-top:0.8em;">
+        Vol.1 コンポーネント共通化 → Vol.2 テーマ共通化 → <strong>Vol.3 データ・通信・Store 設計</strong>
+      </p>
+    </section>
+
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: true,
+    plugins: [RevealHighlight],
+  })
+</script>
+</body>
+</html>
