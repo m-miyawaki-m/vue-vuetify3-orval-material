@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vuetify フロントエンド共通化資料</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #f5f5f5;
+      color: #212121;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1565C0;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      color: #757575;
+      margin-bottom: 32px;
+    }
+    .volume {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.12);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .volume-header {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .volume-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .volume-header p {
+      font-size: 0.8rem;
+      color: #757575;
+      margin-top: 4px;
+    }
+    .volume-links {
+      display: flex;
+    }
+    .volume-links a {
+      flex: 1;
+      display: block;
+      padding: 12px 18px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .volume-links a:first-child {
+      border-right: 1px solid #e0e0e0;
+    }
+    .link-slides {
+      background: #1867C0;
+      color: #fff;
+    }
+    .link-slides:hover {
+      background: #1251a3;
+    }
+    .link-md {
+      background: #fff;
+      color: #1867C0;
+    }
+    .link-md:hover {
+      background: #e3f2fd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Vuetify フロントエンド共通化資料</h1>
+    <p class="subtitle">Vue 3 + Vuetify 4 プロジェクト向け 全3巻</p>
+
+    <div class="volume">
+      <div class="volume-header">
+        <h2>Vol.1 ― コンポーネント・レイアウト共通化</h2>
+        <p>props / emit / defineModel / slot の使い分け、ダイアログ継承パターン</p>
+      </div>
+      <div class="volume-links">
+        <a class="link-slides" href="vol1-components/slides.html">スライド</a>
+        <a class="link-md" href="vol1-components/README.md">Markdown リファレンス</a>
+      </div>
+    </div>
+
+    <div class="volume">
+      <div class="volume-header">
+        <h2>Vol.2 ― スタイル・テーマ共通化</h2>
+        <p>Vuetify 4 テーマ定義、CSS 変数、カラー粒度の制御</p>
+      </div>
+      <div class="volume-links">
+        <a class="link-slides" href="vol2-theming/slides.html">スライド</a>
+        <a class="link-md" href="vol2-theming/README.md">Markdown リファレンス</a>
+      </div>
+    </div>
+
+    <div class="volume">
+      <div class="volume-header">
+        <h2>Vol.3 ― データ・通信・Store 設計</h2>
+        <p>Orval 連携、Pinia Setup Store、State の置き場所ガイド</p>
+      </div>
+      <div class="volume-links">
+        <a class="link-slides" href="vol3-data/slides.html">スライド</a>
+        <a class="link-md" href="vol3-data/README.md">Markdown リファレンス</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
