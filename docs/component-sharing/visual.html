@@ -4,224 +4,74 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>コンポーネント共通化 ビジュアルガイド</title>
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@4.0.2/dist/vuetify.min.css" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --blue:        #1867C0;
-      --blue-dk:     #1251a3;
-      --blue-lt:     #E3F2FD;
-      --blue-mid:    #90CAF9;
-      --orange:      #E65100;
-      --orange-lt:   #FFF3E0;
-      --green:       #2E7D32;
-      --green-lt:    #E8F5E9;
-      --red:         #C62828;
-      --red-lt:      #FFEBEE;
-      --gray:        #757575;
-      --gray-lt:     #F5F5F5;
-      --border:      #E0E0E0;
-    }
-
-    body {
-      font-family: 'Segoe UI', 'Hiragino Sans', Meiryo, sans-serif;
-      background: #FAFAFA;
-      color: #212121;
-      line-height: 1.6;
-    }
-
-    /* ── Header ── */
-    .site-header {
-      background: var(--blue);
-      color: white;
-      padding: 28px 24px 24px;
-      text-align: center;
-    }
-    .site-header h1 { font-size: 1.5rem; font-weight: 700; }
-    .site-header p  { opacity: .85; margin-top: 6px; font-size: .9rem; }
-
-    /* ── Page shell ── */
-    main { max-width: 1060px; margin: 0 auto; padding: 48px 24px 80px; }
-
-    section { margin-bottom: 72px; }
-
-    .sec-head {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .sec-num {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--blue); color: white;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .85rem; font-weight: 700; flex-shrink: 0;
-    }
-    .sec-head h2 {
-      font-size: 1.2rem; color: var(--blue);
-      border-bottom: 3px solid var(--blue);
-      padding-bottom: 4px; flex: 1;
-    }
-    .sec-desc { color: var(--gray); font-size: .88rem; margin-bottom: 28px; }
-
-    /* ── Legend ── */
-    .legend {
-      display: flex; gap: 20px; flex-wrap: wrap;
-      padding: 10px 16px; margin-bottom: 28px;
-      background: white; border-radius: 8px; border: 1px solid var(--border);
-      font-size: .82rem;
-    }
-    .legend-item { display: flex; align-items: center; gap: 7px; }
-    .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
-    .sw-shared { background: var(--blue); }
-    .sw-slot   { background: var(--orange-lt); border: 2px solid var(--orange); }
-
-    /* ══════════════════════════════════════
-       SECTION 1 — PHONE MOCKUPS
-    ══════════════════════════════════════ */
-    .phones-row {
-      display: flex; gap: 48px; flex-wrap: wrap;
-      justify-content: center; align-items: flex-start;
-    }
-
-    /*
-      Each "phone-unit" is a CSS Grid:
-        col 1 = phone frame (150px)
-        col 2 = annotation labels
-
-      Row heights mirror the phone sections exactly so labels align.
-    */
+    /* ── Phone frame ──────────────────── */
     .phone-unit {
       display: grid;
-      grid-template-columns: 150px max-content;
-      gap: 0 14px;
+      /* col1=phone, col2=annotations */
+      grid-template-columns: 220px max-content;
+      /* row1=notch(16) row2=toolbar(40) row3=content(155) row4=nav(44) */
+      grid-template-rows: 16px 40px 155px 44px;
     }
-    /* phone occupies all rows, annotations are per-row */
     .phone-frame {
-      grid-column: 1;
-      grid-row: 1 / -1;           /* span all rows */
-      width: 150px;
-      border-radius: 22px;
+      grid-column: 1; grid-row: 1 / -1;
+      width: 220px;
+      border-radius: 24px;
       border: 3px solid #37474F;
-      box-shadow: 0 0 0 1px #90A4AE, 0 10px 28px rgba(0,0,0,.22);
       overflow: hidden;
+      box-shadow: 0 0 0 1px #90A4AE, 0 10px 28px rgba(0,0,0,.22);
       align-self: start;
     }
-
-    /* Rows: notch / appbar / content / bottomnav */
-    .ann-notch   { grid-column: 2; grid-row: 1; height: 16px; }
-    .ann-appbar  { grid-column: 2; grid-row: 2; display: flex; align-items: center; }
-    .ann-content { grid-column: 2; grid-row: 3; display: flex; align-items: center; }
-    .ann-nav     { grid-column: 2; grid-row: 4; display: flex; align-items: center; }
-
-    /* Phone internals */
-    .ph-notch {
+    .phone-notch {
       background: #37474F; height: 16px;
       display: flex; justify-content: center; align-items: center;
     }
-    .ph-notch::after {
-      content: ''; width: 38px; height: 5px;
+    .phone-notch::after {
+      content: ''; width: 44px; height: 5px;
       background: #546E7A; border-radius: 3px;
     }
-    .ph-appbar {
-      background: var(--blue); color: white;
-      padding: 9px 12px; height: 42px;
-      font-size: .68rem; font-weight: 600;
-      display: flex; align-items: center; justify-content: space-between;
+    .phone-content {
+      height: 155px; overflow: hidden;
+      border-left: 3px solid #E65100;
+      background: #FFF3E0;
     }
-    .ph-icon { font-size: .95rem; }
+    .phone-content-inner { padding: 6px; }
+    .phone-nav {
+      height: 44px;
+      background: white;
+      border-top: 1px solid #E0E0E0;
+      display: flex;
+    }
+    .phone-nav .v-btn { flex: 1; font-size: .5rem !important; min-width: 0 !important; }
 
-    .ph-content {
-      background: var(--orange-lt);
-      border-left: 3px solid var(--orange);
-      min-height: 155px;
-      padding: 8px;
-      font-size: .6rem; color: var(--gray);
-    }
-    .ph-card {
-      background: white; border-radius: 5px;
-      padding: 7px 8px; margin-bottom: 5px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.1);
-      font-size: .58rem; color: #424242;
-    }
-    .ph-card-title { font-weight: 600; margin-bottom: 1px; }
-    .ph-card-sub   { color: var(--gray); }
-    .ph-home-inner { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-    .ph-banner {
-      background: linear-gradient(135deg, #1867C0, #42A5F5);
-      border-radius: 5px; height: 48px;
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-size: .62rem; font-weight: 600;
-    }
-    .ph-menu {
-      background: white; border-radius: 4px; padding: 5px 8px;
-      font-size: .58rem; color: #424242;
-      box-shadow: 0 1px 2px rgba(0,0,0,.07);
-      display: flex; justify-content: space-between;
-    }
-    .ph-detail { padding: 8px; }
-    .ph-detail-img {
-      background: #E0E0E0; border-radius: 4px; height: 58px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .58rem; color: var(--gray); margin-bottom: 6px;
-    }
-    .ph-detail-txt { font-size: .58rem; color: #424242; line-height: 1.5; }
-
-    .ph-bottomnav {
-      background: white; border-top: 1px solid #E0E0E0; height: 44px;
-      display: flex; justify-content: space-around; align-items: center;
-      padding: 0 4px;
-    }
-    .ph-nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 1px;
-      font-size: .5rem; color: #BDBDBD;
-    }
-    .ph-nav-item.active { color: var(--blue); }
-    .ph-nav-icon { font-size: .88rem; }
-
-    /* Annotation tags */
+    /* ── Annotation labels ────────────── */
+    .ann-r1 { grid-column: 2; grid-row: 1; }
+    .ann-r2 { grid-column: 2; grid-row: 2; display: flex; align-items: center; padding-left: 10px; }
+    .ann-r3 { grid-column: 2; grid-row: 3; display: flex; align-items: center; padding-left: 10px; }
+    .ann-r4 { grid-column: 2; grid-row: 4; display: flex; align-items: center; padding-left: 10px; }
     .ann-tag {
-      font-size: .7rem; font-weight: 600;
+      font-size: .72rem; font-weight: 600;
       padding: 3px 10px; border-radius: 10px; white-space: nowrap;
+      display: flex; align-items: center; gap: 5px;
     }
-    .ann-tag::before {
-      content: '─ '; color: #BDBDBD;
-    }
-    .tag-shared { color: var(--blue); }
-    .tag-slot   { color: var(--orange); }
-
-    /* Phone caption */
+    .ann-tag::before { content: '─ '; color: #BDBDBD; }
+    .ann-shared { color: #1251a3; }
+    .ann-slot   { color: #E65100; }
     .phone-caption { text-align: center; margin-top: 10px; }
-    .phone-caption .pg-name  { font-size: .82rem; font-weight: 700; color: #212121; }
-    .phone-caption .pg-comp  { font-size: .72rem; color: var(--gray); margin-top: 1px; }
+    .phone-caption .pg-name { font-size: .85rem; font-weight: 700; }
+    .phone-caption .pg-comp { font-size: .75rem; color: #757575; }
 
-    /* ══════════════════════════════════════
-       SECTION 2 — COMPONENT TREE
-    ══════════════════════════════════════ */
-    .tree-compare {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    /* ── Section heading ──────────────── */
+    .sec-chip {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #1867C0; color: white;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700; flex-shrink: 0; margin-right: 8px;
     }
-    @media (max-width: 660px) { .tree-compare { grid-template-columns: 1fr; } }
 
-    .tree-panel {
-      background: white; border-radius: 10px;
-      padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.1);
-    }
-    .panel-title {
-      font-size: .92rem; font-weight: 700;
-      padding: 8px 14px; border-radius: 6px; margin-bottom: 20px;
-    }
-    .panel-bad  { background: var(--red-lt);   color: var(--red);   }
-    .panel-good { background: var(--green-lt);  color: var(--green); }
-
-    .group-label {
-      font-size: .68rem; font-weight: 600;
-      color: var(--gray); text-transform: uppercase;
-      letter-spacing: .06em; margin-bottom: 6px;
-    }
-    .divider { height: 1px; background: var(--border); margin: 10px 0 12px; }
-
-    /* Tree rows */
+    /* ── Tree diagram ─────────────────── */
     .t-row {
       display: flex; align-items: center; gap: 6px; margin: 3px 0;
       padding-left: calc(var(--d, 0) * 20px);
@@ -231,680 +81,549 @@
       padding: 3px 10px; border-radius: 5px;
       font-size: .74rem; font-weight: 600;
     }
-    .n-page   { background: var(--green-lt); color: var(--green);  border: 1px solid #A5D6A7; }
-    .n-layout { background: var(--blue);     color: white; }
-    .n-shared { background: var(--blue-lt);  color: var(--blue-dk); border: 1px solid var(--blue-mid); }
-    .n-dupe   { background: var(--red-lt);   color: var(--red);    border: 1px solid #EF9A9A; }
-    .n-slot   { background: var(--orange-lt);color: var(--orange);  border: 1px solid #FFCC80; }
-    .n-conn   { color: #BDBDBD; font-size: .8rem; flex-shrink: 0; }
+    .n-page   { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+    .n-layout { background: #1867C0; color: white; }
+    .n-shared { background: #E3F2FD; color: #1251a3; border: 1px solid #90CAF9; }
+    .n-dupe   { background: #FFEBEE; color: #C62828; border: 1px solid #EF9A9A; }
+    .n-slot   { background: #FFF3E0; color: #E65100; border: 1px solid #FFCC80; }
+    .n-conn   { color: #BDBDBD; font-size: .8rem; }
+    .dupe-bdg { font-size: .58rem; background: #C62828; color: white; padding: 1px 5px; border-radius: 8px; }
+    .tree-hint { font-size: .7rem; color: #9E9E9E; }
 
-    .dupe-badge {
-      font-size: .58rem; background: var(--red); color: white;
-      padding: 1px 5px; border-radius: 8px;
-    }
-    .hint { font-size: .7rem; color: var(--gray); }
-
-    .tree-note {
-      margin-top: 14px; padding: 10px 14px;
-      border-radius: 6px; font-size: .8rem; font-weight: 500;
-    }
-    .note-bad  { background: var(--red-lt);  color: var(--red);   border-left: 3px solid #EF5350; }
-    .note-good { background: var(--green-lt);color: var(--green); border-left: 3px solid #66BB6A; }
-
-    /* ── Back link ── */
-    .back { display: inline-block; margin-top: 8px; margin-bottom: 32px;
-            color: var(--blue); font-size: .85rem; text-decoration: none; }
-    .back:hover { text-decoration: underline; }
-
-    /* ══════════════════════════════════════
-       SECTION 3 — UI COMPONENT CATALOG
-    ══════════════════════════════════════ */
-    .sub-heading {
-      font-size: .98rem; font-weight: 700; color: #424242;
-      margin-bottom: 16px; padding-left: 10px;
-      border-left: 3px solid var(--blue);
-    }
-
-    /* Catalog grid */
-    .comp-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
-      gap: 16px;
-    }
-    .comp-card {
-      background: white; border-radius: 10px;
-      border: 1px solid var(--border); overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,.08);
-      display: flex; flex-direction: column;
-    }
-    .comp-label {
-      background: var(--blue-lt); color: var(--blue-dk);
-      font-size: .78rem; font-weight: 700;
-      padding: 8px 14px; border-bottom: 1px solid var(--blue-mid);
-    }
-    .comp-demo {
-      padding: 14px; flex: 1;
-      min-height: 110px;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .comp-info { padding: 10px 14px; }
-    .info-row {
-      display: flex; align-items: center; gap: 6px;
-      margin-bottom: 5px; font-size: .74rem;
-    }
-    .info-use { font-size: .7rem; color: var(--gray); margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
-
-    /* Badges */
-    .bdg {
-      font-size: .62rem; font-weight: 700;
-      padding: 1px 6px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
-    }
-    .bdg-props { background: var(--blue);    color: white; }
-    .bdg-emit  { background: var(--orange);  color: white; }
-    .bdg-model { background: var(--green);   color: white; }
-    .bdg-slot  { background: #7B1FA2;        color: white; }
-
-    /* Demo: ProductCard */
-    .demo-card {
-      width: 140px; background: white; border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,.12); overflow: hidden;
-    }
-    .demo-card-img {
-      background: #E0E0E0; height: 44px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .58rem; color: var(--gray);
-    }
-    .demo-card-body { padding: 6px 8px; }
-    .demo-card-name { font-size: .65rem; font-weight: 600; color: #212121; }
-    .demo-card-price { font-size: .62rem; color: var(--blue); margin: 2px 0 6px; }
-    .demo-card-btns { display: flex; gap: 4px; }
-
-    /* Demo: Dialog */
-    .demo-dialog {
-      width: 170px; background: white; border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.2); overflow: hidden;
-    }
-    .demo-dlg-header {
-      background: var(--blue); color: white; padding: 7px 10px;
-      font-size: .68rem; font-weight: 600;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .demo-dlg-body {
-      padding: 10px; font-size: .62rem; color: #424242;
-      border-bottom: 1px solid var(--border); min-height: 36px;
-      display: flex; align-items: center;
-    }
-    .demo-dlg-foot {
-      padding: 7px 10px; display: flex; justify-content: flex-end; gap: 6px;
-    }
-
-    /* Demo: Button states */
-    .demo-btns-col { display: flex; flex-direction: column; gap: 7px; width: 100%; }
-
-    /* Demo: Accordion */
-    .demo-acc { width: 100%; }
-    .demo-acc-item { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 4px; overflow: hidden; }
-    .demo-acc-head {
-      padding: 5px 10px; font-size: .65rem; font-weight: 600;
-      background: var(--gray-lt); color: #424242;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .demo-acc-head.open { background: var(--blue-lt); color: var(--blue-dk); }
-    .demo-acc-body {
-      padding: 6px 10px; font-size: .6rem; color: #616161;
-      background: white; border-top: 1px solid var(--border);
-    }
-
-    /* Shared button styles used in demos */
-    .dbtn {
-      font-size: .62rem; font-weight: 600; border: none; cursor: pointer;
-      padding: 4px 9px; border-radius: 4px;
-    }
-    .dbtn-fill    { background: var(--blue); color: white; }
-    .dbtn-outline { background: white; color: var(--blue); border: 1px solid var(--blue); }
-    .dbtn-load    { background: #90CAF9; color: var(--blue-dk); cursor: not-allowed; }
-    .dbtn-dis     { background: #E0E0E0; color: #9E9E9E; cursor: not-allowed; }
-
-    /* ── Props / Emit flow ── */
+    /* ── Props/Emit flow ──────────────── */
     .flow-wrap {
-      display: flex; gap: 0; align-items: stretch; flex-wrap: wrap;
-      background: white; border-radius: 10px;
-      border: 1px solid var(--border); overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      display: flex; align-items: stretch; border: 1px solid #E0E0E0;
+      border-radius: 10px; overflow: hidden;
     }
-    .flow-box {
-      flex: 1; min-width: 220px; padding: 18px 20px;
-    }
-    .flow-box-title {
-      font-size: .82rem; font-weight: 700;
-      padding: 5px 10px; border-radius: 5px;
-      margin-bottom: 12px; display: inline-block;
-    }
-    .fb-parent { background: var(--green-lt); color: var(--green); }
-    .fb-child  { background: var(--blue-lt);  color: var(--blue-dk); }
-    .flow-code { font-family: Consolas, monospace; font-size: .78rem; line-height: 1.9; }
-    .fc-tag    { color: #9C27B0; }
-    .fc-prop   { color: var(--blue); }
-    .fc-event  { color: var(--orange); }
-    .fc-fn     { color: var(--green); }
-    .fc-dim    { color: #BDBDBD; }
-
+    .flow-box { flex: 1; min-width: 200px; padding: 18px 20px; }
+    .flow-code { font-family: Consolas, monospace; font-size: .82rem; line-height: 2.1; }
+    .fc-tag  { color: #9C27B0; }
+    .fc-prop { color: #1867C0; }
+    .fc-ev   { color: #E65100; }
+    .fc-fn   { color: #2E7D32; }
+    .fc-dim  { color: #BDBDBD; }
     .flow-mid {
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      gap: 16px; padding: 20px 16px;
-      background: #FAFAFA; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
-      min-width: 110px;
+      display: flex; flex-direction: column; justify-content: center;
+      align-items: center; gap: 16px; padding: 20px 14px;
+      background: #FAFAFA;
+      border-left: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0;
+      min-width: 100px;
     }
-    .flow-arr {
-      display: flex; align-items: center; gap: 6px;
-      font-size: .75rem; font-weight: 600;
-    }
-    .arr-lbl {
-      font-size: .68rem; padding: 2px 8px; border-radius: 8px; font-weight: 700;
-    }
-    .arr-props { background: var(--blue);   color: white; }
-    .arr-emit  { background: var(--orange); color: white; }
-    .arr-sym   { font-size: 1.2rem; color: #BDBDBD; }
+    .f-arr { display: flex; align-items: center; gap: 6px; font-size: 1.2rem; color: #BDBDBD; }
 
-    .flow-rule {
-      margin-top: 14px; padding: 10px 14px;
-      background: var(--blue-lt); border-left: 3px solid var(--blue);
-      border-radius: 5px; font-size: .8rem; color: var(--blue-dk);
-    }
-
-    /* ── Criteria ── */
-    .criteria-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-    }
-    @media (max-width: 600px) { .criteria-grid { grid-template-columns: 1fr; } }
-
-    .criterion {
-      background: white; border-radius: 10px; padding: 18px 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.08);
-    }
-    .criterion.yes { border-left: 4px solid var(--green); }
-    .criterion.no  { border-left: 4px solid #9E9E9E; }
-    .criterion-icon { font-size: 1.4rem; margin-bottom: 6px; }
-    .criterion-title {
-      font-size: .9rem; font-weight: 700; margin-bottom: 10px;
-    }
-    .criterion.yes .criterion-title { color: var(--green); }
-    .criterion.no  .criterion-title { color: #616161; }
-    .criterion-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
-    .criterion-list li {
-      font-size: .8rem; color: #424242;
-      padding-left: 14px; position: relative; line-height: 1.5;
-    }
-    .criterion-list li::before {
-      content: '•'; position: absolute; left: 0; color: #BDBDBD;
-    }
+    /* ── Catalog badge row ────────────── */
+    .comp-badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
   </style>
 </head>
 <body>
+<div id="app">
+<v-app theme="light">
 
-<header class="site-header">
-  <h1>コンポーネント共通化 — ビジュアルガイド</h1>
-  <p>Vue 3 + Vuetify 4 のページパターンと部品の共通化をビジュアルで解説</p>
-</header>
+  <!-- ── Top bar ── -->
+  <v-app-bar color="primary" elevation="1">
+    <template #prepend>
+      <v-btn icon="mdi-arrow-left" href="index.html" />
+    </template>
+    <v-app-bar-title>コンポーネント共通化 ビジュアルガイド</v-app-bar-title>
+  </v-app-bar>
 
-<main>
-  <a class="back" href="index.html">← 資料一覧へ</a>
+  <v-main>
+  <v-container max-width="1060" class="py-10 px-4">
 
-  <!-- ══════════════════════════════════════
-       SECTION 1 : ページのパターン
-  ══════════════════════════════════════ -->
-  <section id="page-patterns">
-    <div class="sec-head">
-      <div class="sec-num">1</div>
-      <h2>ページのパターン</h2>
+    <!-- ════════════════════════════════
+         SECTION 1 : ページのパターン
+    ════════════════════════════════ -->
+    <div class="d-flex align-center mb-2">
+      <span class="sec-chip">1</span>
+      <span class="text-h6 font-weight-bold text-primary">ページのパターン</span>
     </div>
-    <p class="sec-desc">
-      このアプリには <strong>2種類のページパターン</strong> があります。
-      青い部分が <code>MainLayout</code> / <code>SubLayout</code> が提供する <strong>共通 UI</strong>、
-      オレンジ枠が <strong>ページ固有コンテンツ（slot）</strong> です。
+    <p class="text-body-2 text-medium-emphasis mb-6">
+      このアプリには 2 種類のページパターンがあります。
+      <strong>青い部分</strong>が MainLayout / SubLayout が提供する共通 UI、
+      <strong>オレンジ枠</strong>がページ固有コンテンツ（slot）です。
     </p>
 
-    <div class="legend">
-      <div class="legend-item">
-        <div class="swatch sw-shared"></div>
-        <span>共通部品（MainLayout / SubLayout が提供）</span>
+    <!-- Legend -->
+    <v-sheet border rounded class="d-flex flex-wrap gap-6 pa-3 mb-8" color="surface">
+      <div class="d-flex align-center gap-2">
+        <v-chip color="primary" size="small" label>共通部品</v-chip>
+        <span class="text-body-2">MainLayout / SubLayout が提供</span>
       </div>
-      <div class="legend-item">
-        <div class="swatch sw-slot"></div>
-        <span>ページ固有コンテンツ（slot に差し込む）</span>
+      <div class="d-flex align-center gap-2">
+        <v-chip color="deep-orange" size="small" label variant="outlined">ページ固有</v-chip>
+        <span class="text-body-2">slot に差し込む</span>
       </div>
-    </div>
+    </v-sheet>
 
-    <div class="phones-row">
+    <!-- Phones row -->
+    <div class="d-flex gap-10 flex-wrap justify-center mb-12" style="align-items:flex-start;">
 
       <!-- ── Phone 1: HomePage ── -->
       <div>
         <div class="phone-unit">
-
           <div class="phone-frame">
-            <div class="ph-notch"></div>
-            <div class="ph-appbar">
-              <span>VuetifyPoC</span>
-              <span class="ph-icon">☰</span>
-            </div>
-            <div class="ph-content">
-              <div class="ph-home-inner">
-                <div class="ph-banner">ようこそ</div>
-                <div class="ph-menu"><span>商品を検索</span><span>›</span></div>
-                <div class="ph-menu"><span>バーコードスキャン</span><span>›</span></div>
+            <div class="phone-notch"></div>
+            <v-toolbar color="primary" density="compact" elevation="0" style="border-radius:0;">
+              <v-toolbar-title style="font-size:.8rem; font-weight:600;">VuetifyPoC</v-toolbar-title>
+              <template #append>
+                <v-btn icon="mdi-menu" size="x-small" color="white" />
+              </template>
+            </v-toolbar>
+            <div class="phone-content">
+              <div class="phone-content-inner">
+                <v-sheet color="primary" rounded="sm" class="d-flex align-center justify-center mb-1" height="40"
+                  style="background:linear-gradient(135deg,#1867C0,#42A5F5)!important;">
+                  <span class="text-white text-caption font-weight-bold">ようこそ</span>
+                </v-sheet>
+                <v-list density="compact" nav bg-color="transparent" style="padding:0;">
+                  <v-list-item density="compact" style="min-height:28px;padding:2px 6px;font-size:.65rem;">
+                    <template #prepend><v-icon size="12" class="mr-1">mdi-storefront</v-icon></template>
+                    <span style="font-size:.62rem;">商品を検索</span>
+                  </v-list-item>
+                  <v-list-item density="compact" style="min-height:28px;padding:2px 6px;">
+                    <template #prepend><v-icon size="12" class="mr-1">mdi-barcode-scan</v-icon></template>
+                    <span style="font-size:.62rem;">バーコードスキャン</span>
+                  </v-list-item>
+                </v-list>
               </div>
             </div>
-            <div class="ph-bottomnav">
-              <div class="ph-nav-item active">
-                <span class="ph-nav-icon">🏠</span><span>ホーム</span>
-              </div>
-              <div class="ph-nav-item">
-                <span class="ph-nav-icon">🔍</span><span>検索</span>
-              </div>
-              <div class="ph-nav-item">
-                <span class="ph-nav-icon">⚙</span><span>設定</span>
-              </div>
+            <div class="phone-nav">
+              <v-btn :variant="nav1==='home'?'tonal':'text'" size="x-small"
+                    :color="nav1==='home'?'primary':'grey'" @click="nav1='home'"
+                    style="border-radius:0; flex-direction:column; height:44px;">
+                <v-icon size="14">mdi-home</v-icon>
+                <span style="font-size:.5rem; margin-top:1px;">ホーム</span>
+              </v-btn>
+              <v-btn :variant="nav1==='search'?'tonal':'text'" size="x-small"
+                    :color="nav1==='search'?'primary':'grey'" @click="nav1='search'"
+                    style="border-radius:0; flex-direction:column; height:44px;">
+                <v-icon size="14">mdi-magnify</v-icon>
+                <span style="font-size:.5rem; margin-top:1px;">検索</span>
+              </v-btn>
+              <v-btn :variant="nav1==='cfg'?'tonal':'text'" size="x-small"
+                    :color="nav1==='cfg'?'primary':'grey'" @click="nav1='cfg'"
+                    style="border-radius:0; flex-direction:column; height:44px;">
+                <v-icon size="14">mdi-cog</v-icon>
+                <span style="font-size:.5rem; margin-top:1px;">設定</span>
+              </v-btn>
             </div>
           </div>
-
-          <div class="ann-notch"></div>
-          <div class="ann-appbar">
-            <span class="ann-tag tag-shared">AppBar（共通）</span>
-          </div>
-          <div class="ann-content">
-            <span class="ann-tag tag-slot">slot（ページ固有）</span>
-          </div>
-          <div class="ann-nav">
-            <span class="ann-tag tag-shared">BottomNav（共通）</span>
-          </div>
+          <div class="ann-r1"></div>
+          <div class="ann-r2"><span class="ann-tag ann-shared">AppBar（共通）</span></div>
+          <div class="ann-r3"><span class="ann-tag ann-slot">slot（ページ固有）</span></div>
+          <div class="ann-r4"><span class="ann-tag ann-shared">BottomNav（共通）</span></div>
         </div>
-        <div class="phone-caption">
-          <div class="pg-name">HomePage</div>
-          <div class="pg-comp">&lt;MainLayout&gt;</div>
-        </div>
+        <div class="phone-caption"><div class="pg-name">HomePage</div><div class="pg-comp">&lt;MainLayout&gt;</div></div>
       </div>
 
       <!-- ── Phone 2: SearchPage ── -->
       <div>
         <div class="phone-unit">
-
           <div class="phone-frame">
-            <div class="ph-notch"></div>
-            <div class="ph-appbar">
-              <span>VuetifyPoC</span>
-              <span class="ph-icon">☰</span>
+            <div class="phone-notch"></div>
+            <v-toolbar color="primary" density="compact" elevation="0" style="border-radius:0;">
+              <v-toolbar-title style="font-size:.8rem; font-weight:600;">VuetifyPoC</v-toolbar-title>
+              <template #append>
+                <v-btn icon="mdi-menu" size="x-small" color="white" />
+              </template>
+            </v-toolbar>
+            <div class="phone-content" style="padding:4px;">
+              <v-card v-for="item in products" :key="item.name" class="mb-1" elevation="1" density="compact"
+                      style="font-size:.62rem;">
+                <v-card-text style="padding:6px 8px; line-height:1.4;">
+                  <div style="font-weight:600; font-size:.62rem;">{{ item.name }}</div>
+                  <div style="color:#757575; font-size:.58rem;">¥ {{ item.price.toLocaleString() }}</div>
+                </v-card-text>
+              </v-card>
             </div>
-            <div class="ph-content" style="padding:6px;">
-              <div class="ph-card">
-                <div class="ph-card-title">商品 A</div>
-                <div class="ph-card-sub">¥ 1,200</div>
-              </div>
-              <div class="ph-card">
-                <div class="ph-card-title">商品 B</div>
-                <div class="ph-card-sub">¥ 3,500</div>
-              </div>
-              <div class="ph-card">
-                <div class="ph-card-title">商品 C</div>
-                <div class="ph-card-sub">¥ 890</div>
-              </div>
-            </div>
-            <div class="ph-bottomnav">
-              <div class="ph-nav-item">
-                <span class="ph-nav-icon">🏠</span><span>ホーム</span>
-              </div>
-              <div class="ph-nav-item active">
-                <span class="ph-nav-icon">🔍</span><span>検索</span>
-              </div>
-              <div class="ph-nav-item">
-                <span class="ph-nav-icon">⚙</span><span>設定</span>
-              </div>
+            <div class="phone-nav">
+              <v-btn variant="text" size="x-small" color="grey"
+                    style="border-radius:0; flex-direction:column; height:44px;">
+                <v-icon size="14">mdi-home</v-icon><span style="font-size:.5rem; margin-top:1px;">ホーム</span>
+              </v-btn>
+              <v-btn variant="tonal" size="x-small" color="primary"
+                    style="border-radius:0; flex-direction:column; height:44px;">
+                <v-icon size="14">mdi-magnify</v-icon><span style="font-size:.5rem; margin-top:1px;">検索</span>
+              </v-btn>
+              <v-btn variant="text" size="x-small" color="grey"
+                    style="border-radius:0; flex-direction:column; height:44px;">
+                <v-icon size="14">mdi-cog</v-icon><span style="font-size:.5rem; margin-top:1px;">設定</span>
+              </v-btn>
             </div>
           </div>
-
-          <div class="ann-notch"></div>
-          <div class="ann-appbar">
-            <span class="ann-tag tag-shared">AppBar（共通）</span>
-          </div>
-          <div class="ann-content">
-            <span class="ann-tag tag-slot">slot（ページ固有）</span>
-          </div>
-          <div class="ann-nav">
-            <span class="ann-tag tag-shared">BottomNav（共通）</span>
-          </div>
+          <div class="ann-r1"></div>
+          <div class="ann-r2"><span class="ann-tag ann-shared">AppBar（共通）</span></div>
+          <div class="ann-r3"><span class="ann-tag ann-slot">slot（ページ固有）</span></div>
+          <div class="ann-r4"><span class="ann-tag ann-shared">BottomNav（共通）</span></div>
         </div>
-        <div class="phone-caption">
-          <div class="pg-name">SearchPage</div>
-          <div class="pg-comp">&lt;MainLayout&gt;</div>
-        </div>
+        <div class="phone-caption"><div class="pg-name">SearchPage</div><div class="pg-comp">&lt;MainLayout&gt;</div></div>
       </div>
 
       <!-- ── Phone 3: DetailPage ── -->
       <div>
         <div class="phone-unit">
-
           <div class="phone-frame">
-            <div class="ph-notch"></div>
-            <div class="ph-appbar">
-              <span class="ph-icon">←</span>
-              <span>商品詳細</span>
-              <span></span>
-            </div>
-            <div class="ph-content" style="min-height:199px;"><!-- fills to same total height as others (155+44) -->
-              <div class="ph-detail">
-                <div class="ph-detail-img">[ 商品画像 ]</div>
-                <div class="ph-detail-txt">
+            <div class="phone-notch"></div>
+            <v-toolbar color="primary" density="compact" elevation="0" style="border-radius:0;">
+              <template #prepend>
+                <v-btn icon="mdi-arrow-left" size="x-small" color="white" />
+              </template>
+              <v-toolbar-title style="font-size:.8rem; font-weight:600;">商品詳細</v-toolbar-title>
+            </v-toolbar>
+            <!-- no BottomNav: extend content to fill -->
+            <div class="phone-content" style="height:199px; border-left-color:#E65100;">
+              <div class="phone-content-inner">
+                <v-sheet color="grey-lighten-2" rounded="sm" height="60" class="d-flex align-center justify-center mb-2">
+                  <span class="text-caption text-medium-emphasis">[ 商品画像 ]</span>
+                </v-sheet>
+                <p style="font-size:.6rem; color:#424242; line-height:1.5;">
                   商品の詳細説明テキストがここに入ります。価格や仕様などの情報を表示します。
-                </div>
+                </p>
               </div>
             </div>
-            <!-- SubLayout には BottomNav がない -->
           </div>
-
-          <div class="ann-notch"></div>
-          <div class="ann-appbar">
-            <span class="ann-tag tag-shared">AppBar + 戻る（共通）</span>
-          </div>
-          <div class="ann-content" style="align-items:center;">
-            <span class="ann-tag tag-slot">slot（ページ固有）</span>
-          </div>
-          <div class="ann-nav" style="visibility:hidden;">
-            <span class="ann-tag tag-shared">BottomNav（なし）</span>
-          </div>
+          <div class="ann-r1"></div>
+          <div class="ann-r2"><span class="ann-tag ann-shared">AppBar + 戻る（共通）</span></div>
+          <div class="ann-r3"><span class="ann-tag ann-slot">slot（ページ固有）</span></div>
+          <div class="ann-r4" style="visibility:hidden;"></div>
         </div>
-        <div class="phone-caption">
-          <div class="pg-name">DetailPage</div>
-          <div class="pg-comp">&lt;SubLayout&gt;</div>
-        </div>
+        <div class="phone-caption"><div class="pg-name">DetailPage</div><div class="pg-comp">&lt;SubLayout&gt;</div></div>
       </div>
 
-    </div><!-- /phones-row -->
-  </section>
+    </div><!-- /phones row -->
 
 
-  <!-- ══════════════════════════════════════
-       SECTION 2 : 部品の共通化（Before / After）
-  ══════════════════════════════════════ -->
-  <section id="component-sharing">
-    <div class="sec-head">
-      <div class="sec-num">2</div>
-      <h2>部品の共通化 — Before / After</h2>
+    <!-- ════════════════════════════════
+         SECTION 2 : 部品の共通化
+    ════════════════════════════════ -->
+    <div class="d-flex align-center mb-2">
+      <span class="sec-chip">2</span>
+      <span class="text-h6 font-weight-bold text-primary">部品の共通化 — Before / After</span>
     </div>
-    <p class="sec-desc">
-      共通化前は各ページが AppBar・BottomNav を個別に実装するため、変更のたびに全ページを修正する必要があります。
+    <p class="text-body-2 text-medium-emphasis mb-6">
+      共通化前は各ページが AppBar・BottomNav を個別に実装するため変更のたびに全ページを修正する必要があります。
       共通化後は <strong>レイアウトコンポーネント 1 か所を変えれば全ページに反映</strong> されます。
     </p>
 
-    <div class="tree-compare">
+    <v-row class="mb-12">
+      <!-- Before -->
+      <v-col cols="12" md="6">
+        <v-card elevation="2" border>
+          <v-card-title class="text-body-1 font-weight-bold pa-4" style="background:#FFEBEE; color:#C62828;">
+            ❌ 共通化前（コピー &amp; ペースト）
+          </v-card-title>
+          <v-card-text class="pt-4">
 
-      <!-- ─── BEFORE ─── -->
-      <div class="tree-panel">
-        <div class="panel-title panel-bad">❌ 共通化前（コピー &amp; ペースト）</div>
+            <div class="text-caption text-medium-emphasis mb-1 text-uppercase tracking-wide">HomePage.vue</div>
+            <div class="t-row" style="--d:0"><span class="t-node n-page">HomePage.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar <span class="dupe-bdg">コピー</span></span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">ホームコンテンツ</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-dupe">v-bottom-navigation <span class="dupe-bdg">コピー</span></span></div>
 
-        <div class="group-label">HomePage.vue</div>
-        <div class="t-row" style="--d:0"><span class="t-node n-page">HomePage.vue</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar <span class="dupe-badge">コピー</span></span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">ホームコンテンツ</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-dupe">v-bottom-navigation <span class="dupe-badge">コピー</span></span></div>
+            <v-divider class="my-3" />
 
-        <div class="divider"></div>
+            <div class="text-caption text-medium-emphasis mb-1 text-uppercase">SearchPage.vue</div>
+            <div class="t-row" style="--d:0"><span class="t-node n-page">SearchPage.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar <span class="dupe-bdg">コピー</span></span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">ProductCard × n</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-dupe">v-bottom-navigation <span class="dupe-bdg">コピー</span></span></div>
 
-        <div class="group-label">SearchPage.vue</div>
-        <div class="t-row" style="--d:0"><span class="t-node n-page">SearchPage.vue</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar <span class="dupe-badge">コピー</span></span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">ProductCard × n</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-dupe">v-bottom-navigation <span class="dupe-badge">コピー</span></span></div>
+            <v-divider class="my-3" />
 
-        <div class="divider"></div>
+            <div class="text-caption text-medium-emphasis mb-1 text-uppercase">DetailPage.vue</div>
+            <div class="t-row" style="--d:0"><span class="t-node n-page">DetailPage.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar（戻るボタン付き） <span class="dupe-bdg">コピー</span></span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-slot">詳細コンテンツ</span></div>
 
-        <div class="group-label">DetailPage.vue</div>
-        <div class="t-row" style="--d:0"><span class="t-node n-page">DetailPage.vue</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-dupe">v-app-bar（戻るボタン付き） <span class="dupe-badge">コピー</span></span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-slot">詳細コンテンツ</span></div>
+            <v-alert type="error" variant="tonal" class="mt-4 text-body-2">
+              AppBar を変更 → 3 ページそれぞれを個別に修正する必要がある
+            </v-alert>
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-        <div class="tree-note note-bad">
-          AppBar を変更 → 3 ページそれぞれを個別に修正する必要がある
-        </div>
-      </div>
+      <!-- After -->
+      <v-col cols="12" md="6">
+        <v-card elevation="2" border>
+          <v-card-title class="text-body-1 font-weight-bold pa-4" style="background:#E8F5E9; color:#2E7D32;">
+            ✅ 共通化後（レイアウト分離）
+          </v-card-title>
+          <v-card-text class="pt-4">
 
-      <!-- ─── AFTER ─── -->
-      <div class="tree-panel">
-        <div class="panel-title panel-good">✅ 共通化後（レイアウト分離）</div>
+            <div class="text-caption text-medium-emphasis mb-1 text-uppercase">共通レイアウト（1 か所に定義）</div>
+            <div class="t-row" style="--d:0"><span class="t-node n-layout">MainLayout.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-shared">v-app-bar</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">slot（ページ内容を受け取る）</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-shared">v-bottom-navigation</span></div>
+            <div style="height:8px;"></div>
+            <div class="t-row" style="--d:0"><span class="t-node n-layout">SubLayout.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-shared">v-app-bar（戻るボタン付き）</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-slot">slot（ページ内容を受け取る）</span></div>
 
-        <div class="group-label">共通レイアウト（1 か所に定義）</div>
-        <div class="t-row" style="--d:0"><span class="t-node n-layout">MainLayout.vue</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-shared">v-app-bar</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-slot">slot（ページ内容を受け取る）</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-shared">v-bottom-navigation</span></div>
+            <v-divider class="my-3" />
 
-        <div style="margin-top:10px;"></div>
-        <div class="t-row" style="--d:0"><span class="t-node n-layout">SubLayout.vue</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">├─</span><span class="t-node n-shared">v-app-bar（戻るボタン付き）</span></div>
-        <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-slot">slot（ページ内容を受け取る）</span></div>
+            <div class="text-caption text-medium-emphasis mb-1 text-uppercase">各ページ（コンテンツのみに専念）</div>
+            <div class="t-row" style="--d:0"><span class="t-node n-page">HomePage.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-layout">MainLayout</span><span class="tree-hint ml-2">← 使うだけ</span></div>
+            <div style="height:6px;"></div>
+            <div class="t-row" style="--d:0"><span class="t-node n-page">SearchPage.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-layout">MainLayout</span><span class="tree-hint ml-2">← 使うだけ</span></div>
+            <div style="height:6px;"></div>
+            <div class="t-row" style="--d:0"><span class="t-node n-page">DetailPage.vue</span></div>
+            <div class="t-row" style="--d:1"><span class="n-conn">└─</span><span class="t-node n-layout">SubLayout</span><span class="tree-hint ml-2">← 使うだけ</span></div>
 
-        <div class="divider"></div>
-
-        <div class="group-label">各ページ（コンテンツのみに専念）</div>
-
-        <div class="t-row" style="--d:0"><span class="t-node n-page">HomePage.vue</span></div>
-        <div class="t-row" style="--d:1">
-          <span class="n-conn">└─</span>
-          <span class="t-node n-layout">MainLayout</span>
-          <span class="hint">← 使うだけ</span>
-        </div>
-
-        <div style="margin-top:6px;"></div>
-        <div class="t-row" style="--d:0"><span class="t-node n-page">SearchPage.vue</span></div>
-        <div class="t-row" style="--d:1">
-          <span class="n-conn">└─</span>
-          <span class="t-node n-layout">MainLayout</span>
-          <span class="hint">← 使うだけ</span>
-        </div>
-
-        <div style="margin-top:6px;"></div>
-        <div class="t-row" style="--d:0"><span class="t-node n-page">DetailPage.vue</span></div>
-        <div class="t-row" style="--d:1">
-          <span class="n-conn">└─</span>
-          <span class="t-node n-layout">SubLayout</span>
-          <span class="hint">← 使うだけ</span>
-        </div>
-
-        <div class="tree-note note-good">
-          AppBar を変更 → MainLayout.vue の 1 か所だけ直せば全ページに反映
-        </div>
-      </div>
-
-    </div><!-- /tree-compare -->
-  </section>
+            <v-alert type="success" variant="tonal" class="mt-4 text-body-2">
+              AppBar を変更 → MainLayout.vue の 1 か所だけ直せば全ページに反映
+            </v-alert>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
 
-  <!-- ══════════════════════════════════════
-       SECTION 3 : UI 部品の共通化
-  ══════════════════════════════════════ -->
-  <section id="ui-components">
-    <div class="sec-head">
-      <div class="sec-num">3</div>
-      <h2>UI 部品の共通化（ボタン・カード・ダイアログ・アコーディオン）</h2>
+    <!-- ════════════════════════════════
+         SECTION 3 : UI 部品の共通化
+    ════════════════════════════════ -->
+    <div class="d-flex align-center mb-2">
+      <span class="sec-chip">3</span>
+      <span class="text-h6 font-weight-bold text-primary">UI 部品の共通化（ボタン・カード・ダイアログ・アコーディオン）</span>
     </div>
-    <p class="sec-desc">
+    <p class="text-body-2 text-medium-emphasis mb-6">
       同じ見た目・同じ操作が複数ページに現れたら <strong>コンポーネント化のサイン</strong>。
-      Vue ファイルに切り出すことで、デザインの一貫性・修正コストの一元管理ができます。
+      下のデモは <strong>実際に操作できます</strong>。
     </p>
 
-    <!-- ─── 3-A: コンポーネントカタログ ─── -->
-    <h3 class="sub-heading">共通部品の例</h3>
-
-    <div class="comp-grid">
+    <!-- Catalog: 4 interactive components -->
+    <v-row class="mb-8">
 
       <!-- ProductCard -->
-      <div class="comp-card">
-        <div class="comp-label">ProductCard.vue</div>
-        <div class="comp-demo">
-          <div class="demo-card">
-            <div class="demo-card-img">[ 商品画像 ]</div>
-            <div class="demo-card-body">
-              <div class="demo-card-name">商品名テキスト</div>
-              <div class="demo-card-price">¥ 1,200</div>
-              <div class="demo-card-btns">
-                <button class="dbtn dbtn-outline">詳細</button>
-                <button class="dbtn dbtn-fill">カート</button>
-              </div>
-            </div>
-          </div>
+      <v-col cols="12" sm="6" md="3">
+        <div class="text-caption font-weight-bold text-primary mb-2">ProductCard.vue</div>
+        <v-card elevation="3" hover @click="cardClicked = !cardClicked">
+          <v-sheet color="grey-lighten-3" height="80" class="d-flex align-center justify-center">
+            <v-icon size="32" color="grey-lighten-1">mdi-image</v-icon>
+          </v-sheet>
+          <v-card-title style="font-size:.9rem; padding-bottom:0;">商品名テキスト</v-card-title>
+          <v-card-subtitle>¥ 1,200</v-card-subtitle>
+          <v-card-actions>
+            <v-btn variant="outlined" size="small" color="primary">詳細</v-btn>
+            <v-btn color="primary" size="small">カート</v-btn>
+          </v-card-actions>
+        </v-card>
+        <div class="comp-badge-row">
+          <v-chip size="x-small" color="primary" label>props: product</v-chip>
+          <v-chip size="x-small" color="deep-orange" label>emit: @click @detail</v-chip>
         </div>
-        <div class="comp-info">
-          <div class="info-row"><span class="bdg bdg-props">props</span><code>product</code> オブジェクト</div>
-          <div class="info-row"><span class="bdg bdg-emit">emit</span><code>@click</code> / <code>@detail</code></div>
-          <div class="info-use">使用: SearchPage（リスト表示）</div>
-        </div>
-      </div>
+        <div class="text-caption text-medium-emphasis mt-1">使用: SearchPage（リスト表示）</div>
+      </v-col>
 
-      <!-- BaseDialog / ConfirmDialog -->
-      <div class="comp-card">
-        <div class="comp-label">BaseDialog / ConfirmDialog.vue</div>
-        <div class="comp-demo">
-          <div class="demo-dialog">
-            <div class="demo-dlg-header">
-              <span>削除の確認</span><span>✕</span>
-            </div>
-            <div class="demo-dlg-body">本当に削除しますか？</div>
-            <div class="demo-dlg-foot">
-              <button class="dbtn dbtn-outline">キャンセル</button>
-              <button class="dbtn dbtn-fill">削除</button>
-            </div>
-          </div>
+      <!-- BaseDialog -->
+      <v-col cols="12" sm="6" md="3">
+        <div class="text-caption font-weight-bold text-primary mb-2">BaseDialog / ConfirmDialog.vue</div>
+        <v-card elevation="3" height="148" class="d-flex align-center justify-center">
+          <v-btn color="primary" prepend-icon="mdi-open-in-new" @click="dialogOpen = true">
+            ダイアログを開く
+          </v-btn>
+        </v-card>
+        <v-dialog v-model="dialogOpen" max-width="360">
+          <v-card>
+            <v-card-title class="text-h6">削除の確認</v-card-title>
+            <v-card-text>本当に削除しますか？この操作は元に戻せません。</v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn variant="text" @click="dialogOpen = false">キャンセル</v-btn>
+              <v-btn color="error" variant="tonal" @click="dialogOpen = false">削除する</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <div class="comp-badge-row">
+          <v-chip size="x-small" color="green" label>v-model: 開閉</v-chip>
+          <v-chip size="x-small" color="primary" label>props: title</v-chip>
+          <v-chip size="x-small" color="purple" label>slot: actions</v-chip>
         </div>
-        <div class="comp-info">
-          <div class="info-row"><span class="bdg bdg-model">v-model</span>開閉状態（boolean）</div>
-          <div class="info-row"><span class="bdg bdg-props">props</span><code>title</code>, <code>maxWidth</code></div>
-          <div class="info-row"><span class="bdg bdg-slot">slot</span>default / actions</div>
-          <div class="info-use">BaseDialog を継承 → ConfirmDialog</div>
+        <div class="text-caption text-medium-emphasis mt-1">BaseDialog を継承 → ConfirmDialog</div>
+      </v-col>
+
+      <!-- AppButton (loading states) -->
+      <v-col cols="12" sm="6" md="3">
+        <div class="text-caption font-weight-bold text-primary mb-2">AppButton.vue（例）</div>
+        <v-card elevation="3" class="pa-4 d-flex flex-column gap-3" height="148">
+          <v-btn color="primary" :loading="saving" @click="simulateSave" block>
+            {{ saving ? '保存中...' : '保存する' }}
+          </v-btn>
+          <v-btn color="primary" disabled block>
+            保存する（disabled）
+          </v-btn>
+        </v-card>
+        <div class="comp-badge-row">
+          <v-chip size="x-small" color="primary" label>props: loading</v-chip>
+          <v-chip size="x-small" color="primary" label>props: disabled</v-chip>
+          <v-chip size="x-small" color="deep-orange" label>emit: @click</v-chip>
         </div>
-      </div>
+        <div class="text-caption text-medium-emphasis mt-1">ローディング状態を一元管理</div>
+      </v-col>
 
-      <!-- AppButton（概念例） -->
-      <div class="comp-card">
-        <div class="comp-label">AppButton.vue（例）</div>
-        <div class="comp-demo">
-          <div class="demo-btns-col">
-            <button class="dbtn dbtn-fill" style="width:100%;">保存する</button>
-            <button class="dbtn dbtn-load" style="width:100%;">⏳ 保存中...</button>
-            <button class="dbtn dbtn-dis"  style="width:100%;">保存する（disabled）</button>
-          </div>
+      <!-- Accordion -->
+      <v-col cols="12" sm="6" md="3">
+        <div class="text-caption font-weight-bold text-primary mb-2">AccordionSection.vue（例）</div>
+        <v-expansion-panels elevation="3" style="height:148px; overflow:auto;">
+          <v-expansion-panel title="セクション A">
+            <v-expansion-panel-text>内容テキストが表示されます。</v-expansion-panel-text>
+          </v-expansion-panel>
+          <v-expansion-panel title="セクション B">
+            <v-expansion-panel-text>セクション B の内容テキスト。</v-expansion-panel-text>
+          </v-expansion-panel>
+          <v-expansion-panel title="セクション C">
+            <v-expansion-panel-text>セクション C の内容テキスト。</v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+        <div class="comp-badge-row">
+          <v-chip size="x-small" color="primary" label>props: title modelValue</v-chip>
+          <v-chip size="x-small" color="purple" label>slot: default</v-chip>
         </div>
-        <div class="comp-info">
-          <div class="info-row"><span class="bdg bdg-props">props</span><code>loading</code>, <code>disabled</code>, <code>label</code></div>
-          <div class="info-row"><span class="bdg bdg-emit">emit</span><code>@click</code></div>
-          <div class="info-use">loading / disabled のスタイルを一元管理</div>
-        </div>
-      </div>
+        <div class="text-caption text-medium-emphasis mt-1">v-expansion-panel のラッパー</div>
+      </v-col>
 
-      <!-- AccordionSection（概念例） -->
-      <div class="comp-card">
-        <div class="comp-label">AccordionSection.vue（例）</div>
-        <div class="comp-demo">
-          <div class="demo-acc">
-            <div class="demo-acc-item">
-              <div class="demo-acc-head open">▼ セクション A</div>
-              <div class="demo-acc-body">内容テキストが表示されます。</div>
-            </div>
-            <div class="demo-acc-item">
-              <div class="demo-acc-head">▶ セクション B</div>
-            </div>
-            <div class="demo-acc-item">
-              <div class="demo-acc-head">▶ セクション C</div>
-            </div>
-          </div>
-        </div>
-        <div class="comp-info">
-          <div class="info-row"><span class="bdg bdg-props">props</span><code>title</code>, <code>modelValue</code></div>
-          <div class="info-row"><span class="bdg bdg-slot">slot</span>default（展開コンテンツ）</div>
-          <div class="info-use">v-expansion-panel のプロジェクト標準ラッパー</div>
-        </div>
-      </div>
+    </v-row>
 
-    </div><!-- /comp-grid -->
+    <!-- Props / Emit flow -->
+    <div class="text-subtitle-2 font-weight-bold mb-3" style="border-left:3px solid #1867C0; padding-left:10px;">
+      props → 部品 → emit の流れ（ProductCard の例）
+    </div>
 
-    <!-- ─── 3-B: props / emit の流れ ─── -->
-    <h3 class="sub-heading" style="margin-top:44px;">props → 部品 → emit の流れ（ProductCard の例）</h3>
-
-    <div class="flow-wrap">
-
+    <div class="flow-wrap mb-8">
       <!-- 親 -->
-      <div class="flow-box">
-        <div class="flow-box-title fb-parent">SearchPage.vue（親）</div>
+      <div class="flow-box" style="background:#E8F5E9;">
+        <v-chip color="success" size="small" label class="mb-3">SearchPage.vue（親）</v-chip>
         <div class="flow-code">
           <span class="fc-dim">&lt;</span><span class="fc-tag">ProductCard</span><br>
-          &nbsp;&nbsp;<span class="fc-prop">:product</span>=<span class="fc-dim">"</span>item<span class="fc-dim">"</span><br>
-          &nbsp;&nbsp;<span class="fc-event">@click</span>=<span class="fc-dim">"</span><span class="fc-fn">openDetail</span><span class="fc-dim">"</span><br>
-          &nbsp;&nbsp;<span class="fc-event">@detail</span>=<span class="fc-dim">"</span><span class="fc-fn">showDialog</span><span class="fc-dim">"</span><br>
+          &nbsp;&nbsp;<span class="fc-prop">:product</span><span class="fc-dim">="</span>item<span class="fc-dim">"</span><br>
+          &nbsp;&nbsp;<span class="fc-ev">@click</span><span class="fc-dim">="</span><span class="fc-fn">openDetail</span><span class="fc-dim">"</span><br>
+          &nbsp;&nbsp;<span class="fc-ev">@detail</span><span class="fc-dim">="</span><span class="fc-fn">showDialog</span><span class="fc-dim">"</span><br>
           <span class="fc-dim">/&gt;</span>
         </div>
       </div>
-
-      <!-- 矢印 -->
+      <!-- arrows -->
       <div class="flow-mid">
-        <div class="flow-arr">
-          <span class="arr-lbl arr-props">props</span>
-          <span class="arr-sym">→</span>
-        </div>
-        <div class="flow-arr">
-          <span class="arr-sym">←</span>
-          <span class="arr-lbl arr-emit">emit</span>
-        </div>
+        <div class="f-arr"><v-chip size="x-small" color="primary" label>props</v-chip> →</div>
+        <div class="f-arr">← <v-chip size="x-small" color="deep-orange" label>emit</v-chip></div>
       </div>
-
       <!-- 子 -->
-      <div class="flow-box">
-        <div class="flow-box-title fb-child">ProductCard.vue（子）</div>
+      <div class="flow-box" style="background:#E3F2FD;">
+        <v-chip color="primary" size="small" label class="mb-3">ProductCard.vue（子）</v-chip>
         <div class="flow-code">
           <span class="fc-fn">defineProps</span><span class="fc-dim">&lt;{</span>&nbsp;<span class="fc-prop">product</span>&nbsp;<span class="fc-dim">}&gt;()</span><br>
           <span class="fc-fn">defineEmits</span><span class="fc-dim">&lt;{</span><br>
-          &nbsp;&nbsp;<span class="fc-event">click</span><span class="fc-dim">: [],</span><br>
-          &nbsp;&nbsp;<span class="fc-event">detail</span><span class="fc-dim">: []</span><br>
+          &nbsp;&nbsp;<span class="fc-ev">click</span><span class="fc-dim">: [],</span><br>
+          &nbsp;&nbsp;<span class="fc-ev">detail</span><span class="fc-dim">: []</span><br>
           <span class="fc-dim">}&gt;()</span><br>
           <br>
           <span class="fc-dim">// 表示のみ担当</span><br>
-          <span class="fc-dim">// API・ルーティングは親側</span>
+          <span class="fc-dim">// API・画面遷移は親側</span>
         </div>
       </div>
-
-    </div><!-- /flow-wrap -->
-
-    <div class="flow-rule">
-      <strong>原則：</strong> データは <strong>props で上から下へ</strong>、イベントは <strong>emit で下から上へ</strong>。
+    </div>
+    <v-alert type="info" variant="tonal" class="mb-10 text-body-2">
+      <strong>原則：</strong>データは <strong>props で上から下へ</strong>、イベントは <strong>emit で下から上へ</strong>。
       子コンポーネントは「表示と操作の検知」だけを担い、ビジネスロジックは親が持つ。
+    </v-alert>
+
+    <!-- Criteria -->
+    <div class="text-subtitle-2 font-weight-bold mb-3" style="border-left:3px solid #1867C0; padding-left:10px;">
+      部品化すべき？ 判断基準
     </div>
+    <v-row>
+      <v-col cols="12" sm="6">
+        <v-card border color="success" variant="tonal" elevation="1">
+          <v-card-title class="text-body-1">✅ コンポーネントに切り出す</v-card-title>
+          <v-divider />
+          <v-list density="compact" bg-color="transparent">
+            <v-list-item prepend-icon="mdi-check-circle" density="compact">
+              同じ見た目が <strong>2 か所以上</strong> に出てくる
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-check-circle" density="compact">
+              loading・disabled・エラー状態など <strong>内部状態</strong> を持つ
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-check-circle" density="compact">
+              スタイルのルール（色・角丸）を <strong>カプセル化</strong> したい
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-check-circle" density="compact">
+              テストを <strong>単体で書きたい</strong>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6">
+        <v-card border color="grey" variant="tonal" elevation="1">
+          <v-card-title class="text-body-1">🔲 Vuetify をそのまま使う</v-card-title>
+          <v-divider />
+          <v-list density="compact" bg-color="transparent">
+            <v-list-item prepend-icon="mdi-minus-circle-outline" density="compact">
+              1 か所のみ、再利用の予定なし
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-minus-circle-outline" density="compact">
+              Vuetify の props だけで要件が満たせる
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-minus-circle-outline" density="compact">
+              独自ロジックや状態が不要
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-minus-circle-outline" density="compact">
+              ラッパーにしても <strong>薄すぎてメリットがない</strong>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-col>
+    </v-row>
 
-    <!-- ─── 3-C: 判断基準 ─── -->
-    <h3 class="sub-heading" style="margin-top:44px;">部品化すべき？ 判断基準</h3>
+  </v-container>
+  </v-main>
 
-    <div class="criteria-grid">
-      <div class="criterion yes">
-        <div class="criterion-icon">✅</div>
-        <div class="criterion-title">コンポーネントに切り出す</div>
-        <ul class="criterion-list">
-          <li>同じ見た目が <strong>2 か所以上</strong> に出てくる</li>
-          <li>loading・disabled・エラー状態など <strong>内部状態</strong> を持つ</li>
-          <li>プロジェクト標準のスタイル（色・角丸など）を <strong>カプセル化</strong> したい</li>
-          <li>テストやストーリーを <strong>単体で書きたい</strong></li>
-        </ul>
-      </div>
-      <div class="criterion no">
-        <div class="criterion-icon">🔲</div>
-        <div class="criterion-title">Vuetify をそのまま使う</div>
-        <ul class="criterion-list">
-          <li>1 か所のみ、再利用の予定なし</li>
-          <li>Vuetify の props だけで要件が満たせる</li>
-          <li>独自ロジックや状態が不要</li>
-          <li>ラッパーにしても <strong>薄すぎて意味がない</strong>（props 1 つ転送するだけ等）</li>
-        </ul>
-      </div>
-    </div>
+</v-app>
+</div>
 
-  </section>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@4.0.2/dist/vuetify.min.js"></script>
+<script>
+const { createApp, ref } = Vue
+const { createVuetify } = Vuetify
 
-</main>
+const vuetify = createVuetify({
+  theme: {
+    defaultTheme: 'light',
+    themes: {
+      light: {
+        colors: {
+          primary: '#1867C0',
+          success: '#2E7D32',
+          error:   '#C62828',
+        }
+      }
+    }
+  }
+})
 
+createApp({
+  setup() {
+    const nav1       = ref('home')
+    const dialogOpen = ref(false)
+    const saving     = ref(false)
+    const cardClicked = ref(false)
+
+    const products = [
+      { name: '商品 A', price: 1200 },
+      { name: '商品 B', price: 3500 },
+      { name: '商品 C', price: 890  },
+    ]
+
+    function simulateSave() {
+      if (saving.value) return
+      saving.value = true
+      setTimeout(() => { saving.value = false }, 2000)
+    }
+
+    return { nav1, dialogOpen, saving, cardClicked, products, simulateSave }
+  }
+}).use(vuetify).mount('#app')
+</script>
 </body>
 </html>
