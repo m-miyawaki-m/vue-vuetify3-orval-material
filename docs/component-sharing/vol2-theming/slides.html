@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vol.2 スタイル共通化（Vuetify テーマ）</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css" />
+  <style>
+    :root { --r-main-font-size: 22px; }
+    .reveal pre { font-size: 0.65em; }
+    .reveal .slide-number { color: #aaa; }
+    .bad  { color: #ff6b6b; }
+    .good { color: #69db7c; }
+    .note { font-size: 0.7em; color: #aaa; }
+    table { font-size: 0.75em; }
+    .rule-box {
+      border: 2px solid #69db7c;
+      border-radius: 8px;
+      padding: 0.6em 1em;
+      margin-top: 0.8em;
+      background: rgba(105, 219, 124, 0.08);
+      font-size: 0.85em;
+      color: #69db7c;
+    }
+    .warn { color: #FFB74D; }
+    .err  { color: #ff6b6b; }
+    .ok   { color: #69db7c; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- Slide 1: Title -->
+    <section>
+      <h2>Vol.2 スタイル共通化</h2>
+      <h3>Vuetify テーマ</h3>
+      <p class="note">Vue / Vuetify 4.0.2 — このプロジェクトの実コードで解説</p>
+    </section>
+
+    <!-- Slide 2: Vuetify 4 テーマの仕組み -->
+    <section>
+      <h2>Vuetify 4 テーマの仕組み</h2>
+      <p>テーマ定義 → Vuetify が CSS 変数を自動生成</p>
+      <pre><code class="language-ts">// src/plugins/vuetify.ts
+createVuetify({
+  theme: {
+    defaultTheme: 'dark',
+    themes: {
+      dark:     darkTheme,
+      light:    lightTheme,
+      practice: practiceTheme,
+    },
+  },
+})</code></pre>
+      <p class="note">↓ Vuetify が自動で CSS 変数を注入</p>
+      <pre><code class="language-css">/* ブラウザで実際に生成される変数（例） */
+--v-theme-primary:   33,150,243;   /* #2196F3 を RGB 分解 */
+--v-theme-secondary: 144,202,249;
+--v-theme-background: 18,18,18;</code></pre>
+      <p class="note"><code>color="primary"</code> は内部で
+        <code>background-color: rgb(var(--v-theme-primary))</code> を参照する</p>
+    </section>
+
+    <!-- Slide 3: このプロジェクトの3テーマ -->
+    <section>
+      <h2>このプロジェクトの 3 テーマ</h2>
+      <pre><code class="language-ts">// src/plugins/vuetify.ts（実コード抜粋）
+const darkTheme: ThemeDefinition = {      // ダーク（デフォルト）
+  dark: true,
+  colors: { primary: '#2196F3', background: '#121212', surface: '#1E1E1E', ... },
+}
+const lightTheme: ThemeDefinition = {     // ライト（薄青基調）
+  dark: false,
+  colors: { primary: '#1565C0', background: '#EFF7FF', surface: '#FFFFFF', ... },
+}
+const practiceTheme: ThemeDefinition = {  // プラクティス（オレンジ基調）
+  dark: false,
+  colors: { primary: '#E65100', background: '#FFF3E0', surface: '#FFFFFF', ... },
+}</code></pre>
+      <p class="note">切り替え方法：<code>useTheme().global.name.value = 'light'</code></p>
+      <pre><code class="language-ts">// src/stores/theme.ts — Pinia ストア経由で管理
+export const useThemeStore = defineStore('theme', () => {
+  const currentTheme = ref&lt;AppTheme&gt;(
+    (localStorage.getItem('appTheme') as AppTheme) ?? 'dark'
+  )
+  function setTheme(theme: AppTheme) {
+    currentTheme.value = theme
+    localStorage.setItem('appTheme', theme)
+  }
+  return { currentTheme, setTheme }
+})</code></pre>
+      <p class="note">App.vue: <code>&lt;v-app :theme="themeStore.currentTheme"&gt;</code> で全体に適用</p>
+    </section>
+
+    <!-- Slide 4: 色設定の粒度（4段階） -->
+    <section>
+      <h2>色設定の粒度（4 段階）</h2>
+      <table>
+        <thead>
+          <tr><th>粒度</th><th>手段</th><th>例</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>アプリ全体</td>
+            <td><code>&lt;v-app :theme="name"&gt;</code></td>
+            <td>themeStore で切り替え</td>
+          </tr>
+          <tr>
+            <td>ページ・セクション単位</td>
+            <td><code>theme</code> prop</td>
+            <td><code>&lt;MainLayout theme="light"&gt;</code></td>
+          </tr>
+          <tr>
+            <td>部品 1 つ</td>
+            <td><code>color</code> prop 直値</td>
+            <td><code>&lt;v-btn color="#E65100"&gt;</code></td>
+          </tr>
+          <tr>
+            <td>CSS 変数直書き</td>
+            <td><code>:style</code></td>
+            <td><code>:style="{'--v-theme-primary': '255,0,0'}"</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">通常はアプリ全体 or ページ単位で十分。部品レベルは例外的な固定色のみ。</p>
+    </section>
+
+    <!-- Slide 5: セマンティックカラー vs 直値 -->
+    <section>
+      <h2>セマンティックカラー vs 直値</h2>
+      <div style="display:flex; gap:2em; justify-content:center; align-items:flex-start; margin-top:0.5em;">
+        <div>
+          <p class="good">✅ テーマ追従（推奨）</p>
+          <pre><code class="language-html">&lt;v-btn color="primary"&gt;送信&lt;/v-btn&gt;
+&lt;v-card color="surface"&gt;...&lt;/v-card&gt;
+&lt;v-chip color="warning"&gt;注意&lt;/v-chip&gt;</code></pre>
+          <p class="note">テーマ切り替えで色が一括変わる</p>
+        </div>
+        <div>
+          <p class="bad">⚠️ 固定（例外的に使用）</p>
+          <pre><code class="language-html">&lt;v-btn color="#E65100"&gt;送信&lt;/v-btn&gt;
+&lt;v-card color="#FFFFFF"&gt;...&lt;/v-card&gt;</code></pre>
+          <p class="note">テーマが変わっても色が変わらない</p>
+        </div>
+      </div>
+      <div class="rule-box">
+        判断基準：<br>
+        テーマで一括管理したい → セマンティック名（<code>primary</code> 等）<br>
+        ブランドカラー等で固定したい → 直値（<code>#E65100</code>）
+      </div>
+    </section>
+
+    <!-- Slide 6: カスタムセマンティックカラーの追加 -->
+    <section>
+      <h2>カスタムセマンティックカラーの追加</h2>
+      <p class="note"><code>ThemeDefinition.colors</code> には <code>[key: string]: Color</code> の index signature があるため、任意のキーを追加できる</p>
+      <pre><code class="language-ts">// src/plugins/vuetify.ts に追加
+const darkTheme: ThemeDefinition = {
+  dark: true,
+  colors: {
+    primary:    '#2196F3',
+    // ... 既存 ...
+    'brand-accent': '#FF6F00',   // カスタムセマンティックカラー
+    'status-ok':    '#00C853',
+  },
+}</code></pre>
+      <pre><code class="language-html">&lt;!-- テンプレートでセマンティック名で参照 --&gt;
+&lt;v-card color="brand-accent"&gt;ブランド強調カード&lt;/v-card&gt;
+&lt;v-chip color="status-ok"&gt;正常&lt;/v-chip&gt;</code></pre>
+      <pre><code class="language-css">/* Vuetify が自動生成する CSS 変数 */
+color: rgb(var(--v-theme-brand-accent));
+color: rgb(var(--v-theme-status-ok));</code></pre>
+    </section>
+
+    <!-- Slide 7: テーマで制御できる範囲（実測表） -->
+    <section>
+      <h2>テーマで制御できる範囲（実測）</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>制御できるか</th><th>手段</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>罫線の透明度</td>
+            <td class="ok">✅</td>
+            <td><code>variables['border-opacity']</code>（デフォルト 0.12）</td>
+          </tr>
+          <tr>
+            <td>罫線の色</td>
+            <td class="warn">⚠️ 間接的のみ</td>
+            <td><code>on-surface</code> カラーを変える</td>
+          </tr>
+          <tr>
+            <td>文字の色</td>
+            <td class="ok">✅</td>
+            <td><code>on-surface</code> / <code>on-background</code></td>
+          </tr>
+          <tr>
+            <td>文字の強調度</td>
+            <td class="ok">✅</td>
+            <td><code>high-emphasis-opacity</code>（dark: 0.87 / light: 1.0）<br>
+                <code>medium-emphasis-opacity</code>（dark: 0.60 / light: 0.70）</td>
+          </tr>
+          <tr>
+            <td>フォントファミリー</td>
+            <td class="ok">✅</td>
+            <td><code>--v-font-body</code> / <code>--v-font-heading</code></td>
+          </tr>
+          <tr>
+            <td>フォントサイズ</td>
+            <td class="err">❌ Vuetify 管轄外</td>
+            <td>グローバル CSS 上書きが必要（<code>.text-h1</code> 等は固定）</td>
+          </tr>
+          <tr>
+            <td>カスタム変数</td>
+            <td class="ok">✅ 自由に追加</td>
+            <td><code>variables</code> に任意キー</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Slide 8: まとめ・チーム規約 -->
+    <section>
+      <h2>まとめ・チーム規約</h2>
+      <ul>
+        <li>Vuetify 4 のテーマは <strong>CSS 変数</strong> に変換されて自動適用される</li>
+        <li>このプロジェクトは <strong>3 テーマ</strong>（dark / light / practice）を Pinia ストア + localStorage で切り替え</li>
+        <li>色の指定は <strong>セマンティック名優先</strong>（<code>primary</code>, <code>surface</code> 等）</li>
+        <li>チーム独自の色は <code>colors</code> に <strong>カスタムセマンティックカラー</strong> として追加</li>
+        <li><code>variables</code> で罫線・強調度・フォントを制御可能</li>
+        <li>フォントサイズは Vuetify の管轄外 — グローバル CSS で対応</li>
+      </ul>
+      <div class="rule-box">
+        チーム規約：<br>
+        「色は直書きせず <code>color="primary"</code> 等セマンティック名を使う。<br>
+        固定したいときだけ直値（<code>#E65100</code>）を許容する。」
+      </div>
+    </section>
+
+  </div><!-- /.slides -->
+</div><!-- /.reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: true,
+    plugins: [ RevealHighlight, RevealNotes ],
+  });
+</script>
+</body>
+</html>
