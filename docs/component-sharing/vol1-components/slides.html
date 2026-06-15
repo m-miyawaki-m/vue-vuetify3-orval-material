@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vol.1 コンポーネント・レイアウト共通化</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" />
@@ -260,10 +261,15 @@ const model = defineModel&lt;boolean&gt;()
 &lt;/BaseDialog&gt;
 
 &lt;!-- maxWidth を明示指定 → '400px' が使われる --&gt;
+&lt;!-- HTML 属性はケバブケース (max-width)、defineProps の型はキャメルケース (maxWidth) --&gt;
 &lt;ConfirmDialog v-model="open" title="確認" max-width="400px" /&gt;
       </code></pre>
       <p class="note">
         必須 props は型に書くだけ、省略可能は <code>?</code> を付けて withDefaults でデフォルト値を指定する
+      </p>
+      <p class="note">
+        Vue は HTML 属性のケバブケース (<code>max-width</code>) と props のキャメルケース (<code>maxWidth</code>) を自動変換する。
+        テンプレートではどちらの書き方でも動作するが、HTML 属性では <code>max-width</code> が慣例。
       </p>
     </section>
 
