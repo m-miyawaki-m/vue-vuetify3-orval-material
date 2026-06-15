@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>Vol.1 コンポーネント・レイアウト共通化</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css" />
+  <style>
+    :root { --r-main-font-size: 22px; }
+    .reveal pre { font-size: 0.65em; }
+    .reveal .slide-number { color: #aaa; }
+    .bad  { color: #ff6b6b; }
+    .good { color: #69db7c; }
+    .note { font-size: 0.7em; color: #aaa; }
+    table { font-size: 0.75em; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- Slide 1: Title -->
+    <section>
+      <h1>コンポーネント<br>共通化</h1>
+      <h3>なぜ・どう共通化するか</h3>
+      <p class="note">Vue / Vuetify 4 — このプロジェクトの実コードで解説</p>
+    </section>
+
+    <!-- Slide 2: Agenda -->
+    <section>
+      <h2>この資料で学ぶこと</h2>
+      <ol>
+        <li>共通化しないと<strong>何が起きるか</strong>（問題提起）</li>
+        <li>レイアウト共通化：<strong>MainLayout / SubLayout</strong></li>
+        <li>部品の仕組み：<strong>props / emit / defineModel / slot</strong></li>
+        <li>UI コンポーネント：<strong>ProductCard / BaseDialog</strong></li>
+        <li>判断基準：<strong>いつ・どこまで共通化するか</strong></li>
+      </ol>
+    </section>
+
+    <!-- Slide 3: Before (hypothetical) -->
+    <section>
+      <h2>共通化する前 — 各ページに同じコードが散在</h2>
+      <pre><code class="html" data-trim>
+&lt;!-- HomePage.vue --&gt;
+&lt;template&gt;
+  &lt;v-layout&gt;
+    &lt;v-app-bar color="primary" elevation="2"&gt;
+      &lt;v-app-bar-title&gt;VuetifyPoC&lt;/v-app-bar-title&gt;
+    &lt;/v-app-bar&gt;
+    &lt;v-main&gt;...ページ固有の内容...&lt;/v-main&gt;
+    &lt;v-bottom-navigation color="primary"&gt;
+      &lt;v-btn to="/"&gt;&lt;v-icon&gt;mdi-home&lt;/v-icon&gt;&lt;span&gt;ホーム&lt;/span&gt;&lt;/v-btn&gt;
+      &lt;v-btn to="/search"&gt;&lt;v-icon&gt;mdi-magnify&lt;/v-icon&gt;&lt;span&gt;検索&lt;/span&gt;&lt;/v-btn&gt;
+      &lt;v-btn to="/favorites"&gt;&lt;v-icon&gt;mdi-heart&lt;/v-icon&gt;&lt;span&gt;お気に入り&lt;/span&gt;&lt;/v-btn&gt;
+      &lt;v-btn to="/settings"&gt;&lt;v-icon&gt;mdi-cog&lt;/v-icon&gt;&lt;span&gt;設定&lt;/span&gt;&lt;/v-btn&gt;
+    &lt;/v-bottom-navigation&gt;
+  &lt;/v-layout&gt;
+&lt;/template&gt;
+      </code></pre>
+      <p class="bad">↑ SearchPage.vue にも FavoritesPage.vue にも SettingsPage.vue にも<br>まったく同じコードが繰り返される…</p>
+    </section>
+
+    <!-- Slide 4: Problems -->
+    <section>
+      <h2>何が問題なのか</h2>
+      <ul>
+        <li class="fragment bad">
+          <strong>修正コストが N 倍になる</strong><br>
+          BottomNavigation にタブを追加したら全ページを手で直す必要がある
+        </li>
+        <li class="fragment bad">
+          <strong>バグが混入しやすい</strong><br>
+          あるページだけ古いアイコンが残る、色だけ違うなどの差異が生まれる
+        </li>
+        <li class="fragment bad">
+          <strong>レビューコストが上がる</strong><br>
+          「このページだけ微妙に違う」を毎回チェックしなければならない
+        </li>
+        <li class="fragment note">
+          10ページになったら？　20ページになったら？　<br>
+          コードの量は増えるが、チームの生産性は落ちていく一方…
+        </li>
+      </ul>
+    </section>
+
+    <!-- Slide 5: After — MainLayout actual code -->
+    <section>
+      <h2>解決策：MainLayout.vue で一元管理</h2>
+      <pre><code class="html" data-trim>
+&lt;!-- src/components/layout/MainLayout.vue --&gt;
+&lt;template&gt;
+  &lt;v-layout&gt;
+    &lt;v-app-bar color="primary" elevation="2"&gt;
+      &lt;v-app-bar-title&gt;{{ title }}&lt;/v-app-bar-title&gt;  &lt;!-- props で差し替え --&gt;
+      &lt;template v-if="$slots.actions" #append&gt;
+        &lt;slot name="actions" /&gt;  &lt;!-- 右端のボタン置き場（任意） --&gt;
+      &lt;/template&gt;
+    &lt;/v-app-bar&gt;
+    &lt;v-main&gt;
+      &lt;slot /&gt;  &lt;!-- ページ固有コンテンツがここに入る --&gt;
+    &lt;/v-main&gt;
+    &lt;v-bottom-navigation v-model="activeTab" color="primary"&gt;
+      &lt;v-btn v-for="tab in tabs" :key="tab.to" :to="tab.to" :value="tab.to"&gt;
+        &lt;v-icon&gt;{{ tab.icon }}&lt;/v-icon&gt;
+        &lt;span&gt;{{ tab.label }}&lt;/span&gt;
+      &lt;/v-btn&gt;
+    &lt;/v-bottom-navigation&gt;
+  &lt;/v-layout&gt;
+&lt;/template&gt;
+      </code></pre>
+      <pre><code class="typescript" data-trim>
+&lt;script setup lang="ts"&gt;
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+defineProps&lt;{ title: string }&gt;()  // タイトルだけを受け取る
+
+const route = useRoute()
+const activeTab = computed(() =&gt; route.path)  // 現在のパスでタブをハイライト
+
+const tabs = [
+  { icon: 'mdi-home',    label: 'ホーム',     to: '/'          },
+  { icon: 'mdi-magnify', label: '検索',       to: '/search'    },
+  { icon: 'mdi-heart',   label: 'お気に入り', to: '/favorites' },
+  { icon: 'mdi-cog',     label: '設定',       to: '/settings'  },
+]
+&lt;/script&gt;
+      </code></pre>
+    </section>
+
+    <!-- Slide 6: Using MainLayout -->
+    <section>
+      <h2>呼び出し側がどれだけシンプルになるか</h2>
+      <pre><code class="html" data-trim>
+&lt;!-- HomePage.vue —— title だけ渡せばレイアウト完成 --&gt;
+&lt;template&gt;
+  &lt;MainLayout title="VuetifyPoC"&gt;
+    &lt;v-container class="py-6"&gt;
+      &lt;!-- ページ固有の内容だけここに書く --&gt;
+      &lt;v-row&gt;
+        &lt;v-col v-for="item in menuItems" :key="item.title" cols="12" sm="6" md="4"&gt;
+          &lt;v-card ...&gt;...&lt;/v-card&gt;
+        &lt;/v-col&gt;
+      &lt;/v-row&gt;
+    &lt;/v-container&gt;
+  &lt;/MainLayout&gt;
+&lt;/template&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- SearchPage.vue —— 同じパターン --&gt;
+&lt;template&gt;
+  &lt;MainLayout title="商品検索"&gt;
+    &lt;v-container class="pb-6"&gt;
+      &lt;!-- 検索フィールド・商品一覧・ページネーションだけ --&gt;
+    &lt;/v-container&gt;
+  &lt;/MainLayout&gt;
+&lt;/template&gt;
+      </code></pre>
+      <p class="good">AppBar・BottomNavigation の実装は MainLayout に一行も書かなくていい</p>
+    </section>
+
+    <!-- Slide 7: MainLayout vs SubLayout -->
+    <section>
+      <h2>MainLayout vs SubLayout — 使い分け</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>コンポーネント</th>
+            <th>BottomNav</th>
+            <th>戻るボタン</th>
+            <th>使用ページ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MainLayout</strong></td>
+            <td class="good">あり</td>
+            <td>なし</td>
+            <td>Home / Search / Favorites / Settings</td>
+          </tr>
+          <tr>
+            <td><strong>SubLayout</strong></td>
+            <td>なし</td>
+            <td class="good">あり</td>
+            <td>Detail（詳細画面）</td>
+          </tr>
+        </tbody>
+      </table>
+      <pre><code class="html" data-trim>
+&lt;!-- DetailPage.vue —— SubLayout の実際の使い方 --&gt;
+&lt;template&gt;
+  &lt;SubLayout :title="product?.name ?? '詳細'"&gt;
+    &lt;v-container v-if="product" class="pb-6"&gt;
+      &lt;!-- タブ・商品情報・レビュー・関連商品 --&gt;
+    &lt;/v-container&gt;
+  &lt;/SubLayout&gt;
+&lt;/template&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- SubLayout.vue —— back ボタンが組み込まれている --&gt;
+&lt;v-app-bar color="primary" elevation="2"&gt;
+  &lt;template #prepend&gt;
+    &lt;v-btn icon="mdi-arrow-left" @click="router.back()" /&gt;
+  &lt;/template&gt;
+  &lt;v-app-bar-title&gt;{{ title }}&lt;/v-app-bar-title&gt;
+&lt;/v-app-bar&gt;
+      </code></pre>
+    </section>
+
+    <!-- Slide 8: props basics -->
+    <section>
+      <h2>props — 親から子へデータを渡す</h2>
+      <pre><code class="typescript" data-trim>
+&lt;!-- ProductCard.vue —— 型安全な defineProps --&gt;
+&lt;script setup lang="ts"&gt;
+import type { Product } from '@/types/product'
+
+defineProps&lt;{ product: Product }&gt;()
+&lt;/script&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- 呼び出し側 —— : (コロン) の有無に注意 --&gt;
+
+&lt;!-- ✅ : あり → JS 式として評価（変数・オブジェクト・計算値） --&gt;
+&lt;ProductCard :product="item" /&gt;
+
+&lt;!-- ✅ : なし → 文字列リテラルとして渡す --&gt;
+&lt;MainLayout title="商品検索" /&gt;
+
+&lt;!-- ❌ これは "商品検索" という文字列ではなく変数 商品検索 を探してしまう --&gt;
+&lt;MainLayout :title="商品検索" /&gt;
+      </code></pre>
+      <p class="note">
+        ルール：固定の文字列は <code>title="..."</code>、変数・式は <code>:title="..."</code>
+      </p>
+    </section>
+
+    <!-- Slide 9: withDefaults -->
+    <section>
+      <h2>withDefaults — 省略可能な props にデフォルト値を設定</h2>
+      <pre><code class="typescript" data-trim>
+&lt;!-- BaseDialog.vue --&gt;
+&lt;script setup lang="ts"&gt;
+withDefaults(defineProps&lt;{
+  title: string      // 必須（デフォルトなし）
+  maxWidth?: string  // 省略可能
+}&gt;(), {
+  maxWidth: '500px', // 省略した場合のデフォルト値
+})
+
+const model = defineModel&lt;boolean&gt;()
+&lt;/script&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- maxWidth を省略 → '500px' が使われる --&gt;
+&lt;BaseDialog v-model="open" title="確認"&gt;
+  本当に削除しますか？
+&lt;/BaseDialog&gt;
+
+&lt;!-- maxWidth を明示指定 → '400px' が使われる --&gt;
+&lt;ConfirmDialog v-model="open" title="確認" max-width="400px" /&gt;
+      </code></pre>
+      <p class="note">
+        必須 props は型に書くだけ、省略可能は <code>?</code> を付けて withDefaults でデフォルト値を指定する
+      </p>
+    </section>
+
+    <!-- Slide 10: emit -->
+    <section>
+      <h2>emit — 子から親へイベントを送る</h2>
+      <pre><code class="typescript" data-trim>
+&lt;!-- ProductCard.vue --&gt;
+&lt;script setup lang="ts"&gt;
+import type { Product } from '@/types/product'
+
+defineProps&lt;{ product: Product }&gt;()
+const emit = defineEmits&lt;{
+  click:  [product: Product]  // カード全体クリック
+  detail: [product: Product]  // 「詳細を見る」ボタン
+}&gt;()
+&lt;/script&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- ProductCard.vue template —— emit の呼び出し --&gt;
+&lt;v-card class="mb-3" @click="emit('click', product)"&gt;
+  ...
+  &lt;v-card-actions&gt;
+    &lt;!-- .stop でカードの @click に伝播しないようにする --&gt;
+    &lt;v-btn @click.stop="emit('detail', product)"&gt;詳細を見る&lt;/v-btn&gt;
+  &lt;/v-card-actions&gt;
+&lt;/v-card&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- SearchPage.vue —— 親側でイベントを受け取る --&gt;
+&lt;ProductCard
+  v-for="product in store.pagedProducts"
+  :key="product.id"
+  :product="product"
+  @click="openDialog(product)"  &lt;!-- クイックビュー --&gt;
+  @detail="goDetail(product)"   &lt;!-- 詳細画面へ遷移 --&gt;
+/&gt;
+      </code></pre>
+    </section>
+
+    <!-- Slide 11: defineModel -->
+    <section>
+      <h2>defineModel — 双方向バインディングを簡潔に</h2>
+      <pre><code class="typescript" data-trim>
+&lt;!-- BaseDialog.vue —— defineModel で開閉状態を受け取る --&gt;
+&lt;script setup lang="ts"&gt;
+withDefaults(defineProps&lt;{
+  title: string
+  maxWidth?: string
+}&gt;(), { maxWidth: '500px' })
+
+const model = defineModel&lt;boolean&gt;()  // ← これだけ！
+&lt;/script&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- BaseDialog.vue template —— model を v-dialog に直接バインド --&gt;
+&lt;v-dialog v-model="model" :max-width="maxWidth"&gt;
+  ...
+&lt;/v-dialog&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- SearchPage.vue —— 親は ref を v-model で渡すだけ --&gt;
+&lt;script setup lang="ts"&gt;
+const dialogOpen = ref(false)
+
+function openDialog(product: Product) {
+  store.selectProduct(product)
+  dialogOpen.value = true  // ← ダイアログを開く
+}
+&lt;/script&gt;
+
+&lt;ProductDialog v-model="dialogOpen" :product="store.selectedProduct" /&gt;
+      </code></pre>
+      <p class="note">
+        defineModel は <code>props(modelValue)</code> + <code>emit('update:modelValue')</code> のシュガー構文。<br>
+        子がモデルを書き換えると親の ref も自動で更新される。
+      </p>
+    </section>
+
+    <!-- Slide 12: slot -->
+    <section>
+      <h2>slot — 子コンポーネントにコンテンツを差し込む</h2>
+      <pre><code class="html" data-trim>
+&lt;!-- BaseDialog.vue —— デフォルトスロット + 名前付きスロット --&gt;
+&lt;template&gt;
+  &lt;v-dialog v-model="model" :max-width="maxWidth"&gt;
+    &lt;v-card&gt;
+      &lt;v-card-title&gt;{{ title }}&lt;/v-card-title&gt;
+      &lt;v-card-text&gt;
+        &lt;slot /&gt;  &lt;!-- デフォルトスロット：本文コンテンツ --&gt;
+      &lt;/v-card-text&gt;
+      &lt;v-card-actions v-if="$slots.actions"&gt;  &lt;!-- 渡された時だけ表示 --&gt;
+        &lt;slot name="actions" /&gt;  &lt;!-- 名前付きスロット：ボタン置き場 --&gt;
+      &lt;/v-card-actions&gt;
+    &lt;/v-card&gt;
+  &lt;/v-dialog&gt;
+&lt;/template&gt;
+      </code></pre>
+      <pre><code class="html" data-trim>
+&lt;!-- ConfirmDialog.vue —— #actions スロットにボタンを差し込む --&gt;
+&lt;template&gt;
+  &lt;BaseDialog v-model="model" :title="title" max-width="400px"&gt;
+    &lt;p&gt;{{ message }}&lt;/p&gt;  &lt;!-- デフォルトスロットに入る --&gt;
+    &lt;template #actions&gt;   &lt;!-- 名前付きスロットに入る --&gt;
+      &lt;v-spacer /&gt;
+      &lt;v-btn variant="text" @click="$emit('cancel')"&gt;キャンセル&lt;/v-btn&gt;
+      &lt;v-btn color="primary" variant="elevated" @click="$emit('confirm')"&gt;OK&lt;/v-btn&gt;
+    &lt;/template&gt;
+  &lt;/BaseDialog&gt;
+&lt;/template&gt;
+      </code></pre>
+    </section>
+
+    <!-- Slide 13: Summary table -->
+    <section>
+      <h2>4つの仕組み — まとめ</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>仕組み</th>
+            <th>方向</th>
+            <th>使いどころ</th>
+            <th>実例</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>props</strong></td>
+            <td>親 → 子</td>
+            <td>表示データ・設定値を渡す</td>
+            <td><code>:product="item"</code><br><code>title="商品検索"</code></td>
+          </tr>
+          <tr>
+            <td><strong>emit</strong></td>
+            <td>子 → 親</td>
+            <td>ユーザー操作を親に通知</td>
+            <td><code>@click="openDialog"</code><br><code>@detail="goDetail"</code></td>
+          </tr>
+          <tr>
+            <td><strong>defineModel</strong></td>
+            <td>双方向</td>
+            <td>開閉状態・入力値などの同期</td>
+            <td><code>v-model="dialogOpen"</code></td>
+          </tr>
+          <tr>
+            <td><strong>slot</strong></td>
+            <td>親 → 子<br>（構造）</td>
+            <td>コンテンツの差し込み・カスタマイズ</td>
+            <td><code>&lt;slot /&gt;</code><br><code>#actions</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">これら4つを組み合わせると、再利用性の高いコンポーネントが作れる</p>
+    </section>
+
+    <!-- Slide 14: Inheritance pattern -->
+    <section>
+      <h2>継承パターン：BaseDialog → ConfirmDialog</h2>
+      <pre><code class="html" data-trim>
+&lt;!-- ConfirmDialog.vue —— BaseDialog を拡張した専用ダイアログ --&gt;
+&lt;template&gt;
+  &lt;BaseDialog v-model="model" :title="title" max-width="400px"&gt;
+    &lt;p&gt;{{ message }}&lt;/p&gt;
+    &lt;template #actions&gt;
+      &lt;v-spacer /&gt;
+      &lt;v-btn variant="text" @click="$emit('cancel')"&gt;キャンセル&lt;/v-btn&gt;
+      &lt;v-btn color="primary" variant="elevated" @click="$emit('confirm')"&gt;OK&lt;/v-btn&gt;
+    &lt;/template&gt;
+  &lt;/BaseDialog&gt;
+&lt;/template&gt;
+
+&lt;script setup lang="ts"&gt;
+import BaseDialog from './BaseDialog.vue'
+
+defineProps&lt;{
+  title: string
+  message: string
+}&gt;()
+
+const model = defineModel&lt;boolean&gt;()
+
+defineEmits&lt;{
+  confirm: []
+  cancel: []
+}&gt;()
+&lt;/script&gt;
+      </code></pre>
+      <ul>
+        <li class="fragment good">BaseDialog の v-dialog・v-card・アニメーション実装をゼロで再利用</li>
+        <li class="fragment good">ConfirmDialog は「メッセージ表示 + OK/キャンセル」だけに集中</li>
+        <li class="fragment good">BaseDialog を直接使えばカスタム内容のダイアログも自由に作れる</li>
+        <li class="fragment note">将来 v-dialog の設定を変えたいときは BaseDialog だけ直せばよい</li>
+      </ul>
+    </section>
+
+    <!-- Slide 15: SearchPage full flow -->
+    <section>
+      <h2>SearchPage — コンポーネントが連携する全体像</h2>
+      <pre><code class="html" data-trim>
+&lt;!-- SearchPage.vue template（抜粋） --&gt;
+&lt;template&gt;
+  &lt;MainLayout title="商品検索"&gt;  &lt;!-- レイアウト --&gt;
+    &lt;v-container class="pb-6"&gt;
+      ...
+      &lt;!-- 商品一覧 --&gt;
+      &lt;ProductCard
+        v-for="product in store.pagedProducts"
+        :key="product.id"
+        :product="product"          &lt;!-- props で商品データを渡す --&gt;
+        @click="openDialog(product)" &lt;!-- emit: クイックビューを開く --&gt;
+        @detail="goDetail(product)"  &lt;!-- emit: 詳細画面へ遷移 --&gt;
+      /&gt;
+    &lt;/v-container&gt;
+
+    &lt;!-- ダイアログ --&gt;
+    &lt;ProductDialog
+      v-model="dialogOpen"           &lt;!-- defineModel: 開閉を同期 --&gt;
+      :product="store.selectedProduct" &lt;!-- props で選択商品を渡す --&gt;
+      @detail="goDetail"             &lt;!-- emit: 詳細画面へ遷移 --&gt;
+    /&gt;
+  &lt;/MainLayout&gt;
+&lt;/template&gt;
+      </code></pre>
+      <pre><code class="typescript" data-trim>
+&lt;script setup lang="ts"&gt;
+const store = useProductStore()
+const router = useRouter()
+const dialogOpen = ref(false)
+
+function openDialog(product: Product) {
+  store.selectProduct(product)
+  dialogOpen.value = true   // ← ProductCard の @click で呼ばれる
+}
+
+function goDetail(product: Product) {
+  dialogOpen.value = false
+  store.selectProduct(product)
+  router.push(`/detail/${product.id}`)
+}
+&lt;/script&gt;
+      </code></pre>
+    </section>
+
+    <!-- Slide 16: Decision criteria -->
+    <section>
+      <h2>判断基準：いつ・どこまで共通化するか</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>基準</th>
+            <th>具体例</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>3回ルール</strong><br>同じコードが3か所以上出たら</td>
+            <td>AppBar + BottomNav が全ページに → MainLayout</td>
+          </tr>
+          <tr>
+            <td><strong>見た目の統一</strong><br>デザインが常に同じなら</td>
+            <td>商品カードは常に同じ見た目 → ProductCard</td>
+          </tr>
+          <tr>
+            <td><strong>ロジック分離</strong><br>コンポーネント内の責務が明確なら</td>
+            <td>ダイアログの開閉 → BaseDialog に隠蔽</td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+      <h3>共通化しすぎの罠</h3>
+      <p class="bad">❌ すべての違いを props で対応しようとして props が10個以上になる</p>
+      <p class="bad">❌ 「将来使うかも」という理由で抽象化する（YAGNI 違反）</p>
+      <p class="good">✅ シンプルさを保てる範囲で共通化する。複雑になったら分割する</p>
+    </section>
+
+    <!-- Slide 17: Summary + team rule -->
+    <section>
+      <h2>まとめ</h2>
+      <ul>
+        <li><strong>レイアウト</strong>は MainLayout / SubLayout に一元化 → 修正1か所で全ページ反映</li>
+        <li><strong>props</strong> で親から子へデータを渡す（: の有無に注意）</li>
+        <li><strong>emit</strong> で子から親へイベントを通知（@click.stop でバブリング制御）</li>
+        <li><strong>defineModel</strong> で双方向バインディングを簡潔に実現</li>
+        <li><strong>slot</strong> でコンポーネントの内側を柔軟にカスタマイズ</li>
+        <li><strong>継承パターン</strong>（BaseDialog → ConfirmDialog）で専用コンポーネントを無駄なく作る</li>
+        <li>共通化は「3回ルール」を目安に、過剰な抽象化は避ける</li>
+      </ul>
+
+      <div style="margin-top: 1.5em; padding: 0.8em 1.2em; border: 2px solid #69db7c; border-radius: 8px; background: rgba(105,219,124,0.08);">
+        <p style="margin: 0; color: #69db7c; font-weight: bold; font-size: 1.1em;">
+          チームルール<br>
+          <span style="color: #fff; font-size: 0.9em;">
+            新規ページは必ず <code>MainLayout</code> か <code>SubLayout</code> をラッパーに使う
+          </span>
+        </p>
+      </div>
+    </section>
+
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({ plugins: [RevealHighlight], slideNumber: true, hash: true });
+</script>
+</body>
+</html>
