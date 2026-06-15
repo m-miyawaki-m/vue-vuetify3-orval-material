@@ -255,6 +255,190 @@
     .back { display: inline-block; margin-top: 8px; margin-bottom: 32px;
             color: var(--blue); font-size: .85rem; text-decoration: none; }
     .back:hover { text-decoration: underline; }
+
+    /* ══════════════════════════════════════
+       SECTION 3 — UI COMPONENT CATALOG
+    ══════════════════════════════════════ */
+    .sub-heading {
+      font-size: .98rem; font-weight: 700; color: #424242;
+      margin-bottom: 16px; padding-left: 10px;
+      border-left: 3px solid var(--blue);
+    }
+
+    /* Catalog grid */
+    .comp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+      gap: 16px;
+    }
+    .comp-card {
+      background: white; border-radius: 10px;
+      border: 1px solid var(--border); overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      display: flex; flex-direction: column;
+    }
+    .comp-label {
+      background: var(--blue-lt); color: var(--blue-dk);
+      font-size: .78rem; font-weight: 700;
+      padding: 8px 14px; border-bottom: 1px solid var(--blue-mid);
+    }
+    .comp-demo {
+      padding: 14px; flex: 1;
+      min-height: 110px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .comp-info { padding: 10px 14px; }
+    .info-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 5px; font-size: .74rem;
+    }
+    .info-use { font-size: .7rem; color: var(--gray); margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
+
+    /* Badges */
+    .bdg {
+      font-size: .62rem; font-weight: 700;
+      padding: 1px 6px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
+    }
+    .bdg-props { background: var(--blue);    color: white; }
+    .bdg-emit  { background: var(--orange);  color: white; }
+    .bdg-model { background: var(--green);   color: white; }
+    .bdg-slot  { background: #7B1FA2;        color: white; }
+
+    /* Demo: ProductCard */
+    .demo-card {
+      width: 140px; background: white; border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.12); overflow: hidden;
+    }
+    .demo-card-img {
+      background: #E0E0E0; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .58rem; color: var(--gray);
+    }
+    .demo-card-body { padding: 6px 8px; }
+    .demo-card-name { font-size: .65rem; font-weight: 600; color: #212121; }
+    .demo-card-price { font-size: .62rem; color: var(--blue); margin: 2px 0 6px; }
+    .demo-card-btns { display: flex; gap: 4px; }
+
+    /* Demo: Dialog */
+    .demo-dialog {
+      width: 170px; background: white; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2); overflow: hidden;
+    }
+    .demo-dlg-header {
+      background: var(--blue); color: white; padding: 7px 10px;
+      font-size: .68rem; font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .demo-dlg-body {
+      padding: 10px; font-size: .62rem; color: #424242;
+      border-bottom: 1px solid var(--border); min-height: 36px;
+      display: flex; align-items: center;
+    }
+    .demo-dlg-foot {
+      padding: 7px 10px; display: flex; justify-content: flex-end; gap: 6px;
+    }
+
+    /* Demo: Button states */
+    .demo-btns-col { display: flex; flex-direction: column; gap: 7px; width: 100%; }
+
+    /* Demo: Accordion */
+    .demo-acc { width: 100%; }
+    .demo-acc-item { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 4px; overflow: hidden; }
+    .demo-acc-head {
+      padding: 5px 10px; font-size: .65rem; font-weight: 600;
+      background: var(--gray-lt); color: #424242;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .demo-acc-head.open { background: var(--blue-lt); color: var(--blue-dk); }
+    .demo-acc-body {
+      padding: 6px 10px; font-size: .6rem; color: #616161;
+      background: white; border-top: 1px solid var(--border);
+    }
+
+    /* Shared button styles used in demos */
+    .dbtn {
+      font-size: .62rem; font-weight: 600; border: none; cursor: pointer;
+      padding: 4px 9px; border-radius: 4px;
+    }
+    .dbtn-fill    { background: var(--blue); color: white; }
+    .dbtn-outline { background: white; color: var(--blue); border: 1px solid var(--blue); }
+    .dbtn-load    { background: #90CAF9; color: var(--blue-dk); cursor: not-allowed; }
+    .dbtn-dis     { background: #E0E0E0; color: #9E9E9E; cursor: not-allowed; }
+
+    /* ── Props / Emit flow ── */
+    .flow-wrap {
+      display: flex; gap: 0; align-items: stretch; flex-wrap: wrap;
+      background: white; border-radius: 10px;
+      border: 1px solid var(--border); overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .flow-box {
+      flex: 1; min-width: 220px; padding: 18px 20px;
+    }
+    .flow-box-title {
+      font-size: .82rem; font-weight: 700;
+      padding: 5px 10px; border-radius: 5px;
+      margin-bottom: 12px; display: inline-block;
+    }
+    .fb-parent { background: var(--green-lt); color: var(--green); }
+    .fb-child  { background: var(--blue-lt);  color: var(--blue-dk); }
+    .flow-code { font-family: Consolas, monospace; font-size: .78rem; line-height: 1.9; }
+    .fc-tag    { color: #9C27B0; }
+    .fc-prop   { color: var(--blue); }
+    .fc-event  { color: var(--orange); }
+    .fc-fn     { color: var(--green); }
+    .fc-dim    { color: #BDBDBD; }
+
+    .flow-mid {
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      gap: 16px; padding: 20px 16px;
+      background: #FAFAFA; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+      min-width: 110px;
+    }
+    .flow-arr {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .75rem; font-weight: 600;
+    }
+    .arr-lbl {
+      font-size: .68rem; padding: 2px 8px; border-radius: 8px; font-weight: 700;
+    }
+    .arr-props { background: var(--blue);   color: white; }
+    .arr-emit  { background: var(--orange); color: white; }
+    .arr-sym   { font-size: 1.2rem; color: #BDBDBD; }
+
+    .flow-rule {
+      margin-top: 14px; padding: 10px 14px;
+      background: var(--blue-lt); border-left: 3px solid var(--blue);
+      border-radius: 5px; font-size: .8rem; color: var(--blue-dk);
+    }
+
+    /* ── Criteria ── */
+    .criteria-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    @media (max-width: 600px) { .criteria-grid { grid-template-columns: 1fr; } }
+
+    .criterion {
+      background: white; border-radius: 10px; padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .criterion.yes { border-left: 4px solid var(--green); }
+    .criterion.no  { border-left: 4px solid #9E9E9E; }
+    .criterion-icon { font-size: 1.4rem; margin-bottom: 6px; }
+    .criterion-title {
+      font-size: .9rem; font-weight: 700; margin-bottom: 10px;
+    }
+    .criterion.yes .criterion-title { color: var(--green); }
+    .criterion.no  .criterion-title { color: #616161; }
+    .criterion-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .criterion-list li {
+      font-size: .8rem; color: #424242;
+      padding-left: 14px; position: relative; line-height: 1.5;
+    }
+    .criterion-list li::before {
+      content: '•'; position: absolute; left: 0; color: #BDBDBD;
+    }
   </style>
 </head>
 <body>
@@ -531,6 +715,193 @@
       </div>
 
     </div><!-- /tree-compare -->
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SECTION 3 : UI 部品の共通化
+  ══════════════════════════════════════ -->
+  <section id="ui-components">
+    <div class="sec-head">
+      <div class="sec-num">3</div>
+      <h2>UI 部品の共通化（ボタン・カード・ダイアログ・アコーディオン）</h2>
+    </div>
+    <p class="sec-desc">
+      同じ見た目・同じ操作が複数ページに現れたら <strong>コンポーネント化のサイン</strong>。
+      Vue ファイルに切り出すことで、デザインの一貫性・修正コストの一元管理ができます。
+    </p>
+
+    <!-- ─── 3-A: コンポーネントカタログ ─── -->
+    <h3 class="sub-heading">共通部品の例</h3>
+
+    <div class="comp-grid">
+
+      <!-- ProductCard -->
+      <div class="comp-card">
+        <div class="comp-label">ProductCard.vue</div>
+        <div class="comp-demo">
+          <div class="demo-card">
+            <div class="demo-card-img">[ 商品画像 ]</div>
+            <div class="demo-card-body">
+              <div class="demo-card-name">商品名テキスト</div>
+              <div class="demo-card-price">¥ 1,200</div>
+              <div class="demo-card-btns">
+                <button class="dbtn dbtn-outline">詳細</button>
+                <button class="dbtn dbtn-fill">カート</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-info">
+          <div class="info-row"><span class="bdg bdg-props">props</span><code>product</code> オブジェクト</div>
+          <div class="info-row"><span class="bdg bdg-emit">emit</span><code>@click</code> / <code>@detail</code></div>
+          <div class="info-use">使用: SearchPage（リスト表示）</div>
+        </div>
+      </div>
+
+      <!-- BaseDialog / ConfirmDialog -->
+      <div class="comp-card">
+        <div class="comp-label">BaseDialog / ConfirmDialog.vue</div>
+        <div class="comp-demo">
+          <div class="demo-dialog">
+            <div class="demo-dlg-header">
+              <span>削除の確認</span><span>✕</span>
+            </div>
+            <div class="demo-dlg-body">本当に削除しますか？</div>
+            <div class="demo-dlg-foot">
+              <button class="dbtn dbtn-outline">キャンセル</button>
+              <button class="dbtn dbtn-fill">削除</button>
+            </div>
+          </div>
+        </div>
+        <div class="comp-info">
+          <div class="info-row"><span class="bdg bdg-model">v-model</span>開閉状態（boolean）</div>
+          <div class="info-row"><span class="bdg bdg-props">props</span><code>title</code>, <code>maxWidth</code></div>
+          <div class="info-row"><span class="bdg bdg-slot">slot</span>default / actions</div>
+          <div class="info-use">BaseDialog を継承 → ConfirmDialog</div>
+        </div>
+      </div>
+
+      <!-- AppButton（概念例） -->
+      <div class="comp-card">
+        <div class="comp-label">AppButton.vue（例）</div>
+        <div class="comp-demo">
+          <div class="demo-btns-col">
+            <button class="dbtn dbtn-fill" style="width:100%;">保存する</button>
+            <button class="dbtn dbtn-load" style="width:100%;">⏳ 保存中...</button>
+            <button class="dbtn dbtn-dis"  style="width:100%;">保存する（disabled）</button>
+          </div>
+        </div>
+        <div class="comp-info">
+          <div class="info-row"><span class="bdg bdg-props">props</span><code>loading</code>, <code>disabled</code>, <code>label</code></div>
+          <div class="info-row"><span class="bdg bdg-emit">emit</span><code>@click</code></div>
+          <div class="info-use">loading / disabled のスタイルを一元管理</div>
+        </div>
+      </div>
+
+      <!-- AccordionSection（概念例） -->
+      <div class="comp-card">
+        <div class="comp-label">AccordionSection.vue（例）</div>
+        <div class="comp-demo">
+          <div class="demo-acc">
+            <div class="demo-acc-item">
+              <div class="demo-acc-head open">▼ セクション A</div>
+              <div class="demo-acc-body">内容テキストが表示されます。</div>
+            </div>
+            <div class="demo-acc-item">
+              <div class="demo-acc-head">▶ セクション B</div>
+            </div>
+            <div class="demo-acc-item">
+              <div class="demo-acc-head">▶ セクション C</div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-info">
+          <div class="info-row"><span class="bdg bdg-props">props</span><code>title</code>, <code>modelValue</code></div>
+          <div class="info-row"><span class="bdg bdg-slot">slot</span>default（展開コンテンツ）</div>
+          <div class="info-use">v-expansion-panel のプロジェクト標準ラッパー</div>
+        </div>
+      </div>
+
+    </div><!-- /comp-grid -->
+
+    <!-- ─── 3-B: props / emit の流れ ─── -->
+    <h3 class="sub-heading" style="margin-top:44px;">props → 部品 → emit の流れ（ProductCard の例）</h3>
+
+    <div class="flow-wrap">
+
+      <!-- 親 -->
+      <div class="flow-box">
+        <div class="flow-box-title fb-parent">SearchPage.vue（親）</div>
+        <div class="flow-code">
+          <span class="fc-dim">&lt;</span><span class="fc-tag">ProductCard</span><br>
+          &nbsp;&nbsp;<span class="fc-prop">:product</span>=<span class="fc-dim">"</span>item<span class="fc-dim">"</span><br>
+          &nbsp;&nbsp;<span class="fc-event">@click</span>=<span class="fc-dim">"</span><span class="fc-fn">openDetail</span><span class="fc-dim">"</span><br>
+          &nbsp;&nbsp;<span class="fc-event">@detail</span>=<span class="fc-dim">"</span><span class="fc-fn">showDialog</span><span class="fc-dim">"</span><br>
+          <span class="fc-dim">/&gt;</span>
+        </div>
+      </div>
+
+      <!-- 矢印 -->
+      <div class="flow-mid">
+        <div class="flow-arr">
+          <span class="arr-lbl arr-props">props</span>
+          <span class="arr-sym">→</span>
+        </div>
+        <div class="flow-arr">
+          <span class="arr-sym">←</span>
+          <span class="arr-lbl arr-emit">emit</span>
+        </div>
+      </div>
+
+      <!-- 子 -->
+      <div class="flow-box">
+        <div class="flow-box-title fb-child">ProductCard.vue（子）</div>
+        <div class="flow-code">
+          <span class="fc-fn">defineProps</span><span class="fc-dim">&lt;{</span>&nbsp;<span class="fc-prop">product</span>&nbsp;<span class="fc-dim">}&gt;()</span><br>
+          <span class="fc-fn">defineEmits</span><span class="fc-dim">&lt;{</span><br>
+          &nbsp;&nbsp;<span class="fc-event">click</span><span class="fc-dim">: [],</span><br>
+          &nbsp;&nbsp;<span class="fc-event">detail</span><span class="fc-dim">: []</span><br>
+          <span class="fc-dim">}&gt;()</span><br>
+          <br>
+          <span class="fc-dim">// 表示のみ担当</span><br>
+          <span class="fc-dim">// API・ルーティングは親側</span>
+        </div>
+      </div>
+
+    </div><!-- /flow-wrap -->
+
+    <div class="flow-rule">
+      <strong>原則：</strong> データは <strong>props で上から下へ</strong>、イベントは <strong>emit で下から上へ</strong>。
+      子コンポーネントは「表示と操作の検知」だけを担い、ビジネスロジックは親が持つ。
+    </div>
+
+    <!-- ─── 3-C: 判断基準 ─── -->
+    <h3 class="sub-heading" style="margin-top:44px;">部品化すべき？ 判断基準</h3>
+
+    <div class="criteria-grid">
+      <div class="criterion yes">
+        <div class="criterion-icon">✅</div>
+        <div class="criterion-title">コンポーネントに切り出す</div>
+        <ul class="criterion-list">
+          <li>同じ見た目が <strong>2 か所以上</strong> に出てくる</li>
+          <li>loading・disabled・エラー状態など <strong>内部状態</strong> を持つ</li>
+          <li>プロジェクト標準のスタイル（色・角丸など）を <strong>カプセル化</strong> したい</li>
+          <li>テストやストーリーを <strong>単体で書きたい</strong></li>
+        </ul>
+      </div>
+      <div class="criterion no">
+        <div class="criterion-icon">🔲</div>
+        <div class="criterion-title">Vuetify をそのまま使う</div>
+        <ul class="criterion-list">
+          <li>1 か所のみ、再利用の予定なし</li>
+          <li>Vuetify の props だけで要件が満たせる</li>
+          <li>独自ロジックや状態が不要</li>
+          <li>ラッパーにしても <strong>薄すぎて意味がない</strong>（props 1 つ転送するだけ等）</li>
+        </ul>
+      </div>
+    </div>
+
   </section>
 
 </main>
