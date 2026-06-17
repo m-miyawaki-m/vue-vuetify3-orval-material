@@ -2,12 +2,14 @@
   <div class="phone-wrapper">
     <v-app :theme="themeStore.currentTheme" class="phone-app">
       <router-view />
+      <AppSnackbar />
     </v-app>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/theme'
+import AppSnackbar from '@/components/ui/AppSnackbar.vue'
 const themeStore = useThemeStore()
 </script>
 
