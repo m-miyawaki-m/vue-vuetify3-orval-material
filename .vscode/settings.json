@@ -1,0 +1,26 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript", "typescript", "vue"],
+
+  "terminal.integrated.env.windows": {
+    "ANDROID_HOME": "${env:ANDROID_HOME}",
+    "JAVA_HOME": "${env:JAVA_HOME}"
+  },
+  "files.exclude": {
+    "android/build": true,
+    "android/app/build": true,
+    "android/.gradle": true
+  },
+  "search.exclude": {
+    "android/build": true,
+    "android/app/build": true,
+    "android/.gradle": true,
+    "node_modules": true
+  }
+}

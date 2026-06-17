@@ -11,6 +11,7 @@ ios/
 .vscode/*
 !.vscode/extensions.json
 !.vscode/tasks.json
+!.vscode/settings.json
 .idea/
 *.suo
 *.ntvs*
