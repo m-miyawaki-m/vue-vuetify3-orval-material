@@ -78,7 +78,7 @@ const themeStore = useThemeStore()
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(128, 128, 128, 0.2);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.2);
 }
 
 .theme-preview__bar {

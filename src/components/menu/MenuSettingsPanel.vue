@@ -29,7 +29,7 @@
       <template #item="{ element }">
         <div class="settings-item settings-item--visible">
           <v-icon size="18" class="mr-2">{{ element.icon }}</v-icon>
-          <span class="text-body-2 flex-1-1">{{ element.label }}</span>
+          <span class="text-body-2 flex-grow-1">{{ element.label }}</span>
           <v-btn
             icon
             size="x-small"
@@ -62,7 +62,7 @@
         class="settings-item settings-item--hidden"
       >
         <v-icon size="18" class="mr-2" style="opacity:0.4;">{{ item.icon }}</v-icon>
-        <span class="text-body-2 flex-1-1" style="opacity:0.5;">{{ item.label }}</span>
+        <span class="text-body-2 flex-grow-1" style="opacity:0.5;">{{ item.label }}</span>
         <v-btn
           size="small"
           variant="tonal"
@@ -108,7 +108,7 @@ function onDragEnd() {
 <style scoped>
 .menu-preview {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 4px;
 }
 .menu-preview__cell {
