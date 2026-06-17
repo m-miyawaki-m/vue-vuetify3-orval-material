@@ -39,6 +39,12 @@
 
       <v-divider class="mb-6" />
 
+      <!-- メニューカスタマイズ -->
+      <p class="text-overline text-medium-emphasis mb-3">メニューカスタマイズ</p>
+      <MenuSettingsPanel />
+
+      <v-divider class="my-6" />
+
       <!-- その他設定（プレースホルダー） -->
       <p class="text-overline text-medium-emphasis mb-3">アプリ情報</p>
       <v-list lines="two">
@@ -52,6 +58,7 @@
 
 <script setup lang="ts">
 import MainLayout from '@/components/layout/MainLayout.vue'
+import MenuSettingsPanel from '@/components/menu/MenuSettingsPanel.vue'
 import { useThemeStore, THEMES } from '@/stores/theme'
 
 const themeStore = useThemeStore()
