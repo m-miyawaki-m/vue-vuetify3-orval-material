@@ -2,6 +2,7 @@
   <MainLayout title="VuetifyPoC">
     <MenuGrid />
     <QuickScannerButton />
+    <ResumeWorkButton />
   </MainLayout>
 </template>
 
@@ -9,4 +10,5 @@
 import MainLayout from '@/components/layout/MainLayout.vue'
 import MenuGrid from '@/components/menu/MenuGrid.vue'
 import QuickScannerButton from '@/components/menu/QuickScannerButton.vue'
+import ResumeWorkButton from '@/components/menu/ResumeWorkButton.vue'
 </script>
