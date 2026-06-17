@@ -557,15 +557,15 @@
           <!-- フルスクリーンダイアログ -->
           <v-dialog v-model="fullscreenDialog" fullscreen transition="dialog-bottom-transition">
             <v-card>
-              <v-app-bar color="primary" elevation="0">
+              <v-toolbar color="primary" elevation="0">
                 <template #prepend>
                   <v-btn icon="mdi-close" @click="fullscreenDialog = false" />
                 </template>
-                <v-app-bar-title>フルスクリーン編集</v-app-bar-title>
+                <v-toolbar-title>フルスクリーン編集</v-toolbar-title>
                 <template #append>
                   <v-btn variant="text" @click="fullscreenDialog = false">保存</v-btn>
                 </template>
-              </v-app-bar>
+              </v-toolbar>
               <v-container class="pt-6">
                 <v-text-field label="タイトル" variant="outlined" class="mb-4" />
                 <v-textarea  label="本文"     variant="outlined" rows="6" />
