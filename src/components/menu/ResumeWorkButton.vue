@@ -1,7 +1,7 @@
 <template>
   <div class="resume-work-wrapper">
     <v-btn
-      :color="store.hasActiveSession ? 'warning' : 'surface-variant'"
+      :color="store.hasActiveSession ? 'secondary' : 'surface-variant'"
       variant="flat"
       rounded="xl"
       class="resume-work-btn"

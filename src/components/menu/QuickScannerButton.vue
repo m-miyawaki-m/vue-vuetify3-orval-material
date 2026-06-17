@@ -1,7 +1,7 @@
 <template>
   <div class="quick-scanner-wrapper">
     <v-btn
-      color="success"
+      color="primary"
       variant="flat"
       rounded="xl"
       class="quick-scanner-btn"
