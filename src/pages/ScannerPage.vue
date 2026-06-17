@@ -72,7 +72,7 @@
                   size="x-small"
                   variant="text"
                   color="white"
-                  @click="results.splice(i, 1)"
+                  @click="removeResult(i)"
                 >
                   <v-icon size="16">mdi-close</v-icon>
                 </v-btn>
@@ -139,6 +139,11 @@ const cameraAreaStyle = computed(() => ({
   height: store.mode === 'continuous' ? '45%' : 'calc(100dvh - 52px)',
   flexShrink: '0',
 }))
+
+function removeResult(i: number) {
+  results.value.splice(i, 1)
+  workStore.updateBarcodes(results.value.map(r => r.text))
+}
 
 function onComplete() {
   if (completing) return
