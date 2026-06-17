@@ -1,777 +1,714 @@
 <template>
   <SubLayout title="コンポーネントサンプル">
-    <v-container class="pb-8">
+    <div style="position: sticky; top: 0; z-index: 1; background: rgb(var(--v-theme-background));">
+      <v-tabs v-model="activeTab" color="primary" align-tabs="start">
+        <v-tab value="input">入力・選択</v-tab>
+        <v-tab value="display">表示制御</v-tab>
+        <v-tab value="dialog">ダイアログ</v-tab>
+        <v-tab value="notification">通知</v-tab>
+        <v-tab value="scanner">スキャナー</v-tab>
+      </v-tabs>
+    </div>
 
-      <!-- ① アコーディオン -->
-      <section class="mb-8">
-        <p class="text-overline text-medium-emphasis mb-2">アコーディオン</p>
-        <p class="text-caption text-medium-emphasis mb-3">
-          パネル内には任意の部品を配置できます。ボタン・トグル・フォームなど何でも入ります。
-        </p>
-        <v-expansion-panels v-model="accordion">
+    <v-window v-model="activeTab">
 
-          <!-- ボタン入り -->
-          <v-expansion-panel value="panel1">
-            <v-expansion-panel-title>
-              <v-icon start>mdi-gesture-tap-button</v-icon>ボタンを含むパネル
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <p class="text-body-2 mb-3">パネル内でアクションを実行できます。</p>
-              <div class="d-flex gap-2 flex-wrap">
-                <v-btn color="primary" variant="elevated" prepend-icon="mdi-check" @click="accordionMsg = '保存しました'">保存</v-btn>
-                <v-btn color="error"   variant="outlined" prepend-icon="mdi-delete" @click="accordionMsg = '削除しました'">削除</v-btn>
-                <v-btn variant="text"                     prepend-icon="mdi-refresh" @click="accordionMsg = 'リセットしました'">リセット</v-btn>
-              </div>
-              <v-alert v-if="accordionMsg" type="success" variant="tonal" density="compact" class="mt-3">
-                {{ accordionMsg }}
-              </v-alert>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
+      <!-- ===== 入力・選択 ===== -->
+      <v-window-item value="input">
+        <v-container class="pb-8">
 
-          <!-- トグル・スイッチ入り -->
-          <v-expansion-panel value="panel2">
-            <v-expansion-panel-title>
-              <v-icon start>mdi-toggle-switch</v-icon>トグル・スイッチを含むパネル
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <p class="text-body-2 mb-3">表示切り替えや設定トグルに使えます。</p>
-              <v-btn-toggle v-model="accordionToggle" color="primary" variant="outlined" rounded="lg" class="mb-4">
-                <v-btn value="list"  icon="mdi-view-list" />
-                <v-btn value="grid"  icon="mdi-view-grid" />
-              </v-btn-toggle>
-              <v-switch v-model="accordionSwitch" label="通知を有効にする" color="primary" hide-details />
-              <p class="text-caption text-medium-emphasis mt-2">
-                表示: {{ accordionToggle }}　通知: {{ accordionSwitch ? 'ON' : 'OFF' }}
-              </p>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-
-          <!-- フォーム入り -->
-          <v-expansion-panel value="panel3">
-            <v-expansion-panel-title>
-              <v-icon start>mdi-form-textbox</v-icon>フォームを含むパネル
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <p class="text-body-2 mb-3">フィルタ条件や入力フォームとして使えます。</p>
-              <v-text-field
-                v-model="accordionInput"
-                label="キーワード"
-                variant="outlined"
-                density="compact"
-                class="mb-2"
-              />
-              <v-select
-                v-model="accordionSelect"
-                :items="['すべて', 'カテゴリA', 'カテゴリB']"
-                label="カテゴリ"
-                variant="outlined"
-                density="compact"
-                class="mb-3"
-              />
-              <v-btn color="primary" size="small" block @click="accordionMsg = '検索: ' + accordionInput + ' / ' + accordionSelect">
-                この条件で検索
-              </v-btn>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-
-        </v-expansion-panels>
-      </section>
-
-      <v-divider class="mb-8" />
-
-      <!-- ② ラジオボタン -->
-      <section class="mb-8">
-        <p class="text-overline text-medium-emphasis mb-2">ラジオボタン</p>
-        <v-radio-group v-model="radioValue" label="配送方法を選択" color="primary">
-          <v-radio label="通常配送（3〜5日）"    value="standard" />
-          <v-radio label="速達配送（翌日）"       value="express"  />
-          <v-radio label="店頭受け取り"           value="pickup"   />
-        </v-radio-group>
-        <v-radio-group
-          v-model="radioInline"
-          label="サイズ"
-          inline
-          color="primary"
-          class="mt-2"
-        >
-          <v-radio label="S" value="S" />
-          <v-radio label="M" value="M" />
-          <v-radio label="L" value="L" />
-          <v-radio label="XL" value="XL" />
-        </v-radio-group>
-        <p class="text-caption text-medium-emphasis mt-1">
-          配送: {{ radioValue }}　サイズ: {{ radioInline }}
-        </p>
-      </section>
-
-      <v-divider class="mb-8" />
-
-      <!-- ③ トグルボタン -->
-      <section class="mb-8">
-        <p class="text-overline text-medium-emphasis mb-2">トグルボタン</p>
-
-        <p class="text-body-2 mb-1">単一選択</p>
-        <v-btn-toggle v-model="toggleSingle" color="primary" variant="outlined" rounded="lg" mandatory>
-          <v-btn value="list"  icon="mdi-view-list"   />
-          <v-btn value="grid"  icon="mdi-view-grid"   />
-          <v-btn value="table" icon="mdi-table-large" />
-        </v-btn-toggle>
-        <p class="text-caption text-medium-emphasis mt-1 mb-4">
-          表示形式: {{ toggleSingle }}
-        </p>
-
-        <p class="text-body-2 mb-1">複数選択</p>
-        <v-btn-toggle v-model="toggleMultiple" color="primary" variant="outlined" rounded="lg" multiple>
-          <v-btn value="bold"          icon="mdi-format-bold"          />
-          <v-btn value="italic"        icon="mdi-format-italic"        />
-          <v-btn value="underline"     icon="mdi-format-underline"     />
-          <v-btn value="strikethrough" icon="mdi-format-strikethrough" />
-        </v-btn-toggle>
-        <p class="text-caption text-medium-emphasis mt-1">
-          書式: {{ toggleMultiple.length ? toggleMultiple.join(', ') : 'なし' }}
-        </p>
-      </section>
-
-      <v-divider class="mb-8" />
-
-      <!-- ④ プルダウンリスト -->
-      <section class="mb-8">
-        <p class="text-overline text-medium-emphasis mb-2">プルダウンリスト</p>
-
-        <v-select
-          v-model="selectSingle"
-          :items="prefectures"
-          label="都道府県"
-          variant="outlined"
-          class="mb-4"
-        />
-
-        <v-select
-          v-model="selectMultiple"
-          :items="categories"
-          label="カテゴリ（複数選択可）"
-          variant="outlined"
-          multiple
-          chips
-          closable-chips
-          class="mb-2"
-        />
-
-        <p class="text-caption text-medium-emphasis">
-          都道府県: {{ selectSingle ?? '未選択' }}
-          カテゴリ: {{ selectMultiple.length ? selectMultiple.join(', ') : '未選択' }}
-        </p>
-      </section>
-
-      <v-divider class="mb-8" />
-
-      <!-- ⑤ カレンダー（日付選択） -->
-      <section class="mb-4">
-        <p class="text-overline text-medium-emphasis mb-2">カレンダー</p>
-
-        <!-- 単一日付 -->
-        <p class="text-body-2 mb-2">単一日付</p>
-        <v-text-field
-          :model-value="selectedDate ? formatDate(selectedDate) : ''"
-          label="日付を選択"
-          variant="outlined"
-          readonly
-          placeholder="yyyy/mm/dd"
-          class="mb-6"
-        >
-          <template #append-inner>
-            <v-btn icon="mdi-calendar" variant="text" density="compact" @click="openSingle" />
-          </template>
-        </v-text-field>
-
-        <!-- 期間選択 -->
-        <p class="text-body-2 mb-2">期間選択</p>
-        <div class="d-flex align-center gap-2 mb-1">
-          <v-text-field
-            :model-value="rangeStart ? formatDate(rangeStart) : ''"
-            label="開始日"
-            variant="outlined"
-            readonly
-            placeholder="yyyy/mm/dd"
-            hide-details
-            style="flex:1"
-          />
-          <span class="text-body-2 mx-1">〜</span>
-          <v-text-field
-            :model-value="rangeEnd ? formatDate(rangeEnd) : ''"
-            label="終了日"
-            variant="outlined"
-            readonly
-            placeholder="yyyy/mm/dd"
-            hide-details
-            style="flex:1"
-          />
-          <v-btn icon="mdi-calendar-range" variant="tonal" color="primary" class="ml-1" @click="openRange" />
-        </div>
-        <p class="text-caption text-medium-emphasis mt-2">
-          {{ rangeStart && rangeEnd
-            ? formatDate(rangeStart) + ' 〜 ' + formatDate(rangeEnd)
-            : rangeStart ? formatDate(rangeStart) + ' 〜 未選択' : '未選択' }}
-        </p>
-      </section>
-
-      <!-- カレンダーダイアログ（単一） -->
-      <v-dialog v-model="singleDialog" max-width="360">
-        <v-card>
-          <v-card-title class="pt-4 pl-4">日付を選択</v-card-title>
-          <v-date-picker
-            v-model="tempDate"
-            color="primary"
-            show-adjacent-months
-            elevation="0"
-          />
-          <v-card-actions>
-            <v-spacer />
-            <v-btn variant="text" @click="singleDialog = false">キャンセル</v-btn>
-            <v-btn color="primary" variant="elevated" @click="confirmSingle">OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <!-- カレンダーダイアログ（期間） -->
-      <v-dialog v-model="rangeDialog" max-width="360">
-        <v-card>
-          <v-card-title class="pt-4 pl-4">期間を選択</v-card-title>
-          <v-card-subtitle class="pb-0 pl-4">
-            {{ tempRange.length === 0 ? '開始日をタップ' : tempRange.length === 1 ? '終了日をタップ' : '期間が選択されました' }}
-          </v-card-subtitle>
-          <v-date-picker
-            v-model="tempRange"
-            color="primary"
-            show-adjacent-months
-            multiple="range"
-            elevation="0"
-          />
-          <v-card-actions>
-            <v-btn variant="text" @click="clearRange">クリア</v-btn>
-            <v-spacer />
-            <v-btn variant="text" @click="rangeDialog = false">キャンセル</v-btn>
-            <v-btn
+          <!-- ラジオボタン -->
+          <section class="mb-8">
+            <p class="text-overline text-medium-emphasis mb-2">ラジオボタン</p>
+            <v-radio-group v-model="radioValue" label="配送方法を選択" color="primary">
+              <v-radio label="通常配送（3〜5日）"    value="standard" />
+              <v-radio label="速達配送（翌日）"       value="express"  />
+              <v-radio label="店頭受け取り"           value="pickup"   />
+            </v-radio-group>
+            <v-radio-group
+              v-model="radioInline"
+              label="サイズ"
+              inline
               color="primary"
-              variant="elevated"
-              :disabled="tempRange.length < 2"
-              @click="confirmRange"
-            >OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+              class="mt-2"
+            >
+              <v-radio label="S" value="S" />
+              <v-radio label="M" value="M" />
+              <v-radio label="L" value="L" />
+              <v-radio label="XL" value="XL" />
+            </v-radio-group>
+            <p class="text-caption text-medium-emphasis mt-1">
+              配送: {{ radioValue }}　サイズ: {{ radioInline }}
+            </p>
+          </section>
 
-      <v-divider class="mb-8" />
+          <v-divider class="mb-8" />
 
-      <!-- ⑥ 時刻選択 -->
-      <section class="mb-4">
-        <p class="text-overline text-medium-emphasis mb-2">時刻</p>
+          <!-- トグルボタン -->
+          <section class="mb-8">
+            <p class="text-overline text-medium-emphasis mb-2">トグルボタン</p>
 
-        <!-- ── デフォルトパターン ── -->
-        <v-card variant="outlined" class="mb-6 pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">デフォルトパターン（Vuetify 標準）</p>
-          <p class="text-caption text-medium-emphasis mb-4">
-            Vuetify 組み込みの <code>v-time-picker</code> を使用。クロック形式で時・分を選択します。
-          </p>
+            <p class="text-body-2 mb-1">単一選択</p>
+            <v-btn-toggle v-model="toggleSingle" color="primary" variant="outlined" rounded="lg" mandatory>
+              <v-btn value="list"  icon="mdi-view-list"   />
+              <v-btn value="grid"  icon="mdi-view-grid"   />
+              <v-btn value="table" icon="mdi-table-large" />
+            </v-btn-toggle>
+            <p class="text-caption text-medium-emphasis mt-1 mb-4">
+              表示形式: {{ toggleSingle }}
+            </p>
 
-          <p class="text-body-2 mb-2">単一時刻</p>
-          <v-text-field
-            :model-value="defTime ?? ''"
-            label="時刻を選択"
-            variant="outlined"
-            readonly
-            placeholder="HH:mm"
-            class="mb-4"
-          >
-            <template #append-inner>
-              <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openDefSingle" />
-            </template>
-          </v-text-field>
+            <p class="text-body-2 mb-1">複数選択</p>
+            <v-btn-toggle v-model="toggleMultiple" color="primary" variant="outlined" rounded="lg" multiple>
+              <v-btn value="bold"          icon="mdi-format-bold"          />
+              <v-btn value="italic"        icon="mdi-format-italic"        />
+              <v-btn value="underline"     icon="mdi-format-underline"     />
+              <v-btn value="strikethrough" icon="mdi-format-strikethrough" />
+            </v-btn-toggle>
+            <p class="text-caption text-medium-emphasis mt-1">
+              書式: {{ toggleMultiple.length ? toggleMultiple.join(', ') : 'なし' }}
+            </p>
+          </section>
 
-          <p class="text-body-2 mb-2">時間範囲</p>
-          <div class="d-flex align-center gap-2">
+          <v-divider class="mb-8" />
+
+          <!-- プルダウンリスト -->
+          <section class="mb-8">
+            <p class="text-overline text-medium-emphasis mb-2">プルダウンリスト</p>
+
+            <v-select
+              v-model="selectSingle"
+              :items="prefectures"
+              label="都道府県"
+              variant="outlined"
+              class="mb-4"
+            />
+
+            <v-select
+              v-model="selectMultiple"
+              :items="categories"
+              label="カテゴリ（複数選択可）"
+              variant="outlined"
+              multiple
+              chips
+              closable-chips
+              class="mb-2"
+            />
+
+            <p class="text-caption text-medium-emphasis">
+              都道府県: {{ selectSingle ?? '未選択' }}
+              カテゴリ: {{ selectMultiple.length ? selectMultiple.join(', ') : '未選択' }}
+            </p>
+          </section>
+
+          <v-divider class="mb-8" />
+
+          <!-- カレンダー -->
+          <section class="mb-4">
+            <p class="text-overline text-medium-emphasis mb-2">カレンダー</p>
+
+            <p class="text-body-2 mb-2">単一日付</p>
             <v-text-field
-              :model-value="defRangeStart ?? ''"
-              label="開始時刻"
+              :model-value="selectedDate ? formatDate(selectedDate) : ''"
+              label="日付を選択"
               variant="outlined"
               readonly
-              placeholder="HH:mm"
-              hide-details
-              style="flex:1"
-            />
-            <span class="text-body-2 mx-1">〜</span>
-            <v-text-field
-              :model-value="defRangeEnd ?? ''"
-              label="終了時刻"
-              variant="outlined"
-              readonly
-              placeholder="HH:mm"
-              hide-details
-              style="flex:1"
-            />
-            <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openDefRange" />
-          </div>
-          <p class="text-caption text-medium-emphasis mt-2">
-            {{ defRangeStart && defRangeEnd ? defRangeStart + ' 〜 ' + defRangeEnd : '未選択' }}
-          </p>
-        </v-card>
-
-        <!-- ── 自作パターン ── -->
-        <v-card variant="outlined" class="pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">自作パターン（ホイールピッカー）</p>
-          <p class="text-caption text-medium-emphasis mb-4">
-            CSS scroll-snap で実装したドラムロール型UI。iOS 標準の時刻選択に近い操作感。
-            上下スワイプまたはアイテムタップで値を変更できます。
-          </p>
-
-          <p class="text-body-2 mb-2">単一時刻</p>
-          <v-text-field
-            :model-value="wheelTime ?? ''"
-            label="時刻を選択"
-            variant="outlined"
-            readonly
-            placeholder="HH:mm"
-            class="mb-4"
-          >
-            <template #append-inner>
-              <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openWheelSingle" />
-            </template>
-          </v-text-field>
-
-          <p class="text-body-2 mb-2">時間範囲</p>
-          <div class="d-flex align-center gap-2">
-            <v-text-field
-              :model-value="wheelRangeStart ?? ''"
-              label="開始時刻"
-              variant="outlined"
-              readonly
-              placeholder="HH:mm"
-              hide-details
-              style="flex:1"
-            />
-            <span class="text-body-2 mx-1">〜</span>
-            <v-text-field
-              :model-value="wheelRangeEnd ?? ''"
-              label="終了時刻"
-              variant="outlined"
-              readonly
-              placeholder="HH:mm"
-              hide-details
-              style="flex:1"
-            />
-            <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openWheelRange" />
-          </div>
-          <p class="text-caption text-medium-emphasis mt-2">
-            {{ wheelRangeStart && wheelRangeEnd ? wheelRangeStart + ' 〜 ' + wheelRangeEnd : '未選択' }}
-          </p>
-        </v-card>
-      </section>
-
-      <v-divider class="mb-8" />
-
-      <!-- ⑦ 表示制御パターン -->
-      <section class="mb-8">
-        <p class="text-overline text-medium-emphasis mb-2">表示制御パターン</p>
-
-        <!-- v-if -->
-        <v-card variant="outlined" class="mb-4 pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">v-if — 条件付きレンダリング</p>
-          <p class="text-caption text-medium-emphasis mb-3">
-            条件が false のとき DOM から完全に除去されます。追加入力欄の出し入れなどに最適。
-          </p>
-          <v-checkbox v-model="showExtra" label="追加情報を入力する" color="primary" hide-details class="mb-2" />
-          <v-expand-transition>
-            <div v-if="showExtra">
-              <v-text-field label="会社名" variant="outlined" density="compact" class="mb-2" />
-              <v-text-field label="部署名" variant="outlined" density="compact" />
-            </div>
-          </v-expand-transition>
-        </v-card>
-
-        <!-- v-show -->
-        <v-card variant="outlined" class="mb-4 pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">v-show — 表示/非表示切り替え</p>
-          <p class="text-caption text-medium-emphasis mb-3">
-            DOM は残り visibility/display だけ切り替えます。頻繁に開閉する場合は v-if より高速。
-          </p>
-          <v-btn
-            :prepend-icon="showDetail ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-            variant="tonal"
-            color="primary"
-            size="small"
-            class="mb-2"
-            @click="showDetail = !showDetail"
-          >{{ showDetail ? '詳細を隠す' : '詳細を表示' }}</v-btn>
-          <div v-show="showDetail" class="pa-3 rounded bg-grey-lighten-4">
-            <p class="text-body-2">v-show で表示制御されたコンテンツです。</p>
-            <p class="text-body-2">DOM に残るため再表示が速いです。</p>
-          </div>
-        </v-card>
-
-        <!-- v-menu -->
-        <v-card variant="outlined" class="pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">v-menu — ポップアップメニュー</p>
-          <p class="text-caption text-medium-emphasis mb-3">
-            ボタン近くに小さいドロップダウンを出します。コンテキストメニューや操作メニューに使います。
-          </p>
-          <div class="d-flex align-center gap-3">
-            <span class="text-body-2">操作対象アイテム</span>
-            <v-menu>
-              <template #activator="{ props: menuProps }">
-                <v-btn icon="mdi-dots-vertical" variant="text" v-bind="menuProps" />
+              placeholder="yyyy/mm/dd"
+              class="mb-6"
+            >
+              <template #append-inner>
+                <v-btn icon="mdi-calendar" variant="text" density="compact" @click="openSingle" />
               </template>
-              <v-list density="compact">
-                <v-list-item prepend-icon="mdi-pencil"       title="編集"   @click="menuResult = '編集を選択'" />
-                <v-list-item prepend-icon="mdi-content-copy" title="コピー" @click="menuResult = 'コピーを選択'" />
-                <v-divider />
-                <v-list-item prepend-icon="mdi-delete" title="削除" color="error" @click="menuResult = '削除を選択'" />
-              </v-list>
-            </v-menu>
-          </div>
-          <p v-if="menuResult" class="text-caption text-medium-emphasis mt-2">→ {{ menuResult }}</p>
-        </v-card>
-      </section>
+            </v-text-field>
 
-      <v-divider class="mb-8" />
+            <p class="text-body-2 mb-2">期間選択</p>
+            <div class="d-flex align-center gap-2 mb-1">
+              <v-text-field
+                :model-value="rangeStart ? formatDate(rangeStart) : ''"
+                label="開始日"
+                variant="outlined"
+                readonly
+                placeholder="yyyy/mm/dd"
+                hide-details
+                style="flex:1"
+              />
+              <span class="text-body-2 mx-1">〜</span>
+              <v-text-field
+                :model-value="rangeEnd ? formatDate(rangeEnd) : ''"
+                label="終了日"
+                variant="outlined"
+                readonly
+                placeholder="yyyy/mm/dd"
+                hide-details
+                style="flex:1"
+              />
+              <v-btn icon="mdi-calendar-range" variant="tonal" color="primary" class="ml-1" @click="openRange" />
+            </div>
+            <p class="text-caption text-medium-emphasis mt-2">
+              {{ rangeStart && rangeEnd
+                ? formatDate(rangeStart) + ' 〜 ' + formatDate(rangeEnd)
+                : rangeStart ? formatDate(rangeStart) + ' 〜 未選択' : '未選択' }}
+            </p>
+          </section>
 
-      <!-- ⑧ ダイアログパターン -->
-      <section class="mb-8">
-        <p class="text-overline text-medium-emphasis mb-2">ダイアログパターン</p>
-        <p class="text-caption text-medium-emphasis mb-4">
-          用途に応じて使い分けます。すべてユーザーの注意を集中させる目的で使います。
-        </p>
-        <div class="d-flex flex-column gap-3">
+          <!-- カレンダーダイアログ（単一） -->
+          <v-dialog v-model="singleDialog" max-width="360">
+            <v-card>
+              <v-card-title class="pt-4 pl-4">日付を選択</v-card-title>
+              <v-date-picker
+                v-model="tempDate"
+                color="primary"
+                show-adjacent-months
+                elevation="0"
+              />
+              <v-card-actions>
+                <v-spacer />
+                <v-btn variant="text" @click="singleDialog = false">キャンセル</v-btn>
+                <v-btn color="primary" variant="elevated" @click="confirmSingle">OK</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- カレンダーダイアログ（期間） -->
+          <v-dialog v-model="rangeDialog" max-width="360">
+            <v-card>
+              <v-card-title class="pt-4 pl-4">期間を選択</v-card-title>
+              <v-card-subtitle class="pb-0 pl-4">
+                {{ tempRange.length === 0 ? '開始日をタップ' : tempRange.length === 1 ? '終了日をタップ' : '期間が選択されました' }}
+              </v-card-subtitle>
+              <v-date-picker
+                v-model="tempRange"
+                color="primary"
+                show-adjacent-months
+                multiple="range"
+                elevation="0"
+              />
+              <v-card-actions>
+                <v-btn variant="text" @click="clearRange">クリア</v-btn>
+                <v-spacer />
+                <v-btn variant="text" @click="rangeDialog = false">キャンセル</v-btn>
+                <v-btn
+                  color="primary"
+                  variant="elevated"
+                  :disabled="tempRange.length < 2"
+                  @click="confirmRange"
+                >OK</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <v-divider class="mb-8" />
+
+          <!-- 時刻選択 -->
+          <section class="mb-4">
+            <p class="text-overline text-medium-emphasis mb-2">時刻</p>
+
+            <v-card variant="outlined" class="mb-6 pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">デフォルトパターン（Vuetify 標準）</p>
+              <p class="text-caption text-medium-emphasis mb-4">
+                Vuetify 組み込みの <code>v-time-picker</code> を使用。クロック形式で時・分を選択します。
+              </p>
+
+              <p class="text-body-2 mb-2">単一時刻</p>
+              <v-text-field
+                :model-value="defTime ?? ''"
+                label="時刻を選択"
+                variant="outlined"
+                readonly
+                placeholder="HH:mm"
+                class="mb-4"
+              >
+                <template #append-inner>
+                  <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openDefSingle" />
+                </template>
+              </v-text-field>
+
+              <p class="text-body-2 mb-2">時間範囲</p>
+              <div class="d-flex align-center gap-2">
+                <v-text-field
+                  :model-value="defRangeStart ?? ''"
+                  label="開始時刻"
+                  variant="outlined"
+                  readonly
+                  placeholder="HH:mm"
+                  hide-details
+                  style="flex:1"
+                />
+                <span class="text-body-2 mx-1">〜</span>
+                <v-text-field
+                  :model-value="defRangeEnd ?? ''"
+                  label="終了時刻"
+                  variant="outlined"
+                  readonly
+                  placeholder="HH:mm"
+                  hide-details
+                  style="flex:1"
+                />
+                <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openDefRange" />
+              </div>
+              <p class="text-caption text-medium-emphasis mt-2">
+                {{ defRangeStart && defRangeEnd ? defRangeStart + ' 〜 ' + defRangeEnd : '未選択' }}
+              </p>
+            </v-card>
+
+            <v-card variant="outlined" class="pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">自作パターン（ホイールピッカー）</p>
+              <p class="text-caption text-medium-emphasis mb-4">
+                CSS scroll-snap で実装したドラムロール型UI。iOS 標準の時刻選択に近い操作感。
+                上下スワイプまたはアイテムタップで値を変更できます。
+              </p>
+
+              <p class="text-body-2 mb-2">単一時刻</p>
+              <v-text-field
+                :model-value="wheelTime ?? ''"
+                label="時刻を選択"
+                variant="outlined"
+                readonly
+                placeholder="HH:mm"
+                class="mb-4"
+              >
+                <template #append-inner>
+                  <v-btn icon="mdi-clock-outline" variant="text" density="compact" @click="openWheelSingle" />
+                </template>
+              </v-text-field>
+
+              <p class="text-body-2 mb-2">時間範囲</p>
+              <div class="d-flex align-center gap-2">
+                <v-text-field
+                  :model-value="wheelRangeStart ?? ''"
+                  label="開始時刻"
+                  variant="outlined"
+                  readonly
+                  placeholder="HH:mm"
+                  hide-details
+                  style="flex:1"
+                />
+                <span class="text-body-2 mx-1">〜</span>
+                <v-text-field
+                  :model-value="wheelRangeEnd ?? ''"
+                  label="終了時刻"
+                  variant="outlined"
+                  readonly
+                  placeholder="HH:mm"
+                  hide-details
+                  style="flex:1"
+                />
+                <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="openWheelRange" />
+              </div>
+              <p class="text-caption text-medium-emphasis mt-2">
+                {{ wheelRangeStart && wheelRangeEnd ? wheelRangeStart + ' 〜 ' + wheelRangeEnd : '未選択' }}
+              </p>
+            </v-card>
+          </section>
+
+          <!-- 時刻ダイアログ: デフォルト単一 -->
+          <v-dialog v-model="defSingleDialog" max-width="360">
+            <v-card>
+              <v-card-title class="pt-4 px-4">時刻を選択</v-card-title>
+              <div class="d-flex justify-center py-2">
+                <v-time-picker v-model="tempDefTime" format="24hr" color="primary" elevation="0" />
+              </div>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn variant="text" @click="defSingleDialog = false">キャンセル</v-btn>
+                <v-btn color="primary" variant="elevated" @click="confirmDefSingle">OK</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- 時刻ダイアログ: デフォルト範囲 -->
+          <v-dialog v-model="defRangeDialog" max-width="360">
+            <v-card>
+              <v-card-title class="pt-4 px-4">
+                {{ defRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
+              </v-card-title>
+              <div class="d-flex justify-center py-2">
+                <v-time-picker
+                  v-if="defRangeStep === 'start'"
+                  v-model="tempDefRangeStart"
+                  format="24hr" color="primary" elevation="0"
+                />
+                <v-time-picker
+                  v-else
+                  v-model="tempDefRangeEnd"
+                  format="24hr" color="primary" elevation="0"
+                  :min="tempDefRangeStart ?? undefined"
+                />
+              </div>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn variant="text" @click="defRangeDialog = false">キャンセル</v-btn>
+                <v-btn
+                  v-if="defRangeStep === 'start'"
+                  color="primary" variant="elevated"
+                  :disabled="!tempDefRangeStart"
+                  @click="defRangeStep = 'end'"
+                >次へ</v-btn>
+                <v-btn
+                  v-else
+                  color="primary" variant="elevated"
+                  :disabled="!tempDefRangeEnd"
+                  @click="confirmDefRange"
+                >OK</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- 時刻ダイアログ: ホイール単一 -->
+          <v-dialog v-model="wheelSingleDialog" max-width="320">
+            <v-card>
+              <v-card-title class="pt-4 px-4">時刻を選択</v-card-title>
+              <v-card-text class="pb-0">
+                <TimeWheelPicker v-model="tempWheelTime" />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn variant="text" @click="wheelSingleDialog = false">キャンセル</v-btn>
+                <v-btn color="primary" variant="elevated" @click="confirmWheelSingle">OK</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- 時刻ダイアログ: ホイール範囲 -->
+          <v-dialog v-model="wheelRangeDialog" max-width="320">
+            <v-card>
+              <v-card-title class="pt-4 px-4">
+                {{ wheelRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
+              </v-card-title>
+              <v-card-text class="pb-0">
+                <TimeWheelPicker
+                  v-if="wheelRangeStep === 'start'"
+                  v-model="tempWheelRangeStart"
+                />
+                <TimeWheelPicker
+                  v-else
+                  v-model="tempWheelRangeEnd"
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn variant="text" @click="wheelRangeDialog = false">キャンセル</v-btn>
+                <v-btn
+                  v-if="wheelRangeStep === 'start'"
+                  color="primary" variant="elevated"
+                  :disabled="!tempWheelRangeStart"
+                  @click="wheelRangeStep = 'end'"
+                >次へ</v-btn>
+                <v-btn
+                  v-else
+                  color="primary" variant="elevated"
+                  :disabled="!tempWheelRangeEnd"
+                  @click="confirmWheelRange"
+                >OK</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+        </v-container>
+      </v-window-item>
+
+      <!-- ===== 表示制御 ===== -->
+      <v-window-item value="display">
+        <v-container class="pb-8">
+
+          <section class="mb-8">
+            <p class="text-overline text-medium-emphasis mb-2">表示制御パターン</p>
+
+            <v-card variant="outlined" class="mb-4 pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">v-if — 条件付きレンダリング</p>
+              <p class="text-caption text-medium-emphasis mb-3">
+                条件が false のとき DOM から完全に除去されます。追加入力欄の出し入れなどに最適。
+              </p>
+              <v-checkbox v-model="showExtra" label="追加情報を入力する" color="primary" hide-details class="mb-2" />
+              <v-expand-transition>
+                <div v-if="showExtra">
+                  <v-text-field label="会社名" variant="outlined" density="compact" class="mb-2" />
+                  <v-text-field label="部署名" variant="outlined" density="compact" />
+                </div>
+              </v-expand-transition>
+            </v-card>
+
+            <v-card variant="outlined" class="mb-4 pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">v-show — 表示/非表示切り替え</p>
+              <p class="text-caption text-medium-emphasis mb-3">
+                DOM は残り visibility/display だけ切り替えます。頻繁に開閉する場合は v-if より高速。
+              </p>
+              <v-btn
+                :prepend-icon="showDetail ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                variant="tonal"
+                color="primary"
+                size="small"
+                class="mb-2"
+                @click="showDetail = !showDetail"
+              >{{ showDetail ? '詳細を隠す' : '詳細を表示' }}</v-btn>
+              <div v-show="showDetail" class="pa-3 rounded bg-grey-lighten-4">
+                <p class="text-body-2">v-show で表示制御されたコンテンツです。</p>
+                <p class="text-body-2">DOM に残るため再表示が速いです。</p>
+              </div>
+            </v-card>
+
+            <v-card variant="outlined" class="pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">v-menu — ポップアップメニュー</p>
+              <p class="text-caption text-medium-emphasis mb-3">
+                ボタン近くに小さいドロップダウンを出します。コンテキストメニューや操作メニューに使います。
+              </p>
+              <div class="d-flex align-center gap-3">
+                <span class="text-body-2">操作対象アイテム</span>
+                <v-menu>
+                  <template #activator="{ props: menuProps }">
+                    <v-btn icon="mdi-dots-vertical" variant="text" v-bind="menuProps" />
+                  </template>
+                  <v-list density="compact">
+                    <v-list-item prepend-icon="mdi-pencil"       title="編集"   @click="menuResult = '編集を選択'" />
+                    <v-list-item prepend-icon="mdi-content-copy" title="コピー" @click="menuResult = 'コピーを選択'" />
+                    <v-divider />
+                    <v-list-item prepend-icon="mdi-delete" title="削除" color="error" @click="menuResult = '削除を選択'" />
+                  </v-list>
+                </v-menu>
+              </div>
+              <p v-if="menuResult" class="text-caption text-medium-emphasis mt-2">→ {{ menuResult }}</p>
+            </v-card>
+          </section>
+
+        </v-container>
+      </v-window-item>
+
+      <!-- ===== ダイアログ ===== -->
+      <v-window-item value="dialog">
+        <v-container class="pb-8">
+
+          <section class="mb-8">
+            <p class="text-overline text-medium-emphasis mb-2">ダイアログパターン</p>
+            <p class="text-caption text-medium-emphasis mb-4">
+              用途に応じて使い分けます。すべてユーザーの注意を集中させる目的で使います。
+            </p>
+            <div class="d-flex flex-column gap-3">
+
+              <v-card variant="outlined" class="pa-4">
+                <p class="text-subtitle-2 font-weight-bold mb-1">情報ダイアログ</p>
+                <p class="text-caption text-medium-emphasis mb-3">メッセージの提示・内容の確認。閉じるボタンのみ。</p>
+                <v-btn color="primary" variant="tonal" prepend-icon="mdi-information" @click="infoDialog = true">
+                  情報を表示
+                </v-btn>
+              </v-card>
+
+              <v-card variant="outlined" class="pa-4">
+                <p class="text-subtitle-2 font-weight-bold mb-1">確認ダイアログ（ConfirmDialog）</p>
+                <p class="text-caption text-medium-emphasis mb-3">OK / キャンセルで分岐。削除・送信前の確認に。</p>
+                <v-btn color="error" variant="tonal" prepend-icon="mdi-delete" @click="confirmDialog = true">
+                  削除の確認
+                </v-btn>
+                <p v-if="confirmResult" class="text-caption text-medium-emphasis mt-2">→ {{ confirmResult }}</p>
+              </v-card>
+
+              <v-card variant="outlined" class="pa-4">
+                <p class="text-subtitle-2 font-weight-bold mb-1">フォームダイアログ</p>
+                <p class="text-caption text-medium-emphasis mb-3">入力フォームを内包。新規作成・編集に使います。</p>
+                <v-btn color="primary" variant="tonal" prepend-icon="mdi-plus" @click="formDialog = true">
+                  新規追加
+                </v-btn>
+                <p v-if="formResult" class="text-caption text-medium-emphasis mt-2">→ 登録: {{ formResult }}</p>
+              </v-card>
+
+              <v-card variant="outlined" class="pa-4">
+                <p class="text-subtitle-2 font-weight-bold mb-1">フルスクリーンダイアログ</p>
+                <p class="text-caption text-medium-emphasis mb-3">画面全体を占有。複雑な編集フォームや詳細ページに。</p>
+                <v-btn color="primary" variant="tonal" prepend-icon="mdi-fullscreen" @click="fullscreenDialog = true">
+                  フルスクリーンで開く
+                </v-btn>
+              </v-card>
+
+            </div>
+          </section>
 
           <!-- 情報ダイアログ -->
-          <v-card variant="outlined" class="pa-4">
-            <p class="text-subtitle-2 font-weight-bold mb-1">情報ダイアログ</p>
-            <p class="text-caption text-medium-emphasis mb-3">メッセージの提示・内容の確認。閉じるボタンのみ。</p>
-            <v-btn color="primary" variant="tonal" prepend-icon="mdi-information" @click="infoDialog = true">
-              情報を表示
-            </v-btn>
-          </v-card>
+          <BaseDialog v-model="infoDialog" title="お知らせ">
+            <p class="text-body-2">この操作は取り消せません。</p>
+            <p class="text-body-2 mt-2">詳細については利用規約をご確認ください。</p>
+            <template #actions>
+              <v-spacer />
+              <v-btn color="primary" variant="elevated" @click="infoDialog = false">閉じる</v-btn>
+            </template>
+          </BaseDialog>
 
           <!-- 確認ダイアログ -->
-          <v-card variant="outlined" class="pa-4">
-            <p class="text-subtitle-2 font-weight-bold mb-1">確認ダイアログ（ConfirmDialog）</p>
-            <p class="text-caption text-medium-emphasis mb-3">OK / キャンセルで分岐。削除・送信前の確認に。</p>
-            <v-btn color="error" variant="tonal" prepend-icon="mdi-delete" @click="confirmDialog = true">
-              削除の確認
-            </v-btn>
-            <p v-if="confirmResult" class="text-caption text-medium-emphasis mt-2">→ {{ confirmResult }}</p>
-          </v-card>
+          <ConfirmDialog
+            v-model="confirmDialog"
+            title="削除の確認"
+            message="このアイテムを削除しますか？この操作は取り消せません。"
+            @confirm="confirmResult = 'OK を選択'; confirmDialog = false"
+            @cancel="confirmResult = 'キャンセルを選択'; confirmDialog = false"
+          />
 
           <!-- フォームダイアログ -->
-          <v-card variant="outlined" class="pa-4">
-            <p class="text-subtitle-2 font-weight-bold mb-1">フォームダイアログ</p>
-            <p class="text-caption text-medium-emphasis mb-3">入力フォームを内包。新規作成・編集に使います。</p>
-            <v-btn color="primary" variant="tonal" prepend-icon="mdi-plus" @click="formDialog = true">
-              新規追加
-            </v-btn>
-            <p v-if="formResult" class="text-caption text-medium-emphasis mt-2">→ 登録: {{ formResult }}</p>
-          </v-card>
+          <BaseDialog v-model="formDialog" title="新規アイテムを追加" max-width="440px">
+            <v-text-field v-model="formName"  label="名前"  variant="outlined" density="compact" class="mb-3" />
+            <v-text-field v-model="formEmail" label="メール" variant="outlined" density="compact" type="email" />
+            <template #actions>
+              <v-spacer />
+              <v-btn variant="text" @click="formDialog = false; formName = ''; formEmail = ''">キャンセル</v-btn>
+              <v-btn
+                color="primary" variant="elevated"
+                :disabled="!formName || !formEmail"
+                @click="formResult = formName + ' / ' + formEmail; formDialog = false; formName = ''; formEmail = ''"
+              >登録</v-btn>
+            </template>
+          </BaseDialog>
 
           <!-- フルスクリーンダイアログ -->
-          <v-card variant="outlined" class="pa-4">
-            <p class="text-subtitle-2 font-weight-bold mb-1">フルスクリーンダイアログ</p>
-            <p class="text-caption text-medium-emphasis mb-3">画面全体を占有。複雑な編集フォームや詳細ページに。</p>
-            <v-btn color="primary" variant="tonal" prepend-icon="mdi-fullscreen" @click="fullscreenDialog = true">
-              フルスクリーンで開く
-            </v-btn>
-          </v-card>
+          <v-dialog v-model="fullscreenDialog" fullscreen transition="dialog-bottom-transition">
+            <v-card>
+              <v-app-bar color="primary" elevation="0">
+                <template #prepend>
+                  <v-btn icon="mdi-close" @click="fullscreenDialog = false" />
+                </template>
+                <v-app-bar-title>フルスクリーン編集</v-app-bar-title>
+                <template #append>
+                  <v-btn variant="text" @click="fullscreenDialog = false">保存</v-btn>
+                </template>
+              </v-app-bar>
+              <v-container class="pt-6">
+                <v-text-field label="タイトル" variant="outlined" class="mb-4" />
+                <v-textarea  label="本文"     variant="outlined" rows="6" />
+              </v-container>
+            </v-card>
+          </v-dialog>
 
-        </div>
-      </section>
+        </v-container>
+      </v-window-item>
 
-      <v-divider class="mb-8" />
+      <!-- ===== 通知 ===== -->
+      <v-window-item value="notification">
+        <v-container class="pb-8">
 
-      <!-- ⑨ 通知・オーバーレイパターン -->
-      <section class="mb-4">
-        <p class="text-overline text-medium-emphasis mb-2">通知・オーバーレイパターン</p>
+          <section class="mb-4">
+            <p class="text-overline text-medium-emphasis mb-2">通知・オーバーレイパターン</p>
 
-        <!-- v-snackbar -->
-        <v-card variant="outlined" class="mb-4 pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">v-snackbar（トースト通知）</p>
-          <p class="text-caption text-medium-emphasis mb-3">
-            操作結果の短い通知。自動で消えます。コンテンツ入力には使いません。
-          </p>
-          <div class="d-flex gap-2 flex-wrap">
-            <v-btn color="success" variant="tonal" size="small" prepend-icon="mdi-check-circle"
-              @click="showSnack('success', '保存しました')">成功</v-btn>
-            <v-btn color="error"   variant="tonal" size="small" prepend-icon="mdi-alert-circle"
-              @click="showSnack('error', 'エラーが発生しました')">エラー</v-btn>
-            <v-btn color="info"    variant="tonal" size="small" prepend-icon="mdi-information"
-              @click="showSnack('info', '処理中です...')">情報</v-btn>
-          </div>
-        </v-card>
+            <v-card variant="outlined" class="mb-4 pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">v-snackbar（トースト通知）</p>
+              <p class="text-caption text-medium-emphasis mb-3">
+                操作結果の短い通知。自動で消えます。コンテンツ入力には使いません。
+              </p>
+              <div class="d-flex gap-2 flex-wrap">
+                <v-btn color="success" variant="tonal" size="small" prepend-icon="mdi-check-circle"
+                  @click="showSnack('success', '保存しました')">成功</v-btn>
+                <v-btn color="error"   variant="tonal" size="small" prepend-icon="mdi-alert-circle"
+                  @click="showSnack('error', 'エラーが発生しました')">エラー</v-btn>
+                <v-btn color="info"    variant="tonal" size="small" prepend-icon="mdi-information"
+                  @click="showSnack('info', '処理中です...')">情報</v-btn>
+              </div>
+            </v-card>
 
-        <!-- v-bottom-sheet -->
-        <v-card variant="outlined" class="pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">v-bottom-sheet（アクションシート）</p>
-          <p class="text-caption text-medium-emphasis mb-3">
-            画面下から出るオーバーレイ。スマホでの選択メニューやフィルタに最適。
-          </p>
-          <v-btn color="primary" variant="tonal" prepend-icon="mdi-menu-up" @click="bottomSheet = true">
-            アクションシートを開く
-          </v-btn>
-          <p v-if="sheetResult" class="text-caption text-medium-emphasis mt-2">→ {{ sheetResult }}</p>
-        </v-card>
-      </section>
+            <v-card variant="outlined" class="pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">v-bottom-sheet（アクションシート）</p>
+              <p class="text-caption text-medium-emphasis mb-3">
+                画面下から出るオーバーレイ。スマホでの選択メニューやフィルタに最適。
+              </p>
+              <v-btn color="primary" variant="tonal" prepend-icon="mdi-menu-up" @click="bottomSheet = true">
+                アクションシートを開く
+              </v-btn>
+              <p v-if="sheetResult" class="text-caption text-medium-emphasis mt-2">→ {{ sheetResult }}</p>
+            </v-card>
+          </section>
 
-      <!-- ⑧ ダイアログ本体 -->
-
-      <!-- 情報ダイアログ -->
-      <BaseDialog v-model="infoDialog" title="お知らせ">
-        <p class="text-body-2">この操作は取り消せません。</p>
-        <p class="text-body-2 mt-2">詳細については利用規約をご確認ください。</p>
-        <template #actions>
-          <v-spacer />
-          <v-btn color="primary" variant="elevated" @click="infoDialog = false">閉じる</v-btn>
-        </template>
-      </BaseDialog>
-
-      <!-- 確認ダイアログ -->
-      <ConfirmDialog
-        v-model="confirmDialog"
-        title="削除の確認"
-        message="このアイテムを削除しますか？この操作は取り消せません。"
-        @confirm="confirmResult = 'OK を選択'; confirmDialog = false"
-        @cancel="confirmResult = 'キャンセルを選択'; confirmDialog = false"
-      />
-
-      <!-- フォームダイアログ -->
-      <BaseDialog v-model="formDialog" title="新規アイテムを追加" max-width="440px">
-        <v-text-field v-model="formName"  label="名前"  variant="outlined" density="compact" class="mb-3" />
-        <v-text-field v-model="formEmail" label="メール" variant="outlined" density="compact" type="email" />
-        <template #actions>
-          <v-spacer />
-          <v-btn variant="text" @click="formDialog = false; formName = ''; formEmail = ''">キャンセル</v-btn>
-          <v-btn
-            color="primary" variant="elevated"
-            :disabled="!formName || !formEmail"
-            @click="formResult = formName + ' / ' + formEmail; formDialog = false; formName = ''; formEmail = ''"
-          >登録</v-btn>
-        </template>
-      </BaseDialog>
-
-      <!-- フルスクリーンダイアログ -->
-      <v-dialog v-model="fullscreenDialog" fullscreen transition="dialog-bottom-transition">
-        <v-card>
-          <v-app-bar color="primary" elevation="0">
-            <template #prepend>
-              <v-btn icon="mdi-close" @click="fullscreenDialog = false" />
+          <v-snackbar v-model="snackbar" :color="snackColor" :timeout="2500" location="bottom">
+            <v-icon start>{{ snackIcon }}</v-icon>{{ snackText }}
+            <template #actions>
+              <v-btn variant="text" @click="snackbar = false">閉じる</v-btn>
             </template>
-            <v-app-bar-title>フルスクリーン編集</v-app-bar-title>
-            <template #append>
-              <v-btn variant="text" @click="fullscreenDialog = false">保存</v-btn>
-            </template>
-          </v-app-bar>
-          <v-container class="pt-6">
-            <v-text-field label="タイトル" variant="outlined" class="mb-4" />
-            <v-textarea  label="本文"     variant="outlined" rows="6" />
-          </v-container>
-        </v-card>
-      </v-dialog>
+          </v-snackbar>
 
-      <!-- ⑨ v-snackbar -->
-      <v-snackbar v-model="snackbar" :color="snackColor" :timeout="2500" location="bottom">
-        <v-icon start>{{ snackIcon }}</v-icon>{{ snackText }}
-        <template #actions>
-          <v-btn variant="text" @click="snackbar = false">閉じる</v-btn>
-        </template>
-      </v-snackbar>
+          <v-bottom-sheet v-model="bottomSheet">
+            <v-card rounded="t-xl">
+              <v-card-title class="pt-4">操作を選択</v-card-title>
+              <v-list>
+                <v-list-item prepend-icon="mdi-share-variant" title="共有する"        @click="sheetResult = '共有'; bottomSheet = false" />
+                <v-list-item prepend-icon="mdi-download"      title="ダウンロード"    @click="sheetResult = 'ダウンロード'; bottomSheet = false" />
+                <v-list-item prepend-icon="mdi-heart-outline" title="お気に入りに追加" @click="sheetResult = 'お気に入り追加'; bottomSheet = false" />
+                <v-divider />
+                <v-list-item prepend-icon="mdi-delete" title="削除" color="error" @click="sheetResult = '削除'; bottomSheet = false" />
+              </v-list>
+              <div class="pa-4">
+                <v-btn block variant="text" @click="bottomSheet = false">キャンセル</v-btn>
+              </div>
+            </v-card>
+          </v-bottom-sheet>
 
-      <!-- ⑨ v-bottom-sheet -->
-      <v-bottom-sheet v-model="bottomSheet">
-        <v-card rounded="t-xl">
-          <v-card-title class="pt-4">操作を選択</v-card-title>
-          <v-list>
-            <v-list-item prepend-icon="mdi-share-variant" title="共有する"        @click="sheetResult = '共有'; bottomSheet = false" />
-            <v-list-item prepend-icon="mdi-download"      title="ダウンロード"    @click="sheetResult = 'ダウンロード'; bottomSheet = false" />
-            <v-list-item prepend-icon="mdi-heart-outline" title="お気に入りに追加" @click="sheetResult = 'お気に入り追加'; bottomSheet = false" />
-            <v-divider />
-            <v-list-item prepend-icon="mdi-delete" title="削除" color="error" @click="sheetResult = '削除'; bottomSheet = false" />
-          </v-list>
-          <div class="pa-4">
-            <v-btn block variant="text" @click="bottomSheet = false">キャンセル</v-btn>
-          </div>
-        </v-card>
-      </v-bottom-sheet>
+        </v-container>
+      </v-window-item>
 
-      <!-- ── デフォルト: 単一ダイアログ ── -->
-      <v-dialog v-model="defSingleDialog" max-width="360">
-        <v-card>
-          <v-card-title class="pt-4 px-4">時刻を選択</v-card-title>
-          <div class="d-flex justify-center py-2">
-            <v-time-picker v-model="tempDefTime" format="24hr" color="primary" elevation="0" />
-          </div>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn variant="text" @click="defSingleDialog = false">キャンセル</v-btn>
-            <v-btn color="primary" variant="elevated" @click="confirmDefSingle">OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <!-- ===== スキャナー ===== -->
+      <v-window-item value="scanner">
+        <v-container class="pb-8">
 
-      <!-- ── デフォルト: 範囲ダイアログ ── -->
-      <v-dialog v-model="defRangeDialog" max-width="360">
-        <v-card>
-          <v-card-title class="pt-4 px-4">
-            {{ defRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
-          </v-card-title>
-          <div class="d-flex justify-center py-2">
-            <v-time-picker
-              v-if="defRangeStep === 'start'"
-              v-model="tempDefRangeStart"
-              format="24hr" color="primary" elevation="0"
-            />
-            <v-time-picker
-              v-else
-              v-model="tempDefRangeEnd"
-              format="24hr" color="primary" elevation="0"
-              :min="tempDefRangeStart ?? undefined"
-            />
-          </div>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn variant="text" @click="defRangeDialog = false">キャンセル</v-btn>
-            <v-btn
-              v-if="defRangeStep === 'start'"
-              color="primary" variant="elevated"
-              :disabled="!tempDefRangeStart"
-              @click="defRangeStep = 'end'"
-            >次へ</v-btn>
-            <v-btn
-              v-else
-              color="primary" variant="elevated"
-              :disabled="!tempDefRangeEnd"
-              @click="confirmDefRange"
-            >OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+          <section class="mb-8">
+            <p class="text-overline text-medium-emphasis mb-2">バーコード スキャナー</p>
+            <p class="text-caption text-medium-emphasis mb-4">
+              カメラを使ってバーコード・QRコードをリアルタイムで読み取ります。
+              <code>npm run dev</code> のブラウザ環境でもWebカメラで動作確認できます。
+            </p>
 
-      <!-- ── ホイール: 単一ダイアログ ── -->
-      <v-dialog v-model="wheelSingleDialog" max-width="320">
-        <v-card>
-          <v-card-title class="pt-4 px-4">時刻を選択</v-card-title>
-          <v-card-text class="pb-0">
-            <TimeWheelPicker v-model="tempWheelTime" />
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn variant="text" @click="wheelSingleDialog = false">キャンセル</v-btn>
-            <v-btn color="primary" variant="elevated" @click="confirmWheelSingle">OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+            <v-card variant="outlined" class="mb-4 pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">フォーム入力補助（BarcodeInputField）</p>
+              <p class="text-caption text-medium-emphasis mb-3">
+                テキストフィールド右端のアイコンをタップするとカメラが起動します。
+                読み取ったコードが自動入力されます。
+              </p>
+              <BarcodeInputField
+                v-model="scannedCode"
+                label="バーコード / QR"
+                variant="outlined"
+                clearable
+              />
+              <p v-if="scannedCode" class="text-caption text-medium-emphasis mt-1">
+                入力値: {{ scannedCode }}
+              </p>
+            </v-card>
 
-      <!-- ── ホイール: 範囲ダイアログ ── -->
-      <v-dialog v-model="wheelRangeDialog" max-width="320">
-        <v-card>
-          <v-card-title class="pt-4 px-4">
-            {{ wheelRangeStep === 'start' ? '開始時刻を選択' : '終了時刻を選択' }}
-          </v-card-title>
-          <v-card-text class="pb-0">
-            <TimeWheelPicker
-              v-if="wheelRangeStep === 'start'"
-              v-model="tempWheelRangeStart"
-            />
-            <TimeWheelPicker
-              v-else
-              v-model="tempWheelRangeEnd"
-            />
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn variant="text" @click="wheelRangeDialog = false">キャンセル</v-btn>
-            <v-btn
-              v-if="wheelRangeStep === 'start'"
-              color="primary" variant="elevated"
-              :disabled="!tempWheelRangeStart"
-              @click="wheelRangeStep = 'end'"
-            >次へ</v-btn>
-            <v-btn
-              v-else
-              color="primary" variant="elevated"
-              :disabled="!tempWheelRangeEnd"
-              @click="confirmWheelRange"
-            >OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+            <v-card variant="outlined" class="pa-4">
+              <p class="text-subtitle-2 font-weight-bold mb-1">連続スキャン → テーブル追加（BarcodeScannerOverlay）</p>
+              <p class="text-caption text-medium-emphasis mb-3">
+                「連続スキャン」ボタンで複数のコードを続けて読み取り、完了するとテーブルに一括追加します。
+              </p>
+              <div class="d-flex align-center gap-3 mb-3">
+                <v-btn
+                  color="primary"
+                  variant="tonal"
+                  prepend-icon="mdi-barcode-scan"
+                  @click="scannerStore.requestScan('continuous', r => scanTableRows.push(...r))"
+                >連続スキャン</v-btn>
+                <v-btn
+                  v-if="scanTableRows.length"
+                  variant="text"
+                  color="error"
+                  size="small"
+                  @click="scanTableRows = []"
+                >テーブルクリア</v-btn>
+              </div>
+              <v-data-table
+                v-if="scanTableRows.length"
+                :headers="[
+                  { title: '読み取り値', key: 'text' },
+                  { title: 'フォーマット', key: 'format' },
+                  { title: '時刻', key: 'timestamp' },
+                ]"
+                :items="scanTableRows.map(r => ({
+                  text: r.text,
+                  format: r.format,
+                  timestamp: new Date(r.timestamp).toLocaleTimeString(),
+                }))"
+                density="compact"
+                class="elevation-0"
+              />
+              <p v-else class="text-caption text-medium-emphasis">
+                スキャン結果がここに表示されます。
+              </p>
+            </v-card>
+          </section>
 
-      <v-divider class="mb-8" />
+        </v-container>
+      </v-window-item>
 
-      <!-- ⑩ バーコードスキャナー -->
-      <section class="mb-8">
-        <p class="text-overline text-medium-emphasis mb-2">バーコード スキャナー</p>
-        <p class="text-caption text-medium-emphasis mb-4">
-          カメラを使ってバーコード・QRコードをリアルタイムで読み取ります。
-          <code>npm run dev</code> のブラウザ環境でもWebカメラで動作確認できます。
-        </p>
-
-        <!-- BarcodeInputField（single モード） -->
-        <v-card variant="outlined" class="mb-4 pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">フォーム入力補助（BarcodeInputField）</p>
-          <p class="text-caption text-medium-emphasis mb-3">
-            テキストフィールド右端のアイコンをタップするとカメラが起動します。
-            読み取ったコードが自動入力されます。
-          </p>
-          <BarcodeInputField
-            v-model="scannedCode"
-            label="バーコード / QR"
-            variant="outlined"
-            clearable
-          />
-          <p v-if="scannedCode" class="text-caption text-medium-emphasis mt-1">
-            入力値: {{ scannedCode }}
-          </p>
-        </v-card>
-
-        <!-- 連続スキャン → テーブル -->
-        <v-card variant="outlined" class="pa-4">
-          <p class="text-subtitle-2 font-weight-bold mb-1">連続スキャン → テーブル追加（BarcodeScannerOverlay）</p>
-          <p class="text-caption text-medium-emphasis mb-3">
-            「連続スキャン」ボタンで複数のコードを続けて読み取り、完了するとテーブルに一括追加します。
-          </p>
-          <div class="d-flex align-center gap-3 mb-3">
-            <v-btn
-              color="primary"
-              variant="tonal"
-              prepend-icon="mdi-barcode-scan"
-              @click="scannerStore.requestScan('continuous', r => scanTableRows.push(...r))"
-            >連続スキャン</v-btn>
-            <v-btn
-              v-if="scanTableRows.length"
-              variant="text"
-              color="error"
-              size="small"
-              @click="scanTableRows = []"
-            >テーブルクリア</v-btn>
-          </div>
-          <v-data-table
-            v-if="scanTableRows.length"
-            :headers="[
-              { title: '読み取り値', key: 'text' },
-              { title: 'フォーマット', key: 'format' },
-              { title: '時刻', key: 'timestamp' },
-            ]"
-            :items="scanTableRows.map(r => ({
-              text: r.text,
-              format: r.format,
-              timestamp: new Date(r.timestamp).toLocaleTimeString(),
-            }))"
-            density="compact"
-            class="elevation-0"
-          />
-          <p v-else class="text-caption text-medium-emphasis">
-            スキャン結果がここに表示されます。
-          </p>
-        </v-card>
-      </section>
-
-    </v-container>
+    </v-window>
   </SubLayout>
 </template>
 
@@ -785,23 +722,17 @@ import BarcodeInputField from '@/components/scanner/BarcodeInputField.vue'
 import { useScannerStore } from '@/stores/scannerStore'
 import type { ScanResult } from '@/types/scanner'
 
-// ① アコーディオン
-const accordion       = ref<string | null>(null)
-const accordionMsg    = ref('')
-const accordionToggle = ref('list')
-const accordionSwitch = ref(false)
-const accordionInput  = ref('')
-const accordionSelect = ref('すべて')
+const activeTab = ref('input')
 
-// ② ラジオボタン
+// ラジオボタン
 const radioValue  = ref('standard')
 const radioInline = ref('M')
 
-// ③ トグルボタン
+// トグルボタン
 const toggleSingle   = ref('list')
 const toggleMultiple = ref<string[]>([])
 
-// ④ プルダウンリスト
+// プルダウンリスト
 const selectSingle   = ref<string | null>(null)
 const selectMultiple = ref<string[]>([])
 
@@ -818,16 +749,14 @@ const prefectures = [
 
 const categories = ['食品', '電子機器', 'ファッション', '家具', 'スポーツ', '書籍', 'おもちゃ']
 
-// ⑤ カレンダー
+// カレンダー
 const selectedDate = ref<Date | null>(null)
 const rangeStart   = ref<Date | null>(null)
 const rangeEnd     = ref<Date | null>(null)
 
-// ダイアログ制御
 const singleDialog = ref(false)
 const rangeDialog  = ref(false)
 
-// ダイアログ内の一時選択値
 const tempDate  = ref<Date | null>(null)
 const tempRange = ref<Date[]>([])
 
@@ -856,12 +785,12 @@ function clearRange() {
   tempRange.value = []
 }
 
-// ⑦ 表示制御
+// 表示制御
 const showExtra  = ref(false)
 const showDetail = ref(false)
 const menuResult = ref('')
 
-// ⑧ ダイアログ
+// ダイアログ
 const infoDialog       = ref(false)
 const confirmDialog    = ref(false)
 const confirmResult    = ref('')
@@ -871,11 +800,11 @@ const formName         = ref('')
 const formEmail        = ref('')
 const fullscreenDialog = ref(false)
 
-// ⑨ 通知・オーバーレイ
-const snackbar   = ref(false)
-const snackColor = ref('success')
-const snackText  = ref('')
-const snackIcon  = ref('mdi-check-circle')
+// 通知・オーバーレイ
+const snackbar    = ref(false)
+const snackColor  = ref('success')
+const snackText   = ref('')
+const snackIcon   = ref('mdi-check-circle')
 const bottomSheet = ref(false)
 const sheetResult = ref('')
 
@@ -896,7 +825,7 @@ function formatDate(d: Date): string {
   return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`
 }
 
-// ⑥ 時刻選択 ── デフォルトパターン（v-time-picker）
+// 時刻選択 — デフォルトパターン
 const defTime       = ref<string | null>(null)
 const defRangeStart = ref<string | null>(null)
 const defRangeEnd   = ref<string | null>(null)
@@ -929,7 +858,7 @@ function confirmDefRange() {
   defRangeDialog.value = false
 }
 
-// ⑥ 時刻選択 ── 自作パターン（ホイールピッカー）
+// 時刻選択 — 自作パターン
 const wheelTime       = ref<string | null>(null)
 const wheelRangeStart = ref<string | null>(null)
 const wheelRangeEnd   = ref<string | null>(null)
@@ -962,8 +891,8 @@ function confirmWheelRange() {
   wheelRangeDialog.value = false
 }
 
-// ⑩ バーコードスキャナー
-const scannerStore   = useScannerStore()
-const scannedCode    = ref('')
-const scanTableRows  = ref<ScanResult[]>([])
+// バーコードスキャナー
+const scannerStore  = useScannerStore()
+const scannedCode   = ref('')
+const scanTableRows = ref<ScanResult[]>([])
 </script>
