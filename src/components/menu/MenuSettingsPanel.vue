@@ -30,23 +30,15 @@
       </template>
     </draggable>
 
-    <p v-if="store.visibleItems.length === 0" class="text-caption text-medium-emphasis pa-3">
-      表示中のメニューがありません
-    </p>
-
-    <v-divider class="my-4" />
-
-    <!-- 非表示セクション -->
-    <p class="text-overline text-medium-emphasis mb-2">非表示</p>
-
-    <div v-if="store.hiddenItems.length > 0" class="d-flex flex-column gap-1">
+    <!-- グレーアウト表示（非表示アイテム） -->
+    <div v-if="store.hiddenItems.length > 0" class="d-flex flex-column gap-1 mt-1">
       <div
         v-for="item in store.hiddenItems"
         :key="item.id"
         class="settings-item settings-item--hidden"
       >
         <v-icon size="18" class="mr-2" style="opacity:0.4;">{{ item.icon }}</v-icon>
-        <span class="text-body-2 flex-grow-1" style="opacity:0.5;">{{ item.label }}</span>
+        <span class="text-body-2 flex-grow-1" style="opacity:0.4;">{{ item.label }}</span>
         <v-switch
           :model-value="false"
           color="primary"
@@ -54,17 +46,9 @@
           density="compact"
           :disabled="!store.canAddMore"
           @update:model-value="store.addToVisible(item.id)"
-        >
-          <template v-if="!store.canAddMore" #label>
-            <v-tooltip activator="parent" location="top">最大 9 個</v-tooltip>
-          </template>
-        </v-switch>
+        />
       </div>
     </div>
-
-    <p v-else class="text-caption text-medium-emphasis pa-3">
-      非表示のメニューはありません
-    </p>
   </div>
 </template>
 
