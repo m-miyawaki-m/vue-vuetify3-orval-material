@@ -30,15 +30,14 @@
         <div class="settings-item settings-item--visible">
           <v-icon size="18" class="mr-2">{{ element.icon }}</v-icon>
           <span class="text-body-2 flex-grow-1">{{ element.label }}</span>
-          <v-btn
-            icon
-            size="x-small"
-            variant="text"
+          <v-switch
+            :model-value="true"
+            color="primary"
+            hide-details
+            density="compact"
             class="mr-1"
-            @click="store.removeFromVisible(element.id)"
-          >
-            <v-icon size="16">mdi-close</v-icon>
-          </v-btn>
+            @update:model-value="store.removeFromVisible(element.id)"
+          />
           <v-icon class="drag-handle" size="20" style="opacity:0.4;cursor:grab;">
             mdi-drag
           </v-icon>
@@ -63,18 +62,18 @@
       >
         <v-icon size="18" class="mr-2" style="opacity:0.4;">{{ item.icon }}</v-icon>
         <span class="text-body-2 flex-grow-1" style="opacity:0.5;">{{ item.label }}</span>
-        <v-btn
-          size="small"
-          variant="tonal"
+        <v-switch
+          :model-value="false"
           color="primary"
+          hide-details
+          density="compact"
           :disabled="!store.canAddMore"
-          @click="store.addToVisible(item.id)"
+          @update:model-value="store.addToVisible(item.id)"
         >
-          <v-tooltip v-if="!store.canAddMore" activator="parent" location="top">
-            最大 9 個
-          </v-tooltip>
-          ＋追加
-        </v-btn>
+          <template v-if="!store.canAddMore" #label>
+            <v-tooltip activator="parent" location="top">最大 9 個</v-tooltip>
+          </template>
+        </v-switch>
       </div>
     </div>
 
