@@ -1,80 +1,78 @@
 <template>
   <div>
-    <!-- 表示中セクション -->
     <p class="text-overline text-medium-emphasis mb-2">
       表示中（{{ store.visibleIds.length }}/9）
     </p>
 
     <draggable
-      v-model="draggableList"
+      v-model="allItemsList"
       item-key="id"
       handle=".drag-handle"
       @end="onDragEnd"
     >
       <template #item="{ element }">
-        <div class="settings-item settings-item--visible">
-          <v-icon size="18" class="mr-2">{{ element.icon }}</v-icon>
-          <span class="text-body-2 flex-grow-1">{{ element.label }}</span>
+        <div
+          class="settings-item"
+          :class="isVisible(element.id) ? 'settings-item--visible' : 'settings-item--hidden'"
+        >
+          <v-icon size="18" class="mr-2" :style="isVisible(element.id) ? '' : 'opacity:0.35'">
+            {{ element.icon }}
+          </v-icon>
+          <span
+            class="text-body-2 flex-grow-1"
+            :style="isVisible(element.id) ? '' : 'opacity:0.35'"
+          >{{ element.label }}</span>
           <v-switch
-            :model-value="true"
+            :model-value="isVisible(element.id)"
             color="primary"
             hide-details
             density="compact"
             class="mr-1"
-            @update:model-value="store.removeFromVisible(element.id)"
+            :disabled="!isVisible(element.id) && !store.canAddMore"
+            @update:model-value="(val) => toggle(element.id, !!val)"
           />
-          <v-icon class="drag-handle" size="20" style="opacity:0.4;cursor:grab;">
-            mdi-drag
-          </v-icon>
+          <v-icon
+            class="drag-handle"
+            size="20"
+            :style="isVisible(element.id) ? 'opacity:0.4;cursor:grab' : 'opacity:0.15;cursor:grab'"
+          >mdi-drag</v-icon>
         </div>
       </template>
     </draggable>
-
-    <!-- グレーアウト表示（非表示アイテム） -->
-    <div v-if="store.hiddenItems.length > 0" class="d-flex flex-column gap-1 mt-1">
-      <div
-        v-for="item in store.hiddenItems"
-        :key="item.id"
-        class="settings-item settings-item--hidden"
-      >
-        <v-icon size="18" class="mr-2" style="opacity:0.4;">{{ item.icon }}</v-icon>
-        <span class="text-body-2 flex-grow-1" style="opacity:0.4;">{{ item.label }}</span>
-        <v-switch
-          :model-value="false"
-          color="primary"
-          hide-details
-          density="compact"
-          :disabled="!store.canAddMore"
-          @update:model-value="store.addToVisible(item.id)"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import { useMenuStore } from '@/stores/menuStore'
 import type { MenuItem } from '@/stores/menuStore'
 
 const store = useMenuStore()
 
-const draggableList = ref<MenuItem[]>([...store.visibleItems])
+const allItemsList = ref<MenuItem[]>([...store.visibleItems, ...store.hiddenItems])
 
-watch(
-  () => store.visibleItems,
-  (items) => { draggableList.value = [...items] },
-  { deep: true }
-)
+function isVisible(id: string): boolean {
+  return store.visibleIds.includes(id)
+}
+
+function toggle(id: string, val: boolean) {
+  if (val) {
+    store.addToVisible(id)
+  } else {
+    store.removeFromVisible(id)
+  }
+}
 
 function onDragEnd() {
-  store.reorder(draggableList.value.map(m => m.id))
+  const newVisibleIds = allItemsList.value
+    .filter(m => isVisible(m.id))
+    .map(m => m.id)
+  store.reorder(newVisibleIds)
 }
 </script>
 
 <style scoped>
-
 .settings-item {
   display: flex;
   align-items: center;
