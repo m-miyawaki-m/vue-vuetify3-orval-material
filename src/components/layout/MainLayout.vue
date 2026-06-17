@@ -1,5 +1,5 @@
 <template>
-  <v-layout>
+  <v-layout style="height: 100dvh; overflow: hidden;">
     <v-app-bar color="primary" elevation="2">
       <v-app-bar-title>{{ title }}</v-app-bar-title>
       <template v-if="$slots.actions" #append>
