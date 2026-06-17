@@ -21,8 +21,10 @@
     "axios": "^1.17.0",
     "material-icons": "^1.13.14",
     "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5.30",
     "vue-router": "^5.1.0",
+    "vuedraggable": "^4.1.0",
     "vuetify": "^4.0.2"
   },
   "devDependencies": {
