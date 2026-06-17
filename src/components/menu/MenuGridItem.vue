@@ -1,14 +1,16 @@
 <template>
-  <div
-    class="menu-grid-item"
-    :class="{ 'menu-grid-item--clickable': !!item }"
-    @click="item && emit('click')"
-  >
-    <div class="menu-grid-item__tile" :class="{ 'menu-grid-item__tile--empty': !item }">
-      <v-icon v-if="item" :icon="item.icon" size="48" color="white" />
+  <template v-if="item">
+    <div
+      class="menu-grid-item menu-grid-item--clickable"
+      @click="emit('click')"
+    >
+      <div class="menu-grid-item__tile">
+        <v-icon :icon="item.icon" size="48" color="white" />
+      </div>
+      <span class="menu-grid-item__label">{{ item.label }}</span>
     </div>
-    <span v-if="item" class="menu-grid-item__label">{{ item.label }}</span>
-  </div>
+  </template>
+  <div v-else class="menu-grid-item--placeholder" />
 </template>
 
 <script setup lang="ts">
@@ -37,10 +39,6 @@ const emit = defineEmits<{ click: [] }>()
   align-items: center;
   justify-content: center;
 }
-.menu-grid-item__tile--empty {
-  background: transparent;
-  border: 2px dashed rgba(var(--v-theme-on-surface), 0.15);
-}
 .menu-grid-item__label {
   font-size: 12px;
   color: rgb(var(--v-theme-on-background));
@@ -48,5 +46,8 @@ const emit = defineEmits<{ click: [] }>()
   line-height: 1.3;
   max-width: 88px;
   word-break: break-all;
+}
+.menu-grid-item--placeholder {
+  aspect-ratio: 1;
 }
 </style>
