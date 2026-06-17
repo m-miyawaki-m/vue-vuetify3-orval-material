@@ -48,6 +48,6 @@ const emit = defineEmits<{ click: [] }>()
   word-break: break-all;
 }
 .menu-grid-item--placeholder {
-  aspect-ratio: 1;
+  /* no height — empty-only rows collapse, scanner button moves up */
 }
 </style>
