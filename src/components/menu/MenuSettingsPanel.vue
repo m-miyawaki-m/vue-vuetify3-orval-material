@@ -1,20 +1,5 @@
 <template>
   <div>
-    <!-- ミニプレビュー -->
-    <p class="text-caption text-medium-emphasis mb-2">
-      プレビュー（{{ store.visibleIds.length }}/9）
-    </p>
-    <div class="menu-preview mb-4">
-      <div
-        v-for="i in 9"
-        :key="i"
-        class="menu-preview__cell"
-        :class="{ 'menu-preview__cell--filled': i <= store.visibleItems.length }"
-      />
-    </div>
-
-    <v-divider class="mb-4" />
-
     <!-- 表示中セクション -->
     <p class="text-overline text-medium-emphasis mb-2">
       表示中（{{ store.visibleIds.length }}/9）
@@ -105,21 +90,6 @@ function onDragEnd() {
 </script>
 
 <style scoped>
-.menu-preview {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-}
-.menu-preview__cell {
-  aspect-ratio: 1;
-  border-radius: 4px;
-  border: 1.5px dashed rgba(var(--v-theme-on-surface), 0.2);
-}
-.menu-preview__cell--filled {
-  background: rgb(var(--v-theme-primary));
-  border: none;
-  opacity: 0.8;
-}
 
 .settings-item {
   display: flex;
