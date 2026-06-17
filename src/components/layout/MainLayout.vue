@@ -7,7 +7,9 @@
       </template>
     </v-app-bar>
     <v-main>
-      <slot />
+      <div class="main-scroll">
+        <slot />
+      </div>
     </v-main>
     <v-bottom-navigation v-model="activeTab" color="primary">
       <v-btn v-for="tab in tabs" :key="tab.to" :to="tab.to" :value="tab.to">
@@ -36,3 +38,16 @@ const tabs = [
   { icon: 'mdi-cog',     label: '設定',         to: '/settings'  },
 ]
 </script>
+
+<style scoped>
+.main-scroll {
+  height: 100%;
+  overflow-y: auto;
+}
+
+:deep(.v-main__wrap) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+</style>
