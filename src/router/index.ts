@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import QuickMenuPage from '@/pages/QuickMenuPage.vue'
 import MainMenuPage from '@/pages/MainMenuPage.vue'
 import SearchPage from '@/pages/SearchPage.vue'
+import ProductListPage from '@/pages/ProductListPage.vue'
 import DetailPage from '@/pages/DetailPage.vue'
 import FavoritePage from '@/pages/FavoritePage.vue'
 import SettingsPage from '@/pages/SettingsPage.vue'
@@ -14,6 +15,7 @@ const router = createRouter({
     { path: '/',           component: QuickMenuPage        },
     { path: '/menu',       component: MainMenuPage         },
     { path: '/search',     component: SearchPage           },
+    { path: '/products',   component: ProductListPage      },
     { path: '/favorites',  component: FavoritePage         },
     { path: '/settings',   component: SettingsPage         },
     { path: '/detail/:id', component: DetailPage, props: true },
