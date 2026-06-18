@@ -14,8 +14,12 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'mobile-chrome',
+      use: {
+        ...devices['Pixel 5'],
+        // アプリの設計サイズ 360×720 に合わせる
+        viewport: { width: 360, height: 720 },
+      },
     },
   ],
   webServer: {
