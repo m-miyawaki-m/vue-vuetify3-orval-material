@@ -4,7 +4,14 @@
     <v-card-subtitle>{{ product.category }}</v-card-subtitle>
     <v-card-text>
       <div class="d-flex align-center ga-2 mb-2">
-        <span class="text-h6">¥{{ product.price.toLocaleString() }}</span>
+        <v-chip
+          :color="memoStore.hasMemo(product.id) ? 'success' : 'default'"
+          size="small"
+          variant="tonal"
+          :prepend-icon="memoStore.hasMemo(product.id) ? 'mdi-check-circle' : 'mdi-circle-outline'"
+        >
+          {{ memoStore.hasMemo(product.id) ? '入力済み' : '未入力' }}
+        </v-chip>
         <v-chip
           :color="product.inStock ? 'success' : 'error'"
           size="small"
@@ -38,8 +45,10 @@
 
 <script setup lang="ts">
 import type { Product } from '@/types/product'
+import { useMemoStore } from '@/stores/memo'
 
 defineProps<{ product: Product }>()
+const memoStore = useMemoStore()
 const emit = defineEmits<{
   click: [product: Product]
   detail: [product: Product]

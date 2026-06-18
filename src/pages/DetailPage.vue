@@ -41,6 +41,21 @@
                 カートに追加
               </v-btn>
             </v-card-actions>
+
+            <v-divider class="mx-4" />
+
+            <v-card-text>
+              <v-textarea
+                :model-value="memoStore.getMemo(product.id)"
+                label="メモ"
+                placeholder="メモを入力..."
+                variant="outlined"
+                rows="3"
+                auto-grow
+                clearable
+                @update:model-value="memoStore.setMemo(product.id, $event ?? '')"
+              />
+            </v-card-text>
           </v-card>
         </v-window-item>
 
@@ -112,12 +127,14 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
+import { useMemoStore } from '@/stores/memo'
 import type { Product } from '@/types/product'
 import SubLayout from '@/components/layout/SubLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 
 const props = defineProps<{ id: string }>()
 const store = useProductStore()
+const memoStore = useMemoStore()
 const router = useRouter()
 
 const tab = ref('info')
