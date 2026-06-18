@@ -12,6 +12,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['src/test/setup.ts'],
+    typecheck: {
+      tsconfig: './tsconfig.vitest.json',
+    },
     server: {
       deps: {
         inline: ['vuetify'],
