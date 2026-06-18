@@ -54,7 +54,7 @@
 
     <!-- スクロールエリア -->
     <div class="list-body">
-      <v-container class="pb-6">
+      <v-container fluid class="pb-6">
         <template v-if="!isLoading">
           <template v-if="displayData.items.length > 0">
             <ProductCard

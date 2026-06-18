@@ -72,6 +72,8 @@ const navTabs = [
 .main-scroll {
   height: 100%;
   overflow-y: auto;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 :deep(.v-main__wrap) {
