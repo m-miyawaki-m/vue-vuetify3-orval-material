@@ -11,7 +11,8 @@
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --fix",
     "format": "prettier --write src",
-    "orval": "orval"
+    "orval": "orval",
+    "mock": "tsx mock-server/server.ts"
   },
   "dependencies": {
     "@capacitor/android": "^7.6.6",
@@ -43,6 +44,7 @@
     "orval": "^8.15.0",
     "prettier": "^3.8.4",
     "sass": "^1.100.0",
+    "tsx": "^4.22.4",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.61.1",
     "unplugin-fonts": "^1.4.0",

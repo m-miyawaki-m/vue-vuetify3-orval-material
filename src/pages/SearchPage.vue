@@ -43,24 +43,31 @@
         </v-expansion-panel>
       </v-expansion-panels>
 
+      <!-- オフライン通知 -->
+      <v-chip
+        v-if="isFallback"
+        color="warning"
+        variant="tonal"
+        size="small"
+        prepend-icon="mdi-wifi-off"
+        class="mb-3"
+      >
+        オフラインモード（モックデータ）
+      </v-chip>
+
       <!-- ローディング -->
       <v-progress-linear v-if="isLoading" indeterminate color="primary" class="mb-3" />
-
-      <!-- エラー -->
-      <v-alert v-else-if="isError" type="error" variant="tonal" class="mb-3">
-        データの取得に失敗しました。
-      </v-alert>
 
       <template v-else>
         <!-- 件数表示 -->
         <p class="text-body-2 mb-3 text-medium-emphasis">
-          {{ data?.data.total ?? 0 }}件
+          {{ displayData.total }}件
         </p>
 
         <!-- 商品一覧 -->
-        <template v-if="(data?.data.items ?? []).length > 0">
+        <template v-if="displayData.items.length > 0">
           <ProductCard
-            v-for="product in data!.data.items"
+            v-for="product in displayData.items"
             :key="product.id"
             :product="product"
             @click="openDialog(product)"
@@ -73,9 +80,9 @@
 
         <!-- ページネーション -->
         <v-pagination
-          v-if="(data?.data.totalPages ?? 1) > 1"
+          v-if="displayData.totalPages > 1"
           v-model="currentPage"
-          :length="data!.data.totalPages"
+          :length="displayData.totalPages"
           class="mt-4"
         />
       </template>
@@ -94,11 +101,13 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGetProducts } from '@/api/products'
-import type { Product } from '@/api/products'
+import type { Product, ProductListResponse } from '@/api/products'
+import { mockProducts } from '@/mocks/products'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 import ProductDialog from '@/components/product/ProductDialog.vue'
 
+const PAGE_SIZE = 5
 const router = useRouter()
 
 const keyword = ref('')
@@ -115,10 +124,30 @@ const params = computed(() => ({
   category: (selectedCategory.value || undefined) as Product['category'] | undefined,
   inStock: inStockOnly.value || undefined,
   page: currentPage.value,
-  pageSize: 5,
+  pageSize: PAGE_SIZE,
 }))
 
 const { data, isLoading, isError } = useGetProducts(params)
+
+// API エラー時はモックデータでフォールバック
+const mockFallback = computed<ProductListResponse>(() => {
+  let filtered = mockProducts as Product[]
+  if (keyword.value)
+    filtered = filtered.filter(
+      p => p.name.includes(keyword.value) || p.description.includes(keyword.value)
+    )
+  if (selectedCategory.value) filtered = filtered.filter(p => p.category === selectedCategory.value)
+  if (inStockOnly.value) filtered = filtered.filter(p => p.inStock)
+  const total = filtered.length
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const items = filtered.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE)
+  return { items, total, page: currentPage.value, pageSize: PAGE_SIZE, totalPages }
+})
+
+const isFallback = computed(() => isError.value)
+const displayData = computed<ProductListResponse>(() =>
+  isFallback.value ? mockFallback.value : (data.value?.data ?? mockFallback.value)
+)
 
 function resetPage() {
   currentPage.value = 1
