@@ -46,9 +46,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductListResponse'
-              examples:
-                default:
-                  externalValue: './examples/products-list.json'
+              example:
+                items:
+                  - id: 1
+                    name: オーガニック緑茶
+                    category: 食品
+                    price: 1200
+                    inStock: true
+                    description: 厳選された国産茶葉を使用した風味豊かな緑茶。
+                    rating: 4
+                    reviews:
+                      - { id: 1, author: 田中太郎, rating: 5, comment: 香りが良く飲みやすいです。 }
+                      - { id: 2, author: 鈴木花子, rating: 3, comment: 普通です。値段の割に量が少ない。 }
+                  - id: 2
+                    name: 天然蜂蜜
+                    category: 食品
+                    price: 2500
+                    inStock: true
+                    description: 国産百花蜜。添加物一切不使用の純粋蜂蜜。
+                    rating: 5
+                    reviews:
+                      - { id: 3, author: 山田一郎, rating: 5, comment: 濃厚で美味しい！リピート確定。 }
+                  - id: 11
+                    name: ワイヤレスイヤホン
+                    category: 電子機器
+                    price: 8900
+                    inStock: true
+                    description: Bluetooth 5.3対応。最大30時間再生。IPX5防水。
+                    rating: 4
+                    reviews:
+                      - { id: 14, author: 田中誠, rating: 5, comment: 音質が良くてコスパ最高。 }
+                      - { id: 15, author: 鈴木良子, rating: 3, comment: フィット感がもう少し欲しい。 }
+                  - id: 21
+                    name: コットンTシャツ
+                    category: ファッション
+                    price: 2800
+                    inStock: true
+                    description: 100%オーガニックコットン。シンプルなクルーネック。
+                    rating: 4
+                    reviews:
+                      - { id: 27, author: 吉田真由美, rating: 4, comment: 肌触りが良くて気持ちいい。 }
+                  - id: 41
+                    name: ヨガマット 6mm
+                    category: スポーツ
+                    price: 3800
+                    inStock: true
+                    description: 滑り止め加工。軽量&収納袋付き。環境配慮素材。
+                    rating: 4
+                    reviews:
+                      - { id: 50, author: 村上祐子, rating: 5, comment: クッションがちょうど良い厚さ。 }
+                total: 50
+                page: 1
+                pageSize: 5
+                totalPages: 10
 
   /products/{id}:
     get:
@@ -67,9 +117,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
-              examples:
-                default:
-                  externalValue: './examples/product-detail.json'
+              example:
+                id: 1
+                name: オーガニック緑茶
+                category: 食品
+                price: 1200
+                inStock: true
+                description: 厳選された国産茶葉を使用した風味豊かな緑茶。
+                rating: 4
+                reviews:
+                  - { id: 1, author: 田中太郎, rating: 5, comment: 香りが良く飲みやすいです。 }
+                  - { id: 2, author: 鈴木花子, rating: 3, comment: 普通です。値段の割に量が少ない。 }
         '404':
           description: 商品が見つからない
           content:
