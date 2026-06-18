@@ -17,12 +17,12 @@
     </v-main>
 
     <v-bottom-navigation
-      v-if="$slots.footer || !hideFooter"
-      :model-value="(!$slots.footer && !footerActions) ? activeTab : undefined"
+      v-if="hasFooterSlot || !hideFooter"
+      :model-value="(!hasFooterSlot && !footerActions) ? activeTab : undefined"
       color="primary"
     >
       <!-- カスタムフッタースロット -->
-      <template v-if="$slots.footer">
+      <template v-if="hasFooterSlot">
         <slot name="footer" />
       </template>
       <!-- 業務画面用アクションボタン -->
@@ -40,7 +40,7 @@
       </template>
 
       <!-- デフォルト: ナビゲーションタブ -->
-      <template v-else-if="!hideFooter">
+      <template v-else>
         <v-btn v-for="tab in navTabs" :key="tab.to" :to="tab.to" :value="tab.to">
           <v-icon>{{ tab.icon }}</v-icon>
           <span>{{ tab.label }}</span>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useSlots } from 'vue'
 import { useRoute } from 'vue-router'
 import type { FooterAction } from '@/types/layout'
 
@@ -60,6 +60,9 @@ defineProps<{
   footerActions?: FooterAction[]
   hideFooter?: boolean
 }>()
+
+const slots = useSlots()
+const hasFooterSlot = computed(() => !!slots.footer)
 
 const route = useRoute()
 const activeTab = computed(() => route.path)
