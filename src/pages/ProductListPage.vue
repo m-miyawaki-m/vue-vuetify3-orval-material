@@ -71,7 +71,7 @@
         :length="displayData.totalPages"
         :total-visible="5"
         density="compact"
-        style="width: 100%; max-width: 360px;"
+        style="width: 320px; flex-shrink: 0;"
         @update:model-value="onPageChange"
       />
     </template>
