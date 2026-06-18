@@ -16,18 +16,17 @@
       </div>
     </v-main>
 
-    <!-- カスタムフッタースロット -->
-    <div v-if="$slots.footer" class="custom-footer">
-      <slot name="footer" />
-    </div>
-
     <v-bottom-navigation
-      v-else-if="!hideFooter"
-      :model-value="footerActions ? undefined : activeTab"
+      v-if="$slots.footer || !hideFooter"
+      :model-value="(!$slots.footer && !footerActions) ? activeTab : undefined"
       color="primary"
     >
+      <!-- カスタムフッタースロット -->
+      <template v-if="$slots.footer">
+        <slot name="footer" />
+      </template>
       <!-- 業務画面用アクションボタン -->
-      <template v-if="footerActions">
+      <template v-else-if="footerActions">
         <v-btn
           v-for="action in footerActions"
           :key="action.label"
@@ -41,7 +40,7 @@
       </template>
 
       <!-- デフォルト: ナビゲーションタブ -->
-      <template v-else>
+      <template v-else-if="!hideFooter">
         <v-btn v-for="tab in navTabs" :key="tab.to" :to="tab.to" :value="tab.to">
           <v-icon>{{ tab.icon }}</v-icon>
           <span>{{ tab.label }}</span>
@@ -74,15 +73,6 @@ const navTabs = [
 </script>
 
 <style scoped>
-.custom-footer {
-  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  background-color: rgb(var(--v-theme-surface));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 0;
-}
-
 .main-scroll {
   height: 100%;
   overflow-y: auto;
