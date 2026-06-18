@@ -288,8 +288,8 @@
                 v-model="confirmDialog"
                 title="削除の確認"
                 message="このアイテムを削除しますか？この操作は取り消せません。"
-                @confirm="confirmResult = 'OK を選択'; confirmDialog = false"
-                @cancel="confirmResult = 'キャンセルを選択'; confirmDialog = false"
+                @confirm="onConfirmOk"
+                @cancel="onConfirmCancel"
               />
 
               <!-- フォームダイアログ -->
@@ -298,11 +298,12 @@
                 <v-text-field v-model="formEmail" label="メール" variant="outlined" density="compact" type="email" />
                 <template #actions>
                   <v-spacer />
-                  <v-btn variant="text" @click="formDialog = false; formName = ''; formEmail = ''">キャンセル</v-btn>
+                  <v-btn variant="text" @click="cancelForm">キャンセル</v-btn>
                   <v-btn
-                    color="primary" variant="elevated"
+                    color="primary"
+                    variant="elevated"
                     :disabled="!formName || !formEmail"
-                    @click="formResult = formName + ' / ' + formEmail; formDialog = false; formName = ''; formEmail = ''"
+                    @click="submitForm"
                   >登録</v-btn>
                 </template>
               </BaseDialog>
@@ -553,6 +554,24 @@ const formResult       = ref('')
 const formName         = ref('')
 const formEmail        = ref('')
 const fullscreenDialog = ref(false)
+
+function onConfirmOk() {
+  confirmResult.value = 'OK を選択'
+  confirmDialog.value = false
+}
+function onConfirmCancel() {
+  confirmResult.value = 'キャンセルを選択'
+  confirmDialog.value = false
+}
+function cancelForm() {
+  formDialog.value = false
+  formName.value = ''
+  formEmail.value = ''
+}
+function submitForm() {
+  formResult.value = `${formName.value} / ${formEmail.value}`
+  cancelForm()
+}
 
 // BottomSheet
 const bottomSheet = ref(false)
