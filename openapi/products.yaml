@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: Products API
+  version: 1.0.0
+
+paths:
+  /products:
+    get:
+      operationId: getProducts
+      summary: 商品一覧取得
+      parameters:
+        - name: q
+          in: query
+          description: キーワード検索（name・description を対象）
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: カテゴリフィルタ
+          schema:
+            $ref: '#/components/schemas/ProductCategory'
+        - name: inStock
+          in: query
+          description: 在庫ありのみ
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          description: ページ番号（1始まり）
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          description: 1ページあたりの件数
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 5
+      responses:
+        '200':
+          description: 商品一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+
+  /products/{id}:
+    get:
+      operationId: getProductById
+      summary: 商品詳細取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 商品詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: 商品が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+
+    ProductCategory:
+      type: string
+      enum:
+        - 食品
+        - 電子機器
+        - ファッション
+        - 家具
+        - スポーツ
+
+    Review:
+      type: object
+      required: [id, author, rating, comment]
+      properties:
+        id:
+          type: integer
+        author:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    Product:
+      type: object
+      required: [id, name, category, price, inStock, description, rating, reviews]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          $ref: '#/components/schemas/ProductCategory'
+        price:
+          type: integer
+          description: 価格（円）
+        inStock:
+          type: boolean
+        description:
+          type: string
+        rating:
+          type: number
+          minimum: 0
+          maximum: 5
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+
+    ProductListResponse:
+      type: object
+      required: [items, total, page, pageSize, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        total:
+          type: integer
+          description: フィルタ後の総件数
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
