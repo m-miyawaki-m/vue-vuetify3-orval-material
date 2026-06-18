@@ -1,5 +1,5 @@
 <template>
-  <MainLayout title="検索結果" :footer-actions="footerActions">
+  <MainLayout title="検索結果">
     <template #prepend>
       <v-btn icon variant="text" @click="router.back()">
         <v-icon>mdi-arrow-left</v-icon>
@@ -85,7 +85,6 @@ import { mockProducts } from '@/mocks/products'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 import ProductDialog from '@/components/product/ProductDialog.vue'
-import type { FooterAction } from '@/types/layout'
 
 const PAGE_SIZE = 5
 const router = useRouter()
@@ -138,8 +137,4 @@ function goDetail(product: Product) {
   router.push(`/detail/${product.id}`)
 }
 
-const footerActions: FooterAction[] = [
-  { icon: 'mdi-magnify', label: '検索に戻る', onClick: () => router.back() },
-  { icon: 'mdi-barcode-scan', label: '読み取り', onClick: () => router.push('/scanner') },
-]
 </script>
