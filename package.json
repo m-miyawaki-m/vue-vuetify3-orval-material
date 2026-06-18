@@ -19,6 +19,7 @@
     "@capacitor/core": "^7.6.6",
     "@fontsource/roboto": "^5.2.10",
     "@mdi/font": "7.4.47",
+    "@tanstack/vue-query": "^5.101.0",
     "@zxing/browser": "^0.2.0",
     "axios": "^1.17.0",
     "material-icons": "^1.13.14",

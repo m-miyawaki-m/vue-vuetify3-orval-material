@@ -1,13 +1,19 @@
 import { defineConfig } from 'orval'
 
 export default defineConfig({
-  // API クライアントを追加する場合はここに定義する
+  // OpenAPI spec を追加したらここに定義する
   // 例:
-  // myApi: {
-  //   input: './openapi.json',
+  // products: {
+  //   input: './openapi/products.yaml',
   //   output: {
-  //     target: './src/api/myApi.ts',
-  //     client: 'axios',
+  //     target: './src/api/products.ts',
+  //     client: 'vue-query',          // useGetProducts() などの hook を自動生成
+  //     override: {
+  //       query: {
+  //         useQuery: true,
+  //         useMutation: true,
+  //       },
+  //     },
   //   },
   // },
 })
