@@ -21,6 +21,23 @@ export default defineConfig({
         inline: ['vuetify'],
       },
     },
+    coverage: {
+      provider: 'v8',
+      // ターミナル表示 + 静的 HTML（coverage/index.html）を両方出力
+      reporter: ['text', 'html'],
+      reportsDirectory: 'coverage',
+      // カバレッジ計測対象（orval 自動生成・テスト設定・型定義は除外）
+      include: ['src/**/*.{ts,vue}'],
+      exclude: [
+        'src/api/**',       // orval 自動生成
+        'src/test/**',      // テストセットアップ
+        'src/types/**',     // 型定義のみ
+        'src/plugins/**',   // Axios/Vue プラグイン設定
+        'src/main.ts',      // エントリポイント
+        '**/node_modules/**',
+        'e2e/**',
+      ],
+    },
   },
   resolve: {
     alias: {
