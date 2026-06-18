@@ -1,3 +1,17 @@
+// ============================================================
+// テスト対象: SearchConditionChips (src/components/search/SearchConditionChips.vue)
+// 種別: コンポーネントユニットテスト
+// ------------------------------------------------------------
+// props: q(キーワード) / category(カテゴリ) / inStock(在庫フラグ) / closable
+// ------------------------------------------------------------
+// テストケース一覧
+//   [1] 条件なし →「条件なし（全件）」を表示
+//   [2] q あり   → キーワードチップを表示
+//   [3] category → カテゴリチップを表示
+//   [4] inStock  → 在庫ありチップを表示
+//   [5] 複数条件 → すべてのチップを同時表示
+//   [6] closable=false → 閉じるボタン非表示
+// ============================================================
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SearchConditionChips from '../SearchConditionChips.vue'

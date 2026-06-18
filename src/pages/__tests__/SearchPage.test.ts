@@ -1,3 +1,17 @@
+// ============================================================
+// テスト対象: SearchPage (src/pages/SearchPage.vue)
+// 種別: ページコンポーネントテスト
+// ------------------------------------------------------------
+// 依存モック
+//   - vue-router: useRouter().push をスパイ（画面遷移の検証）
+//   - useRoute: path='/search', query={} で固定
+// ------------------------------------------------------------
+// テストケース一覧
+//   [1] キーワードのみで検索 → { path: /products, query: { q } } で push
+//   [2] キーワードなしで検索 → 空クエリで /products に push
+//   [3] 絞り込みボタンクリック → ダイアログが開く
+//   [4] 読み取りボタンクリック → /scanner に push
+// ============================================================
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'

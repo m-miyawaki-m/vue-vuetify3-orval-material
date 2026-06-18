@@ -1,3 +1,11 @@
+// ============================================================
+// テスト対象: searchUtils (src/utils/searchUtils.ts)
+// 種別: 純粋関数ユニットテスト（mount/モック不要）
+// ------------------------------------------------------------
+// 対象関数
+//   - buildSearchQuery(keyword, category, inStock) → URLクエリオブジェクト
+//   - filterProducts(products, options, page, pageSize) → ページ済みリスト
+// ============================================================
 import { describe, it, expect } from 'vitest'
 import { buildSearchQuery, filterProducts } from '../searchUtils'
 import type { Product } from '@/api/products'

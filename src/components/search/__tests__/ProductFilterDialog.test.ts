@@ -1,3 +1,16 @@
+// ============================================================
+// テスト対象: ProductFilterDialog (src/components/search/ProductFilterDialog.vue)
+// 種別: コンポーネントユニットテスト
+// ------------------------------------------------------------
+// props: modelValue(表示制御) / category / inStock
+// emits: update:modelValue / reset
+// ------------------------------------------------------------
+// テストケース一覧
+//   [1] modelValue=true → ダイアログが表示される
+//   [2] 全カテゴリが選択肢として表示される
+//   [3] リセットボタンクリック → reset イベントを発火
+//   [4] 閉じるボタンクリック  → update:modelValue=false を発火
+// ============================================================
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ProductFilterDialog, { CATEGORIES } from '../ProductFilterDialog.vue'
