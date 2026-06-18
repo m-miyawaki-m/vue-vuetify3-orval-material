@@ -1,5 +1,5 @@
 <template>
-  <MainLayout title="検索結果">
+  <MainLayout title="検索結果" hide-footer>
     <template #prepend>
       <v-btn icon variant="text" @click="router.back()">
         <v-icon>mdi-arrow-left</v-icon>

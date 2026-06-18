@@ -17,6 +17,7 @@
     </v-main>
 
     <v-bottom-navigation
+      v-if="!hideFooter"
       :model-value="footerActions ? undefined : activeTab"
       color="primary"
     >
@@ -53,6 +54,7 @@ import type { FooterAction } from '@/types/layout'
 defineProps<{
   title: string
   footerActions?: FooterAction[]
+  hideFooter?: boolean
 }>()
 
 const route = useRoute()
