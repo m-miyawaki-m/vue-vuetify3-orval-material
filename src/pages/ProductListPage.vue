@@ -1,5 +1,5 @@
 <template>
-  <MainLayout title="検索結果" hide-footer>
+  <MainLayout title="検索結果">
     <template #prepend>
       <v-btn icon variant="text" @click="router.back()">
         <v-icon>mdi-arrow-left</v-icon>
@@ -26,17 +26,9 @@
 
       <v-divider />
 
-      <!-- 件数 + ページネーション -->
-      <div class="d-flex align-center justify-space-between px-4 py-2">
+      <!-- 件数 -->
+      <div class="px-4 py-2">
         <span class="text-body-2 text-medium-emphasis">{{ displayData.total }}件</span>
-        <v-pagination
-          v-if="displayData.totalPages > 1"
-          :model-value="currentPage"
-          :length="displayData.totalPages"
-          density="compact"
-          size="small"
-          @update:model-value="onPageChange"
-        />
       </div>
 
       <v-divider />
@@ -71,6 +63,16 @@
         </template>
       </v-container>
     </div>
+
+    <!-- フッター: ページネーション -->
+    <template #footer>
+      <v-pagination
+        :model-value="currentPage"
+        :length="displayData.totalPages"
+        density="compact"
+        @update:model-value="onPageChange"
+      />
+    </template>
 
     <!-- クイックビューダイアログ -->
     <ProductDialog

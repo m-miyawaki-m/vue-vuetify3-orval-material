@@ -16,8 +16,13 @@
       </div>
     </v-main>
 
+    <!-- カスタムフッタースロット -->
+    <div v-if="$slots.footer" class="custom-footer">
+      <slot name="footer" />
+    </div>
+
     <v-bottom-navigation
-      v-if="!hideFooter"
+      v-else-if="!hideFooter"
       :model-value="footerActions ? undefined : activeTab"
       color="primary"
     >
@@ -69,6 +74,15 @@ const navTabs = [
 </script>
 
 <style scoped>
+.custom-footer {
+  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  background-color: rgb(var(--v-theme-surface));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+}
+
 .main-scroll {
   height: 100%;
   overflow-y: auto;
