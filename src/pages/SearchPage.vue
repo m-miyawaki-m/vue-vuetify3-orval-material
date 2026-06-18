@@ -58,6 +58,7 @@ import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductFilterDialog, { type Category } from '@/components/search/ProductFilterDialog.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
 import type { FooterAction } from '@/types/layout'
+import { buildSearchQuery } from '@/utils/searchUtils'
 
 const router = useRouter()
 
@@ -67,10 +68,7 @@ const inStockOnly = ref(false)
 const filterDialog = ref(false)
 
 function search() {
-  const query: Record<string, string> = {}
-  if (keyword.value) query.q = keyword.value
-  if (selectedCategory.value) query.category = selectedCategory.value
-  if (inStockOnly.value) query.inStock = 'true'
+  const query = buildSearchQuery(keyword.value, selectedCategory.value, inStockOnly.value)
   router.push({ path: '/products', query })
 }
 

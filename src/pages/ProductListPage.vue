@@ -89,6 +89,7 @@ import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 import ProductDialog from '@/components/product/ProductDialog.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
+import { filterProducts } from '@/utils/searchUtils'
 
 const PAGE_SIZE = 5
 const router = useRouter()
@@ -108,19 +109,18 @@ const params = computed(() => ({
 
 const { data, isLoading, isError } = useGetProducts(params)
 
-const mockFallback = computed<ProductListResponse>(() => {
-  let filtered = mockProducts as Product[]
-  const q = route.query.q as string
-  const category = route.query.category as string
-  const inStock = route.query.inStock === 'true'
-  if (q) filtered = filtered.filter(p => p.name.includes(q) || p.description.includes(q))
-  if (category) filtered = filtered.filter(p => p.category === category)
-  if (inStock) filtered = filtered.filter(p => p.inStock)
-  const total = filtered.length
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const items = filtered.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE)
-  return { items, total, page: currentPage.value, pageSize: PAGE_SIZE, totalPages }
-})
+const mockFallback = computed<ProductListResponse>(() =>
+  filterProducts(
+    mockProducts as Product[],
+    {
+      q: route.query.q as string | undefined,
+      category: route.query.category as string | undefined,
+      inStock: route.query.inStock === 'true',
+    },
+    currentPage.value,
+    PAGE_SIZE,
+  )
+)
 
 const isFallback = computed(() => isError.value)
 const displayData = computed<ProductListResponse>(() =>
