@@ -28,6 +28,10 @@ export default tseslint.config(
       // ページコンポーネント（HomePage.vue など）で single-word 名を許可
       'vue/multi-word-component-names': 'off',
 
+      // semi:false（セミコロンなし）運用時の ASI 危険パターンをエラーにする
+      // 行頭が ( [ ` で始まる場合、前行と結合して誤解釈される可能性がある
+      'no-unexpected-multiline': 'error',
+
       // ── ここにカスタムルールを追加 ──────────────────────────────────
       // 例: 'vue/component-definition-name-casing': ['error', 'PascalCase'],
       // 例: '@typescript-eslint/no-explicit-any': 'warn',
