@@ -1,17 +1,19 @@
 <template>
   <v-card class="mb-3" @click="emit('click', product)">
+    <div class="px-4 pt-3 pb-0">
+      <v-chip
+        :color="memoStore.hasMemo(product.id) ? 'success' : 'default'"
+        size="x-small"
+        variant="tonal"
+        :prepend-icon="memoStore.hasMemo(product.id) ? 'mdi-check-circle' : 'mdi-circle-outline'"
+      >
+        {{ memoStore.hasMemo(product.id) ? '入力済み' : '未入力' }}
+      </v-chip>
+    </div>
     <v-card-title class="text-body-1 font-weight-bold">{{ product.name }}</v-card-title>
     <v-card-subtitle>{{ product.category }}</v-card-subtitle>
     <v-card-text>
       <div class="d-flex align-center ga-2 mb-2">
-        <v-chip
-          :color="memoStore.hasMemo(product.id) ? 'success' : 'default'"
-          size="small"
-          variant="tonal"
-          :prepend-icon="memoStore.hasMemo(product.id) ? 'mdi-check-circle' : 'mdi-circle-outline'"
-        >
-          {{ memoStore.hasMemo(product.id) ? '入力済み' : '未入力' }}
-        </v-chip>
         <v-chip
           :color="product.inStock ? 'success' : 'error'"
           size="small"
