@@ -6,9 +6,10 @@
       </v-btn>
     </template>
 
-    <v-container class="pb-6">
+    <!-- 上部固定エリア -->
+    <div class="list-header">
       <!-- 検索条件 -->
-      <div class="d-flex flex-wrap align-center gap-1 mt-4 mb-2">
+      <div class="d-flex flex-wrap align-center gap-1 px-4 pt-3 pb-2">
         <v-chip v-if="route.query.q" size="small" prepend-icon="mdi-magnify" variant="tonal">
           {{ route.query.q }}
         </v-chip>
@@ -23,49 +24,53 @@
         </span>
       </div>
 
-      <!-- ローディング -->
-      <v-progress-linear v-if="isLoading" indeterminate color="primary" class="mt-2" />
+      <v-divider />
 
-      <template v-else>
-        <!-- オフライン通知 -->
-        <v-chip
-          v-if="isFallback"
-          color="warning"
-          variant="tonal"
-          size="small"
-          prepend-icon="mdi-wifi-off"
-          class="mt-4 mb-3"
-        >
-          オフラインモード（モックデータ）
-        </v-chip>
-
-        <!-- 件数表示 -->
-        <p class="text-body-2 mt-4 mb-3 text-medium-emphasis">{{ displayData.total }}件</p>
-
-        <!-- 商品一覧 -->
-        <template v-if="displayData.items.length > 0">
-          <ProductCard
-            v-for="product in displayData.items"
-            :key="product.id"
-            :product="product"
-            @click="openDialog(product)"
-            @detail="goDetail(product)"
-          />
-        </template>
-        <v-alert v-else type="info" variant="tonal">
-          条件に一致する商品が見つかりませんでした。
-        </v-alert>
-
-        <!-- ページネーション -->
+      <!-- 件数 + ページネーション -->
+      <div class="d-flex align-center justify-space-between px-4 py-2">
+        <span class="text-body-2 text-medium-emphasis">{{ displayData.total }}件</span>
         <v-pagination
           v-if="displayData.totalPages > 1"
           :model-value="currentPage"
           :length="displayData.totalPages"
-          class="mt-4"
+          density="compact"
+          size="small"
           @update:model-value="onPageChange"
         />
-      </template>
-    </v-container>
+      </div>
+
+      <v-divider />
+
+      <!-- オフライン通知 -->
+      <div v-if="isFallback" class="px-4 py-1">
+        <v-chip color="warning" variant="tonal" size="small" prepend-icon="mdi-wifi-off">
+          オフラインモード（モックデータ）
+        </v-chip>
+      </div>
+
+      <!-- ローディング -->
+      <v-progress-linear v-if="isLoading" indeterminate color="primary" />
+    </div>
+
+    <!-- スクロールエリア -->
+    <div class="list-body">
+      <v-container class="pb-6">
+        <template v-if="!isLoading">
+          <template v-if="displayData.items.length > 0">
+            <ProductCard
+              v-for="product in displayData.items"
+              :key="product.id"
+              :product="product"
+              @click="openDialog(product)"
+              @detail="goDetail(product)"
+            />
+          </template>
+          <v-alert v-else type="info" variant="tonal">
+            条件に一致する商品が見つかりませんでした。
+          </v-alert>
+        </template>
+      </v-container>
+    </div>
 
     <!-- クイックビューダイアログ -->
     <ProductDialog
@@ -136,5 +141,18 @@ function goDetail(product: Product) {
   dialogOpen.value = false
   router.push(`/detail/${product.id}`)
 }
-
 </script>
+
+<style scoped>
+.list-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgb(var(--v-theme-background));
+}
+
+.list-body {
+  overflow-y: auto;
+  flex: 1;
+}
+</style>
