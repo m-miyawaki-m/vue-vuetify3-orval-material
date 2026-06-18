@@ -6,16 +6,38 @@
         <slot name="actions" />
       </template>
     </v-app-bar>
+
     <v-main>
       <div class="main-scroll">
         <slot />
       </div>
     </v-main>
-    <v-bottom-navigation v-model="activeTab" color="primary">
-      <v-btn v-for="tab in tabs" :key="tab.to" :to="tab.to" :value="tab.to">
-        <v-icon>{{ tab.icon }}</v-icon>
-        <span>{{ tab.label }}</span>
-      </v-btn>
+
+    <v-bottom-navigation
+      :model-value="footerActions ? undefined : activeTab"
+      color="primary"
+    >
+      <!-- 業務画面用アクションボタン -->
+      <template v-if="footerActions">
+        <v-btn
+          v-for="action in footerActions"
+          :key="action.label"
+          :color="action.color"
+          :disabled="action.disabled"
+          @click="action.onClick"
+        >
+          <v-icon>{{ action.icon }}</v-icon>
+          <span>{{ action.label }}</span>
+        </v-btn>
+      </template>
+
+      <!-- デフォルト: ナビゲーションタブ -->
+      <template v-else>
+        <v-btn v-for="tab in navTabs" :key="tab.to" :to="tab.to" :value="tab.to">
+          <v-icon>{{ tab.icon }}</v-icon>
+          <span>{{ tab.label }}</span>
+        </v-btn>
+      </template>
     </v-bottom-navigation>
   </v-layout>
 </template>
@@ -23,19 +45,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import type { FooterAction } from '@/types/layout'
 
 defineProps<{
   title: string
+  footerActions?: FooterAction[]
 }>()
 
 const route = useRoute()
 const activeTab = computed(() => route.path)
 
-const tabs = [
-  { icon: 'mdi-home',    label: 'ホーム',       to: '/'          },
-  { icon: 'mdi-magnify', label: '検索',         to: '/search'    },
-  { icon: 'mdi-heart',   label: 'お気に入り',   to: '/favorites' },
-  { icon: 'mdi-cog',     label: '設定',         to: '/settings'  },
+const navTabs = [
+  { icon: 'mdi-home',    label: 'ホーム',     to: '/'          },
+  { icon: 'mdi-magnify', label: '検索',       to: '/search'    },
+  { icon: 'mdi-heart',   label: 'お気に入り', to: '/favorites' },
+  { icon: 'mdi-cog',     label: '設定',       to: '/settings'  },
 ]
 </script>
 
