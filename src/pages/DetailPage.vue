@@ -1,5 +1,16 @@
 <template>
   <SubLayout :title="product?.name ?? '詳細'">
+    <template #footer>
+      <v-btn
+        color="primary"
+        variant="flat"
+        prepend-icon="mdi-content-save"
+        :disabled="!product"
+        @click="saveMemo"
+      >
+        登録
+      </v-btn>
+    </template>
     <v-container v-if="product" class="pb-6">
       <v-tabs v-model="tab" class="mb-4" color="primary">
         <v-tab value="info">商品情報</v-tab>
@@ -46,14 +57,13 @@
 
             <v-card-text>
               <v-textarea
-                :model-value="memoStore.getMemo(product.id)"
+                v-model="localMemo"
                 label="メモ"
                 placeholder="メモを入力..."
                 variant="outlined"
                 rows="3"
                 auto-grow
                 clearable
-                @update:model-value="memoStore.setMemo(product.id, $event ?? '')"
               />
             </v-card-text>
           </v-card>
@@ -124,10 +134,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useMemoStore } from '@/stores/memo'
+import { useSnackbar } from '@/composables/useSnackbar'
 import type { Product } from '@/types/product'
 import SubLayout from '@/components/layout/SubLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
@@ -135,14 +146,26 @@ import ProductCard from '@/components/product/ProductCard.vue'
 const props = defineProps<{ id: string }>()
 const store = useProductStore()
 const memoStore = useMemoStore()
+const { showSnack } = useSnackbar()
 const router = useRouter()
 
 const tab = ref('info')
 const reviewFilter = ref(0)
+const localMemo = ref('')
 
 const product = computed(() =>
   store.products.find(p => p.id === Number(props.id)) ?? null
 )
+
+watch(product, (p) => {
+  localMemo.value = p ? memoStore.getMemo(p.id) : ''
+}, { immediate: true })
+
+function saveMemo() {
+  if (!product.value) return
+  memoStore.setMemo(product.value.id, localMemo.value)
+  showSnack('success', '登録しました')
+}
 
 const filteredReviews = computed(() => {
   if (!product.value) return []
