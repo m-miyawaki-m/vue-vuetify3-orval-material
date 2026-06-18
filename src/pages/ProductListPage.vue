@@ -7,8 +7,24 @@
     </template>
 
     <v-container class="pb-6">
+      <!-- 検索条件 -->
+      <div class="d-flex flex-wrap align-center gap-1 mt-4 mb-2">
+        <v-chip v-if="route.query.q" size="small" prepend-icon="mdi-magnify" variant="tonal">
+          {{ route.query.q }}
+        </v-chip>
+        <v-chip v-if="route.query.category" size="small" prepend-icon="mdi-tag-outline" variant="tonal">
+          {{ route.query.category }}
+        </v-chip>
+        <v-chip v-if="route.query.inStock === 'true'" size="small" prepend-icon="mdi-check-circle-outline" variant="tonal">
+          在庫あり
+        </v-chip>
+        <span v-if="!route.query.q && !route.query.category && route.query.inStock !== 'true'" class="text-body-2 text-medium-emphasis">
+          条件なし（全件）
+        </span>
+      </div>
+
       <!-- ローディング -->
-      <v-progress-linear v-if="isLoading" indeterminate color="primary" class="mt-4" />
+      <v-progress-linear v-if="isLoading" indeterminate color="primary" class="mt-2" />
 
       <template v-else>
         <!-- オフライン通知 -->
