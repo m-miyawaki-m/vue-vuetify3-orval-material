@@ -7,17 +7,18 @@
     </template>
 
     <v-container class="pb-6">
-      <!-- キーワード + 絞り込みボタン -->
-      <div class="d-flex align-center gap-2 mt-4 mb-4">
-        <v-text-field
-          v-model="keyword"
-          label="キーワード検索"
-          prepend-inner-icon="mdi-magnify"
-          clearable
-          variant="outlined"
-          hide-details
-          class="flex-grow-1"
-        />
+      <!-- キーワード検索 -->
+      <v-text-field
+        v-model="keyword"
+        label="キーワード検索"
+        prepend-inner-icon="mdi-magnify"
+        clearable
+        variant="outlined"
+        class="mt-4 mb-2"
+      />
+
+      <!-- 絞り込みボタン -->
+      <div class="mb-4">
         <v-btn
           variant="outlined"
           color="primary"
