@@ -1,6 +1,7 @@
 <template>
   <v-snackbar v-model="state.show" :color="state.color" :timeout="2500" location="bottom">
-    <v-icon start>{{ state.icon }}</v-icon>{{ state.text }}
+    <v-icon start>{{ state.icon }}</v-icon
+    >{{ state.text }}
     <template #actions>
       <v-btn variant="text" @click="state.show = false">閉じる</v-btn>
     </template>

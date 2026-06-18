@@ -1,42 +1,62 @@
 <template>
   <v-container class="pb-8">
-
     <section class="mb-8">
       <p class="text-overline text-medium-emphasis mb-2">ダイアログパターン</p>
       <p class="text-caption text-medium-emphasis mb-4">
         用途に応じて使い分けます。すべてユーザーの注意を集中させる目的で使います。
       </p>
       <div class="d-flex flex-column gap-3">
-
         <v-card variant="outlined" class="pa-4">
           <p class="text-subtitle-2 font-weight-bold mb-1">情報ダイアログ</p>
-          <p class="text-caption text-medium-emphasis mb-3">メッセージの提示・内容の確認。閉じるボタンのみ。</p>
-          <v-btn color="primary" variant="tonal" prepend-icon="mdi-information" @click="infoDialog = true">
+          <p class="text-caption text-medium-emphasis mb-3">
+            メッセージの提示・内容の確認。閉じるボタンのみ。
+          </p>
+          <v-btn
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-information"
+            @click="infoDialog = true"
+          >
             情報を表示
           </v-btn>
         </v-card>
 
         <v-card variant="outlined" class="pa-4">
           <p class="text-subtitle-2 font-weight-bold mb-1">確認ダイアログ（ConfirmDialog）</p>
-          <p class="text-caption text-medium-emphasis mb-3">OK / キャンセルで分岐。削除・送信前の確認に。</p>
-          <v-btn color="error" variant="tonal" prepend-icon="mdi-delete" @click="confirmDialog = true">
+          <p class="text-caption text-medium-emphasis mb-3">
+            OK / キャンセルで分岐。削除・送信前の確認に。
+          </p>
+          <v-btn
+            color="error"
+            variant="tonal"
+            prepend-icon="mdi-delete"
+            @click="confirmDialog = true"
+          >
             削除の確認
           </v-btn>
-          <p v-if="confirmResult" class="text-caption text-medium-emphasis mt-2">→ {{ confirmResult }}</p>
+          <p v-if="confirmResult" class="text-caption text-medium-emphasis mt-2">
+            → {{ confirmResult }}
+          </p>
         </v-card>
 
         <v-card variant="outlined" class="pa-4">
           <p class="text-subtitle-2 font-weight-bold mb-1">フォームダイアログ</p>
-          <p class="text-caption text-medium-emphasis mb-3">入力フォームを内包。新規作成・編集に使います。</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            入力フォームを内包。新規作成・編集に使います。
+          </p>
           <v-btn color="primary" variant="tonal" prepend-icon="mdi-plus" @click="formDialog = true">
             新規追加
           </v-btn>
-          <p v-if="formResult" class="text-caption text-medium-emphasis mt-2">→ 登録: {{ formResult }}</p>
+          <p v-if="formResult" class="text-caption text-medium-emphasis mt-2">
+            → 登録: {{ formResult }}
+          </p>
         </v-card>
 
         <v-card variant="outlined" class="pa-4">
           <p class="text-subtitle-2 font-weight-bold mb-1">フルスクリーンダイアログ</p>
-          <p class="text-caption text-medium-emphasis mb-3">画面全体を占有。複雑な編集フォームや詳細ページに。</p>
+          <p class="text-caption text-medium-emphasis mb-3">
+            画面全体を占有。複雑な編集フォームや詳細ページに。
+          </p>
           <v-btn
             color="primary"
             variant="tonal"
@@ -46,7 +66,6 @@
             フルスクリーンで開く
           </v-btn>
         </v-card>
-
       </div>
     </section>
 
@@ -71,8 +90,20 @@
 
     <!-- フォームダイアログ -->
     <BaseDialog v-model="formDialog" title="新規アイテムを追加" max-width="440px">
-      <v-text-field v-model="formName" label="名前" variant="outlined" density="compact" class="mb-3" />
-      <v-text-field v-model="formEmail" label="メール" variant="outlined" density="compact" type="email" />
+      <v-text-field
+        v-model="formName"
+        label="名前"
+        variant="outlined"
+        density="compact"
+        class="mb-3"
+      />
+      <v-text-field
+        v-model="formEmail"
+        label="メール"
+        variant="outlined"
+        density="compact"
+        type="email"
+      />
       <template #actions>
         <v-spacer />
         <v-btn variant="text" @click="cancelForm">キャンセル</v-btn>
@@ -81,7 +112,8 @@
           variant="elevated"
           :disabled="!formName || !formEmail"
           @click="submitForm"
-        >登録</v-btn>
+          >登録</v-btn
+        >
       </template>
     </BaseDialog>
 
@@ -103,7 +135,6 @@
         </v-container>
       </v-card>
     </v-dialog>
-
   </v-container>
 </template>
 

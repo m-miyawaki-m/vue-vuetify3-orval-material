@@ -156,7 +156,7 @@ function jumpMinute(idx: number) {
   scroll-snap-align: start;
   font-size: 1.5rem;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.85);
+  color: rgba(var(--v-theme-on-surface), 0.85);
 }
 .twp__cell--item {
   cursor: pointer;
@@ -169,7 +169,7 @@ function jumpMinute(idx: number) {
   font-weight: 700;
   margin: 0 6px;
   line-height: 1;
-  color: rgba(0, 0, 0, 0.85);
+  color: rgba(var(--v-theme-on-surface), 0.85);
 }
 
 /* 選択中ハイライトバー */
@@ -178,8 +178,8 @@ function jumpMinute(idx: number) {
   inset: 0;
   top: calc(50% - 22px);
   height: 44px;
-  border-top: 1.5px solid rgba(0, 0, 0, 0.15);
-  border-bottom: 1.5px solid rgba(0, 0, 0, 0.15);
+  border-top: 1.5px solid rgba(var(--v-theme-on-surface), 0.15);
+  border-bottom: 1.5px solid rgba(var(--v-theme-on-surface), 0.15);
   pointer-events: none;
   z-index: 1;
 }
@@ -195,10 +195,10 @@ function jumpMinute(idx: number) {
 }
 .twp__fade--top {
   top: 0;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 20%, transparent);
+  background: linear-gradient(to bottom, rgba(var(--v-theme-surface), 0.95) 20%, transparent);
 }
 .twp__fade--bottom {
   bottom: 0;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.95) 20%, transparent);
+  background: linear-gradient(to top, rgba(var(--v-theme-surface), 0.95) 20%, transparent);
 }
 </style>
