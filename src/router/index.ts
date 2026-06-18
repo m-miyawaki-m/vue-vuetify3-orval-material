@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomePage from '@/pages/HomePage.vue'
+import QuickMenuPage from '@/pages/QuickMenuPage.vue'
+import MainMenuPage from '@/pages/MainMenuPage.vue'
 import SearchPage from '@/pages/SearchPage.vue'
 import DetailPage from '@/pages/DetailPage.vue'
 import FavoritePage from '@/pages/FavoritePage.vue'
@@ -10,7 +11,8 @@ import ScannerPage from '@/pages/ScannerPage.vue'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
-    { path: '/',           component: HomePage             },
+    { path: '/',           component: QuickMenuPage        },
+    { path: '/menu',       component: MainMenuPage         },
     { path: '/search',     component: SearchPage           },
     { path: '/favorites',  component: FavoritePage         },
     { path: '/settings',   component: SettingsPage         },

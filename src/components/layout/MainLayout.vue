@@ -56,10 +56,10 @@ const route = useRoute()
 const activeTab = computed(() => route.path)
 
 const navTabs = [
-  { icon: 'mdi-home',    label: 'ホーム',     to: '/'          },
-  { icon: 'mdi-magnify', label: '検索',       to: '/search'    },
-  { icon: 'mdi-heart',   label: 'お気に入り', to: '/favorites' },
-  { icon: 'mdi-cog',     label: '設定',       to: '/settings'  },
+  { icon: 'mdi-lightning-bolt', label: 'クイック', to: '/'        },
+  { icon: 'mdi-apps',           label: 'メニュー', to: '/menu'    },
+  { icon: 'mdi-magnify',        label: '検索',     to: '/search'  },
+  { icon: 'mdi-cog',            label: '設定',     to: '/settings' },
 ]
 </script>
 

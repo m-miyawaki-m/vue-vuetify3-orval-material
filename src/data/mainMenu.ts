@@ -1,0 +1,75 @@
+export interface MainMenuChild {
+  label: string
+  to: string
+  icon?: string
+}
+
+export interface MainMenuItem {
+  id: string
+  label: string
+  icon: string
+  children: MainMenuChild[]
+}
+
+// ── メインメニューマスタ ──────────────────────────────────
+// id・label・icon と子画面一覧を定義する。
+// children の to にはルーターパスを指定。
+
+export const MAIN_MENU: MainMenuItem[] = [
+  {
+    id: 'order',
+    label: '受注管理',
+    icon: 'mdi-clipboard-list-outline',
+    children: [
+      { label: '受注一覧',     to: '/orders',        icon: 'mdi-format-list-bulleted' },
+      { label: '新規受注入力', to: '/orders/new',    icon: 'mdi-plus-circle-outline'  },
+      { label: '受注検索',     to: '/orders/search', icon: 'mdi-magnify'              },
+    ],
+  },
+  {
+    id: 'inventory',
+    label: '在庫管理',
+    icon: 'mdi-warehouse',
+    children: [
+      { label: '在庫一覧', to: '/inventory',       icon: 'mdi-format-list-bulleted' },
+      { label: '入庫登録', to: '/inventory/in',    icon: 'mdi-arrow-down-circle-outline' },
+      { label: '出庫登録', to: '/inventory/out',   icon: 'mdi-arrow-up-circle-outline'   },
+    ],
+  },
+  {
+    id: 'customer',
+    label: '顧客管理',
+    icon: 'mdi-account-group-outline',
+    children: [
+      { label: '顧客一覧', to: '/customers',      icon: 'mdi-format-list-bulleted' },
+      { label: '顧客登録', to: '/customers/new',  icon: 'mdi-account-plus-outline' },
+    ],
+  },
+  {
+    id: 'product',
+    label: '商品管理',
+    icon: 'mdi-package-variant-closed',
+    children: [
+      { label: '商品一覧', to: '/products',     icon: 'mdi-format-list-bulleted' },
+      { label: '商品登録', to: '/products/new', icon: 'mdi-plus-circle-outline'  },
+    ],
+  },
+  {
+    id: 'shipping',
+    label: '配送管理',
+    icon: 'mdi-truck-outline',
+    children: [
+      { label: '配送一覧',   to: '/shipping',         icon: 'mdi-format-list-bulleted'   },
+      { label: '配送指示',   to: '/shipping/instruct', icon: 'mdi-clipboard-arrow-right-outline' },
+    ],
+  },
+  {
+    id: 'report',
+    label: '帳票・集計',
+    icon: 'mdi-chart-bar',
+    children: [
+      { label: '売上集計', to: '/reports/sales',   icon: 'mdi-cash-register'  },
+      { label: '在庫レポート', to: '/reports/stock', icon: 'mdi-chart-line'   },
+    ],
+  },
+]
