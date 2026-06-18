@@ -66,14 +66,15 @@
 
     <!-- フッター: ページネーション -->
     <template #footer>
-      <v-pagination
-        :model-value="currentPage"
-        :length="displayData.totalPages"
-        :total-visible="3"
-        density="compact"
-        style="width: 320px; flex-shrink: 0;"
-        @update:model-value="onPageChange"
-      />
+      <div class="pagination-wrap">
+        <v-pagination
+          :model-value="currentPage"
+          :length="displayData.totalPages"
+          :total-visible="3"
+          density="compact"
+          @update:model-value="onPageChange"
+        />
+      </div>
     </template>
 
     <!-- クイックビューダイアログ -->
@@ -158,5 +159,23 @@ function goDetail(product: Product) {
 .list-body {
   overflow-y: auto;
   flex: 1;
+}
+
+.pagination-wrap {
+  width: 100%;
+}
+
+/* 全ボタン（数字・…・prev・next）を同じ幅に固定 */
+.pagination-wrap :deep(.v-pagination__list) {
+  display: flex;
+  justify-content: center;
+}
+
+.pagination-wrap :deep(.v-btn.v-pagination__item),
+.pagination-wrap :deep(.v-btn.v-pagination__prev),
+.pagination-wrap :deep(.v-btn.v-pagination__next) {
+  width: 36px !important;
+  min-width: 36px !important;
+  flex: 0 0 36px;
 }
 </style>
