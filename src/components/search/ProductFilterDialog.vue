@@ -26,10 +26,12 @@
   </v-dialog>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 export const CATEGORIES = ['食品', '電子機器', 'ファッション', '家具', 'スポーツ'] as const
 export type Category = typeof CATEGORIES[number] | ''
+</script>
 
+<script setup lang="ts">
 defineProps<{
   modelValue: boolean
   category: Category
