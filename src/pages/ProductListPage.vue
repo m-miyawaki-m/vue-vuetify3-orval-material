@@ -69,7 +69,9 @@
       <v-pagination
         :model-value="currentPage"
         :length="displayData.totalPages"
+        :total-visible="5"
         density="compact"
+        style="width: 100%; max-width: 360px;"
         @update:model-value="onPageChange"
       />
     </template>
