@@ -11,6 +11,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    exclude: ['**/node_modules/**', 'e2e/**'],
     setupFiles: ['src/test/setup.ts'],
     typecheck: {
       tsconfig: './tsconfig.vitest.json',
