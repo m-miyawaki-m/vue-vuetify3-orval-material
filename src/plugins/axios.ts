@@ -4,9 +4,8 @@ export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
 })
 
-// Orval生成コードから fetch RequestInit 形式で渡される config を axios に変換する
+// Orval 生成型 { data, status, headers } に合わせて axios レスポンス全体を返す
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const customAxiosInstance = <T>(url: string, config?: any): Promise<T> => {
-  const { body, ...rest } = config ?? {}
-  return axiosInstance({ url, data: body ?? undefined, ...rest }).then(({ data }) => data)
+  return axiosInstance({ url, ...config }) as unknown as Promise<T>
 }
