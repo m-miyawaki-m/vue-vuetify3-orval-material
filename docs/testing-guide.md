@@ -182,46 +182,92 @@ e2e/
 
 ## 7. テスト実行コマンド
 
-| コマンド | 内容 |
+### ユニットテスト（Vitest）
+
+| コマンド | 用途 |
 |---|---|
-| `npm test` | Vitest ウォッチモード（開発中） |
-| `npm run test:run` | Vitest 一発実行・verbose 出力 |
-| `npm run test:coverage` | カバレッジ計測（coverage/ に HTML 生成） |
+| `npm test` | ウォッチモード（コード変更のたびに自動実行・開発中） |
+| `npm run test:run` | 一発実行・verbose 出力（CI・確認用） |
+| `npm run test:ui` | インタラクティブ UI をブラウザで起動（`--watch` で常駐） |
+| `npm run test:coverage` | カバレッジ計測（`coverage/` に静的 HTML 生成） |
 | `npm run test:coverage:open` | カバレッジ計測 + ブラウザ自動オープン |
-| `npm run test:e2e` | Playwright E2E 実行（playwright-report/ に HTML 生成） |
+
+### E2E テスト（Playwright）
+
+| コマンド | 用途 |
+|---|---|
+| `npm run test:e2e` | 全シナリオ実行（`playwright-report/` に HTML 生成） |
+| `npm run test:e2e:ui` | Playwright GUI モードで実行（ステップ確認用） |
 | `npm run test:e2e:report` | 前回の E2E レポートをブラウザで開く |
-| `npm run test:all` | Vitest + Playwright を順番に一括実行 |
+
+### 一括実行
+
+| コマンド | 用途 |
+|---|---|
+| `npm run test:all` | Vitest → Playwright を順番に実行 |
 
 ---
 
 ## 8. 成果物の出力
 
-### カバレッジレポート（Vitest）
+### ユニットテスト カバレッジレポート
 
 ```bash
 npm run test:coverage
+# → coverage/index.html が生成される
 ```
-
-- 出力先: `coverage/index.html`
-- **サーバー不要**でブラウザから直接開ける（Istanbul 静的 HTML）
-- 各ファイルの行単位カバレッジをソースコードと一緒に確認できる
-
-### E2E テストレポート（Playwright）
 
 ```bash
-npm run test:e2e
-npm run test:e2e:report
+# ブラウザで直接開く（サーバー不要）
+start coverage/index.html          # Windows
+open coverage/index.html           # Mac
 ```
 
-- 出力先: `playwright-report/index.html`
-- テストの pass/fail・操作ログ・スクリーンショットを確認できる
-- 軽量サーバー（`playwright show-report`）が必要
+**確認できる内容**
 
-### カバレッジの目標値
+| 画面 | 内容 |
+|---|---|
+| トップ (`index.html`) | ファイル一覧 × Statements / Branch / Functions / Lines の % |
+| ファイルをクリック | ソースコードの行単位カバレッジ（緑=通過済み・赤=未通過） |
+
+**カバレッジ目標値**
 
 | 対象 | 目標 | 理由 |
 |---|---|---|
 | `src/utils/*.ts` | 100% | 純粋関数・ロジックの核心 |
 | `src/stores/*.ts` | 100% | 状態管理の核心 |
-| `src/components/*.vue` | 70%以上 | props/emit の主要パターンをカバー |
+| `src/components/*.vue` | 70% 以上 | props/emit の主要パターンをカバー |
 | `src/pages/*.vue` | E2E で補完 | 画面遷移は Playwright が担う |
+
+---
+
+### E2E テストレポート（Playwright）
+
+```bash
+npm run test:e2e          # テスト実行（playwright-report/ を更新）
+npm run test:e2e:report   # レポートをブラウザで開く（空きポートを自動選択）
+```
+
+> `playwright show-report` は軽量サーバーが必要。ポートは自動割り当て（`--port 0`）。
+
+**確認できる内容**
+
+| タブ | 内容 |
+|---|---|
+| テスト一覧 | シナリオごとの pass / fail・実行時間 |
+| スクリーンショット | テスト終了時の画面キャプチャ（360×720 スマホサイズ） |
+| トレース | クリック・入力・ネットワークの操作ログ（タイムライン付き） |
+| 動画 | 失敗時のみ録画（`retain-on-failure`） |
+
+**出力ファイルの場所**
+
+```
+playwright-report/          ← HTML レポート本体
+test-results/
+  └── [テスト名]/
+        ├── test-finished-1.png   ← スクリーンショット
+        └── trace.zip             ← 操作ログ（レポート内から閲覧）
+```
+
+> `coverage/` `playwright-report/` `test-results/` は `.gitignore` 対象。  
+> 成果物として提出する場合は zip 圧縮するか、ブラウザ印刷で PDF 化する。
