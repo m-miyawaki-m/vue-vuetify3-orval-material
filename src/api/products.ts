@@ -24,6 +24,7 @@ import type {
   MaybeRef
 } from 'vue';
 
+import { customAxiosInstance } from '../plugins/axios';
 export type ProductCategory = typeof ProductCategory[keyof typeof ProductCategory];
 
 
@@ -133,21 +134,14 @@ export const getGetProductsUrl = (params?: GetProductsParams,) => {
  */
 export const getProducts = async (params?: GetProductsParams, options?: RequestInit): Promise<getProductsResponse> => {
 
-  const res = await fetch(getGetProductsUrl(params),
+  return customAxiosInstance<getProductsResponse>(getGetProductsUrl(params),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getProductsResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getProductsResponse
-}
+);}
 
 
 
@@ -160,16 +154,16 @@ export const getGetProductsQueryKey = (params?: MaybeRef<GetProductsParams>,) =>
     }
 
 
-export const getGetProductsQueryOptions = <TData = Awaited<ReturnType<typeof getProducts>>, TError = unknown>(params?: MaybeRef<GetProductsParams>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, fetch?: RequestInit}
+export const getGetProductsQueryOptions = <TData = Awaited<ReturnType<typeof getProducts>>, TError = unknown>(params?: MaybeRef<GetProductsParams>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, }
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions} = options ?? {};
 
   const queryKey =  getGetProductsQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProducts>>> = ({ signal }) => getProducts(unref(params), { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProducts>>> = ({ signal }) => getProducts(unref(params), { signal });
 
 
 
@@ -187,7 +181,7 @@ export type GetProductsQueryError = unknown
  */
 
 export function useGetProducts<TData = Awaited<ReturnType<typeof getProducts>>, TError = unknown>(
- params?: MaybeRef<GetProductsParams>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, fetch?: RequestInit}
+ params?: MaybeRef<GetProductsParams>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, }
  , queryClient?: QueryClient
  ): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -238,21 +232,14 @@ export const getGetProductByIdUrl = (id: number,) => {
  */
 export const getProductById = async (id: number, options?: RequestInit): Promise<getProductByIdResponse> => {
 
-  const res = await fetch(getGetProductByIdUrl(id),
+  return customAxiosInstance<getProductByIdResponse>(getGetProductByIdUrl(id),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getProductByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getProductByIdResponse
-}
+);}
 
 
 
@@ -265,16 +252,16 @@ export const getGetProductByIdQueryKey = (id: MaybeRef<number>,) => {
     }
 
 
-export const getGetProductByIdQueryOptions = <TData = Awaited<ReturnType<typeof getProductById>>, TError = ErrorResponse>(id: MaybeRef<number>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductById>>, TError, TData>>, fetch?: RequestInit}
+export const getGetProductByIdQueryOptions = <TData = Awaited<ReturnType<typeof getProductById>>, TError = ErrorResponse>(id: MaybeRef<number>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductById>>, TError, TData>>, }
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions} = options ?? {};
 
   const queryKey =  getGetProductByIdQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductById>>> = ({ signal }) => getProductById(unref(id), { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductById>>> = ({ signal }) => getProductById(unref(id), { signal });
 
 
 
@@ -292,7 +279,7 @@ export type GetProductByIdQueryError = ErrorResponse
  */
 
 export function useGetProductById<TData = Awaited<ReturnType<typeof getProductById>>, TError = ErrorResponse>(
- id: MaybeRef<number>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductById>>, TError, TData>>, fetch?: RequestInit}
+ id: MaybeRef<number>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductById>>, TError, TData>>, }
  , queryClient?: QueryClient
  ): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

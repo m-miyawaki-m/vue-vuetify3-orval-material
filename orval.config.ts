@@ -7,6 +7,10 @@ export default defineConfig({
       target: './src/api/products.ts',
       client: 'vue-query',
       override: {
+        mutator: {
+          path: './src/plugins/axios.ts',
+          name: 'customAxiosInstance',
+        },
         query: {
           useQuery: true,
         },
