@@ -8,35 +8,41 @@
     </template>
 
     <v-container class="pb-6">
-      <!-- キーワード検索 -->
-      <v-text-field
-        v-model="keyword"
-        label="キーワード検索"
-        prepend-inner-icon="mdi-magnify"
-        clearable
-        variant="outlined"
-        class="mt-4"
-      />
+      <!-- キーワード + 詳細検索ボタン -->
+      <div class="d-flex align-center gap-2 mt-4 mb-4">
+        <v-text-field
+          v-model="keyword"
+          label="キーワード検索"
+          prepend-inner-icon="mdi-magnify"
+          clearable
+          variant="outlined"
+          hide-details
+          class="flex-grow-1"
+        />
+        <v-btn
+          variant="outlined"
+          color="primary"
+          prepend-icon="mdi-filter-outline"
+          @click="filterDialog = true"
+        >
+          絞り込み
+        </v-btn>
+      </div>
 
-      <!-- 詳細検索（アコーディオン） -->
-      <v-expansion-panels class="mb-4">
-        <v-expansion-panel>
-          <v-expansion-panel-title>詳細検索</v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <p class="text-subtitle-2 mb-1">カテゴリ</p>
-            <v-radio-group v-model="selectedCategory" inline class="mb-3">
-              <v-radio label="すべて" value="" />
-              <v-radio v-for="cat in categories" :key="cat" :label="cat" :value="cat" />
-            </v-radio-group>
-            <v-switch
-              v-model="inStockOnly"
-              label="在庫ありのみ表示"
-              color="primary"
-              hide-details
-            />
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
+      <!-- 適用中フィルタ表示 -->
+      <div v-if="selectedCategory || inStockOnly" class="d-flex flex-wrap gap-1 mb-3">
+        <v-chip
+          v-if="selectedCategory"
+          size="small"
+          closable
+          @click:close="selectedCategory = ''"
+        >
+          {{ selectedCategory }}
+        </v-chip>
+        <v-chip v-if="inStockOnly" size="small" closable @click:close="inStockOnly = false">
+          在庫あり
+        </v-chip>
+      </div>
 
       <!-- 未検索 -->
       <v-alert v-if="!hasSearched" type="info" variant="tonal">
@@ -87,6 +93,32 @@
       </template>
     </v-container>
 
+    <!-- 絞り込みダイアログ -->
+    <v-dialog v-model="filterDialog" max-width="400">
+      <v-card>
+        <v-card-title class="pt-4 px-4">絞り込み条件</v-card-title>
+        <v-card-text>
+          <p class="text-subtitle-2 mb-1">カテゴリ</p>
+          <v-radio-group v-model="selectedCategory" class="mb-4">
+            <v-radio label="すべて" value="" />
+            <v-radio v-for="cat in categories" :key="cat" :label="cat" :value="cat" />
+          </v-radio-group>
+          <v-divider class="mb-4" />
+          <v-switch
+            v-model="inStockOnly"
+            label="在庫ありのみ表示"
+            color="primary"
+            hide-details
+          />
+        </v-card-text>
+        <v-card-actions class="px-4 pb-4">
+          <v-btn variant="text" @click="clearFilter">リセット</v-btn>
+          <v-spacer />
+          <v-btn color="primary" variant="elevated" @click="filterDialog = false">閉じる</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- クイックビューダイアログ -->
     <ProductDialog
       v-model="dialogOpen"
@@ -110,12 +142,11 @@ import type { FooterAction } from '@/types/layout'
 const PAGE_SIZE = 5
 const router = useRouter()
 
-// フォーム入力（ボタン押下まで検索に反映しない）
 const keyword = ref('')
 const selectedCategory = ref('')
 const inStockOnly = ref(false)
+const filterDialog = ref(false)
 
-// 検索実行済みフラグ・確定済みパラメータ
 const hasSearched = ref(false)
 const activeParams = ref<GetProductsParams>({ page: 1, pageSize: PAGE_SIZE })
 
@@ -123,7 +154,6 @@ const { data, isLoading, isError } = useGetProducts(activeParams, {
   query: { enabled: hasSearched },
 })
 
-// API エラー時はモックデータでフォールバック
 const mockFallback = computed<ProductListResponse>(() => {
   let filtered = mockProducts as Product[]
   const p = activeParams.value
@@ -142,7 +172,6 @@ const displayData = computed<ProductListResponse>(() =>
   isFallback.value ? mockFallback.value : (data.value?.data ?? mockFallback.value)
 )
 
-// ダイアログ
 const selectedProduct = ref<Product | null>(null)
 const dialogOpen = ref(false)
 
@@ -157,6 +186,11 @@ function search() {
     pageSize: PAGE_SIZE,
   }
   hasSearched.value = true
+}
+
+function clearFilter() {
+  selectedCategory.value = ''
+  inStockOnly.value = false
 }
 
 function onPageChange(page: number) {
