@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "name": "オーガニック緑茶",
+  "category": "食品",
+  "price": 1200,
+  "inStock": true,
+  "description": "厳選された国産茶葉を使用した風味豊かな緑茶。",
+  "rating": 4,
+  "reviews": [
+    { "id": 1, "author": "田中太郎", "rating": 5, "comment": "香りが良く飲みやすいです。" },
+    { "id": 2, "author": "鈴木花子", "rating": 3, "comment": "普通です。値段の割に量が少ない。" }
+  ]
+}

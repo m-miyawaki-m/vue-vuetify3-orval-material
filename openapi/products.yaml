@@ -46,6 +46,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductListResponse'
+              examples:
+                default:
+                  externalValue: './examples/products-list.json'
 
   /products/{id}:
     get:
@@ -64,6 +67,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
+              examples:
+                default:
+                  externalValue: './examples/product-detail.json'
         '404':
           description: 商品が見つからない
           content:
