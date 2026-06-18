@@ -9,19 +9,12 @@
     <!-- 上部固定エリア -->
     <div class="list-header">
       <!-- 検索条件 -->
-      <div class="d-flex flex-wrap align-center gap-1 px-4 pt-3 pb-2">
-        <v-chip v-if="route.query.q" size="small" prepend-icon="mdi-magnify" variant="tonal">
-          {{ route.query.q }}
-        </v-chip>
-        <v-chip v-if="route.query.category" size="small" prepend-icon="mdi-tag-outline" variant="tonal">
-          {{ route.query.category }}
-        </v-chip>
-        <v-chip v-if="route.query.inStock === 'true'" size="small" prepend-icon="mdi-check-circle-outline" variant="tonal">
-          在庫あり
-        </v-chip>
-        <span v-if="!route.query.q && !route.query.category && route.query.inStock !== 'true'" class="text-body-2 text-medium-emphasis">
-          条件なし（全件）
-        </span>
+      <div class="px-4 pt-3 pb-2">
+        <SearchConditionChips
+          :q="route.query.q as string | undefined"
+          :category="route.query.category as string | undefined"
+          :in-stock="route.query.inStock === 'true'"
+        />
       </div>
 
       <v-divider />
@@ -95,6 +88,7 @@ import { mockProducts } from '@/mocks/products'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 import ProductDialog from '@/components/product/ProductDialog.vue'
+import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
 
 const PAGE_SIZE = 5
 const router = useRouter()
