@@ -1,9 +1,6 @@
 <template>
   <template v-if="item">
-    <div
-      class="menu-grid-item menu-grid-item--clickable"
-      @click="emit('click')"
-    >
+    <div class="menu-grid-item menu-grid-item--clickable" @click="emit('click')">
       <div class="menu-grid-item__tile">
         <v-icon :icon="item.icon" size="48" color="white" />
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <v-layout style="height: 100dvh; overflow: hidden;">
+  <v-layout style="height: 100dvh; overflow: hidden">
     <v-app-bar color="primary" elevation="2">
       <template #prepend>
         <v-btn icon="mdi-arrow-left" @click="router.back()" />

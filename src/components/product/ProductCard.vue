@@ -14,11 +14,7 @@
     <v-card-subtitle>{{ product.category }}</v-card-subtitle>
     <v-card-text>
       <div class="d-flex align-center ga-2 mb-2">
-        <v-chip
-          :color="product.inStock ? 'success' : 'error'"
-          size="small"
-          variant="tonal"
-        >
+        <v-chip :color="product.inStock ? 'success' : 'error'" size="small" variant="tonal">
           {{ product.inStock ? '在庫あり' : '在庫なし' }}
         </v-chip>
       </div>
@@ -33,11 +29,7 @@
       <p class="text-body-2 text-medium-emphasis">{{ product.description }}</p>
     </v-card-text>
     <v-card-actions>
-      <v-btn
-        variant="text"
-        color="primary"
-        @click.stop="emit('detail', product)"
-      >
+      <v-btn variant="text" color="primary" @click.stop="emit('detail', product)">
         詳細を見る
         <v-icon end>mdi-chevron-right</v-icon>
       </v-btn>

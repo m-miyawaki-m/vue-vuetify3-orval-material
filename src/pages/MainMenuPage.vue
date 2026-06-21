@@ -2,12 +2,7 @@
   <MainLayout title="メインメニュー">
     <v-container class="py-4">
       <div class="menu-grid">
-        <div
-          v-for="item in MAIN_MENU"
-          :key="item.id"
-          class="menu-item"
-          @click="openSubMenu(item)"
-        >
+        <div v-for="item in MAIN_MENU" :key="item.id" class="menu-item" @click="openSubMenu(item)">
           <v-icon size="40" color="primary">{{ item.icon }}</v-icon>
           <span class="text-body-2 font-weight-medium mt-1">{{ item.label }}</span>
         </div>

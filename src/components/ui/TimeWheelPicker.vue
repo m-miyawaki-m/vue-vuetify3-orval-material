@@ -14,7 +14,9 @@
         :key="'h' + h"
         class="twp__cell twp__cell--item"
         @click="jumpHour(h - 1)"
-      >{{ pad(h - 1) }}</div>
+      >
+        {{ pad(h - 1) }}
+      </div>
       <div v-for="i in 2" :key="'he' + i" class="twp__cell" />
     </div>
 
@@ -28,7 +30,9 @@
         :key="'m' + m"
         class="twp__cell twp__cell--item"
         @click="jumpMinute(m - 1)"
-      >{{ pad(m - 1) }}</div>
+      >
+        {{ pad(m - 1) }}
+      </div>
       <div v-for="i in 2" :key="'me' + i" class="twp__cell" />
     </div>
   </div>
@@ -37,17 +41,20 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 
-const props = withDefaults(defineProps<{
-  modelValue?: string | null
-}>(), { modelValue: null })
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string | null
+  }>(),
+  { modelValue: null }
+)
 
 const emit = defineEmits<{ 'update:modelValue': [v: string] }>()
 
-const ITEM_H = 44   // 1セルの高さ (px)
+const ITEM_H = 44 // 1セルの高さ (px)
 
-const hoursEl   = ref<HTMLElement | null>(null)
+const hoursEl = ref<HTMLElement | null>(null)
 const minutesEl = ref<HTMLElement | null>(null)
-const hour   = ref(0)
+const hour = ref(0)
 const minute = ref(0)
 
 function pad(n: number) {
@@ -66,19 +73,22 @@ function scrollTo(el: HTMLElement, idx: number, smooth = false) {
 
 onMounted(() => {
   const { h, m } = parseValue(props.modelValue)
-  hour.value   = h
+  hour.value = h
   minute.value = m
-  if (hoursEl.value)   scrollTo(hoursEl.value,   h)
+  if (hoursEl.value) scrollTo(hoursEl.value, h)
   if (minutesEl.value) scrollTo(minutesEl.value, m)
 })
 
-watch(() => props.modelValue, (v) => {
-  const { h, m } = parseValue(v)
-  hour.value   = h
-  minute.value = m
-  if (hoursEl.value)   scrollTo(hoursEl.value,   h, true)
-  if (minutesEl.value) scrollTo(minutesEl.value, m, true)
-})
+watch(
+  () => props.modelValue,
+  (v) => {
+    const { h, m } = parseValue(v)
+    hour.value = h
+    minute.value = m
+    if (hoursEl.value) scrollTo(hoursEl.value, h, true)
+    if (minutesEl.value) scrollTo(minutesEl.value, m, true)
+  }
+)
 
 function emitValue() {
   emit('update:modelValue', `${pad(hour.value)}:${pad(minute.value)}`)
@@ -127,7 +137,7 @@ function jumpMinute(idx: number) {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 220px;     /* ITEM_H × 5 = 44 × 5 */
+  height: 220px; /* ITEM_H × 5 = 44 × 5 */
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;

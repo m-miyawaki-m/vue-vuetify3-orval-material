@@ -1,6 +1,5 @@
 <template>
   <v-container class="pb-8">
-
     <section class="mb-8">
       <p class="text-overline text-medium-emphasis mb-2">バーコード スキャナー</p>
       <p class="text-caption text-medium-emphasis mb-4">
@@ -14,14 +13,21 @@
           テキストフィールド右端のアイコンをタップするとカメラが起動します。
           読み取ったコードが自動入力されます。
         </p>
-        <BarcodeInputField v-model="scannedCode" label="バーコード / QR" variant="outlined" clearable />
+        <BarcodeInputField
+          v-model="scannedCode"
+          label="バーコード / QR"
+          variant="outlined"
+          clearable
+        />
         <p v-if="scannedCode" class="text-caption text-medium-emphasis mt-1">
           入力値: {{ scannedCode }}
         </p>
       </v-card>
 
       <v-card variant="outlined" class="pa-4">
-        <p class="text-subtitle-2 font-weight-bold mb-1">連続スキャン → テーブル追加（BarcodeScannerOverlay）</p>
+        <p class="text-subtitle-2 font-weight-bold mb-1">
+          連続スキャン → テーブル追加（BarcodeScannerOverlay）
+        </p>
         <p class="text-caption text-medium-emphasis mb-3">
           「連続スキャン」ボタンで複数のコードを続けて読み取り、完了するとテーブルに一括追加します。
         </p>
@@ -31,14 +37,16 @@
             variant="tonal"
             prepend-icon="mdi-barcode-scan"
             @click="scannerStore.requestScan('continuous', (r) => scanTableRows.push(...r))"
-          >連続スキャン</v-btn>
+            >連続スキャン</v-btn
+          >
           <v-btn
             v-if="scanTableRows.length"
             variant="text"
             color="error"
             size="small"
             @click="scanTableRows = []"
-          >テーブルクリア</v-btn>
+            >テーブルクリア</v-btn
+          >
         </div>
         <v-data-table
           v-if="scanTableRows.length"
@@ -50,7 +58,6 @@
         <p v-else class="text-caption text-medium-emphasis">スキャン結果がここに表示されます。</p>
       </v-card>
     </section>
-
   </v-container>
 </template>
 

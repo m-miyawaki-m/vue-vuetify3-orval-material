@@ -8,7 +8,7 @@
         readonly
         placeholder="yyyy/mm/dd"
         hide-details
-        style="flex:1"
+        style="flex: 1"
       />
       <span class="text-body-2 mx-1">〜</span>
       <v-text-field
@@ -18,7 +18,7 @@
         readonly
         placeholder="yyyy/mm/dd"
         hide-details
-        style="flex:1"
+        style="flex: 1"
       />
       <v-btn icon="mdi-calendar-range" variant="tonal" color="primary" class="ml-1" @click="open" />
     </div>
@@ -27,19 +27,28 @@
       <v-card>
         <v-card-title class="pt-4 pl-4">期間を選択</v-card-title>
         <v-card-subtitle class="pb-0 pl-4">
-          {{ temp.length === 0 ? '開始日をタップ' : temp.length === 1 ? '終了日をタップ' : '期間が選択されました' }}
+          {{
+            temp.length === 0
+              ? '開始日をタップ'
+              : temp.length === 1
+                ? '終了日をタップ'
+                : '期間が選択されました'
+          }}
         </v-card-subtitle>
-        <v-date-picker v-model="temp" color="primary" show-adjacent-months multiple="range" elevation="0" />
+        <v-date-picker
+          v-model="temp"
+          color="primary"
+          show-adjacent-months
+          multiple="range"
+          elevation="0"
+        />
         <v-card-actions>
           <v-btn variant="text" @click="temp = []">クリア</v-btn>
           <v-spacer />
           <v-btn variant="text" @click="dialog = false">キャンセル</v-btn>
-          <v-btn
-            color="primary"
-            variant="elevated"
-            :disabled="temp.length < 2"
-            @click="confirm"
-          >OK</v-btn>
+          <v-btn color="primary" variant="elevated" :disabled="temp.length < 2" @click="confirm"
+            >OK</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -49,23 +58,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = withDefaults(defineProps<{
-  start:      Date | null
-  end:        Date | null
-  labelStart?: string
-  labelEnd?:   string
-}>(), {
-  labelStart: '開始日',
-  labelEnd:   '終了日',
-})
+const props = withDefaults(
+  defineProps<{
+    start: Date | null
+    end: Date | null
+    labelStart?: string
+    labelEnd?: string
+  }>(),
+  {
+    labelStart: '開始日',
+    labelEnd: '終了日',
+  }
+)
 
 const emit = defineEmits<{
   'update:start': [Date | null]
-  'update:end':   [Date | null]
+  'update:end': [Date | null]
 }>()
 
 const dialog = ref(false)
-const temp   = ref<Date[]>([])
+const temp = ref<Date[]>([])
 
 function open() {
   temp.value = [props.start, props.end].filter(Boolean) as Date[]
@@ -74,7 +86,7 @@ function open() {
 
 function confirm() {
   emit('update:start', temp.value[0] ?? null)
-  emit('update:end',   temp.value[temp.value.length - 1] ?? null)
+  emit('update:end', temp.value[temp.value.length - 1] ?? null)
   dialog.value = false
 }
 

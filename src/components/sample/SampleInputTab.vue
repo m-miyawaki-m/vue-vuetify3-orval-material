@@ -1,6 +1,5 @@
 <template>
   <v-container class="pb-8">
-
     <!-- ラジオボタン -->
     <section class="mb-8">
       <p class="text-overline text-medium-emphasis mb-2">ラジオボタン</p>
@@ -27,7 +26,13 @@
       <p class="text-overline text-medium-emphasis mb-2">トグルボタン</p>
 
       <p class="text-body-2 mb-1">単一選択</p>
-      <v-btn-toggle v-model="toggleSingle" color="primary" variant="outlined" rounded="lg" mandatory>
+      <v-btn-toggle
+        v-model="toggleSingle"
+        color="primary"
+        variant="outlined"
+        rounded="lg"
+        mandatory
+      >
         <v-btn value="list" icon="mdi-view-list" />
         <v-btn value="grid" icon="mdi-view-grid" />
         <v-btn value="table" icon="mdi-table-large" />
@@ -35,7 +40,13 @@
       <p class="text-caption text-medium-emphasis mt-1 mb-4">表示形式: {{ toggleSingle }}</p>
 
       <p class="text-body-2 mb-1">複数選択</p>
-      <v-btn-toggle v-model="toggleMultiple" color="primary" variant="outlined" rounded="lg" multiple>
+      <v-btn-toggle
+        v-model="toggleMultiple"
+        color="primary"
+        variant="outlined"
+        rounded="lg"
+        multiple
+      >
         <v-btn value="bold" icon="mdi-format-bold" />
         <v-btn value="italic" icon="mdi-format-italic" />
         <v-btn value="underline" icon="mdi-format-underline" />
@@ -51,7 +62,13 @@
     <!-- プルダウンリスト -->
     <section class="mb-8">
       <p class="text-overline text-medium-emphasis mb-2">プルダウンリスト</p>
-      <v-select v-model="selectSingle" :items="prefectures" label="都道府県" variant="outlined" class="mb-4" />
+      <v-select
+        v-model="selectSingle"
+        :items="prefectures"
+        label="都道府県"
+        variant="outlined"
+        class="mb-4"
+      />
       <v-select
         v-model="selectMultiple"
         :items="categories"
@@ -63,8 +80,8 @@
         class="mb-2"
       />
       <p class="text-caption text-medium-emphasis">
-        都道府県: {{ selectSingle ?? '未選択' }}
-        カテゴリ: {{ selectMultiple.length ? selectMultiple.join(', ') : '未選択' }}
+        都道府県: {{ selectSingle ?? '未選択' }} カテゴリ:
+        {{ selectMultiple.length ? selectMultiple.join(', ') : '未選択' }}
       </p>
     </section>
 
@@ -125,11 +142,12 @@
         <p class="text-body-2 mb-2">時間範囲</p>
         <TimeWheelRangePickerField v-model:start="wheelRangeStart" v-model:end="wheelRangeEnd" />
         <p class="text-caption text-medium-emphasis mt-2">
-          {{ wheelRangeStart && wheelRangeEnd ? wheelRangeStart + ' 〜 ' + wheelRangeEnd : '未選択' }}
+          {{
+            wheelRangeStart && wheelRangeEnd ? wheelRangeStart + ' 〜 ' + wheelRangeEnd : '未選択'
+          }}
         </p>
       </v-card>
     </section>
-
   </v-container>
 </template>
 
@@ -152,14 +170,53 @@ const selectSingle = ref<string | null>(null)
 const selectMultiple = ref<string[]>([])
 
 const prefectures = [
-  '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-  '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-  '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県',
-  '岐阜県', '静岡県', '愛知県', '三重県',
-  '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
-  '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-  '徳島県', '香川県', '愛媛県', '高知県',
-  '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
+  '北海道',
+  '青森県',
+  '岩手県',
+  '宮城県',
+  '秋田県',
+  '山形県',
+  '福島県',
+  '茨城県',
+  '栃木県',
+  '群馬県',
+  '埼玉県',
+  '千葉県',
+  '東京都',
+  '神奈川県',
+  '新潟県',
+  '富山県',
+  '石川県',
+  '福井県',
+  '山梨県',
+  '長野県',
+  '岐阜県',
+  '静岡県',
+  '愛知県',
+  '三重県',
+  '滋賀県',
+  '京都府',
+  '大阪府',
+  '兵庫県',
+  '奈良県',
+  '和歌山県',
+  '鳥取県',
+  '島根県',
+  '岡山県',
+  '広島県',
+  '山口県',
+  '徳島県',
+  '香川県',
+  '愛媛県',
+  '高知県',
+  '福岡県',
+  '佐賀県',
+  '長崎県',
+  '熊本県',
+  '大分県',
+  '宮崎県',
+  '鹿児島県',
+  '沖縄県',
 ]
 const categories = ['食品', '電子機器', 'ファッション', '家具', 'スポーツ', '書籍', 'おもちゃ']
 

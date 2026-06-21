@@ -26,19 +26,10 @@
             <v-card-subtitle>{{ product.category }}</v-card-subtitle>
             <v-card-text>
               <p class="text-h5 mb-2">¥{{ product.price.toLocaleString() }}</p>
-              <v-chip
-                :color="product.inStock ? 'success' : 'error'"
-                variant="tonal"
-                class="mb-3"
-              >
+              <v-chip :color="product.inStock ? 'success' : 'error'" variant="tonal" class="mb-3">
                 {{ product.inStock ? '在庫あり' : '在庫なし' }}
               </v-chip>
-              <v-rating
-                :model-value="product.rating"
-                readonly
-                color="amber"
-                class="mb-3"
-              />
+              <v-rating :model-value="product.rating" readonly color="amber" class="mb-3" />
               <p class="text-body-1">{{ product.description }}</p>
             </v-card-text>
             <v-card-actions>
@@ -71,25 +62,12 @@
 
         <!-- レビュータブ -->
         <v-window-item value="reviews">
-          <v-radio-group
-            v-model="reviewFilter"
-            label="評価で絞り込み"
-            inline
-            class="mb-3"
-          >
+          <v-radio-group v-model="reviewFilter" label="評価で絞り込み" inline class="mb-3">
             <v-radio label="すべて" :value="0" />
-            <v-radio
-              v-for="n in 5"
-              :key="n"
-              :label="`${n}★`"
-              :value="n"
-            />
+            <v-radio v-for="n in 5" :key="n" :label="`${n}★`" :value="n" />
           </v-radio-group>
           <v-expansion-panels v-if="filteredReviews.length > 0">
-            <v-expansion-panel
-              v-for="review in filteredReviews"
-              :key="review.id"
-            >
+            <v-expansion-panel v-for="review in filteredReviews" :key="review.id">
               <v-expansion-panel-title>
                 {{ review.author }}
                 <v-rating
@@ -104,9 +82,7 @@
               <v-expansion-panel-text>{{ review.comment }}</v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
-          <v-alert v-else type="info" variant="tonal">
-            該当するレビューがありません。
-          </v-alert>
+          <v-alert v-else type="info" variant="tonal"> 該当するレビューがありません。 </v-alert>
         </v-window-item>
 
         <!-- 関連商品タブ -->
@@ -120,9 +96,7 @@
               @detail="goDetail(p)"
             />
           </template>
-          <v-alert v-else type="info" variant="tonal">
-            関連商品はありません。
-          </v-alert>
+          <v-alert v-else type="info" variant="tonal"> 関連商品はありません。 </v-alert>
         </v-window-item>
       </v-window>
     </v-container>
@@ -153,13 +127,15 @@ const tab = ref('info')
 const reviewFilter = ref(0)
 const localMemo = ref('')
 
-const product = computed(() =>
-  store.products.find(p => p.id === Number(props.id)) ?? null
-)
+const product = computed(() => store.products.find((p) => p.id === Number(props.id)) ?? null)
 
-watch(product, (p) => {
-  localMemo.value = p ? memoStore.getMemo(p.id) : ''
-}, { immediate: true })
+watch(
+  product,
+  (p) => {
+    localMemo.value = p ? memoStore.getMemo(p.id) : ''
+  },
+  { immediate: true }
+)
 
 function saveMemo() {
   if (!product.value) return
@@ -170,13 +146,13 @@ function saveMemo() {
 const filteredReviews = computed(() => {
   if (!product.value) return []
   if (reviewFilter.value === 0) return product.value.reviews
-  return product.value.reviews.filter(r => r.rating === reviewFilter.value)
+  return product.value.reviews.filter((r) => r.rating === reviewFilter.value)
 })
 
 const relatedProducts = computed(() => {
   if (!product.value) return []
   return store.products
-    .filter(p => p.category === product.value!.category && p.id !== product.value!.id)
+    .filter((p) => p.category === product.value!.category && p.id !== product.value!.id)
     .slice(0, 4)
 })
 

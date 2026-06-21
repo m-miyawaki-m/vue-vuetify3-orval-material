@@ -1,15 +1,8 @@
 <template>
   <div>
-    <p class="text-overline text-medium-emphasis mb-2">
-      表示中（{{ store.visibleIds.length }}/9）
-    </p>
+    <p class="text-overline text-medium-emphasis mb-2">表示中（{{ store.visibleIds.length }}/9）</p>
 
-    <draggable
-      v-model="allItemsList"
-      item-key="id"
-      handle=".drag-handle"
-      @end="onDragEnd"
-    >
+    <draggable v-model="allItemsList" item-key="id" handle=".drag-handle" @end="onDragEnd">
       <template #item="{ element }">
         <div
           class="settings-item"
@@ -21,7 +14,8 @@
           <span
             class="text-body-2 flex-grow-1"
             :style="isVisible(element.id) ? '' : 'opacity:0.35'"
-          >{{ element.label }}</span>
+            >{{ element.label }}</span
+          >
           <v-switch
             :model-value="isVisible(element.id)"
             color="primary"
@@ -35,7 +29,8 @@
             class="drag-handle"
             size="20"
             :style="isVisible(element.id) ? 'opacity:0.4;cursor:grab' : 'opacity:0.15;cursor:grab'"
-          >mdi-drag</v-icon>
+            >mdi-drag</v-icon
+          >
         </div>
       </template>
     </draggable>
@@ -65,9 +60,7 @@ function toggle(id: string, val: boolean) {
 }
 
 function onDragEnd() {
-  const newVisibleIds = allItemsList.value
-    .filter(m => isVisible(m.id))
-    .map(m => m.id)
+  const newVisibleIds = allItemsList.value.filter((m) => isVisible(m.id)).map((m) => m.id)
   store.reorder(newVisibleIds)
 }
 </script>

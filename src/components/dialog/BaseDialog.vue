@@ -13,12 +13,15 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
-  title: string
-  maxWidth?: string
-}>(), {
-  maxWidth: '500px',
-})
+withDefaults(
+  defineProps<{
+    title: string
+    maxWidth?: string
+  }>(),
+  {
+    maxWidth: '500px',
+  }
+)
 
 const model = defineModel<boolean>()
 </script>

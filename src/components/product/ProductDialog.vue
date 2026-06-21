@@ -1,8 +1,5 @@
 <template>
-  <BaseDialog
-    v-model="model"
-    :title="product?.name ?? ''"
-  >
+  <BaseDialog v-model="model" :title="product?.name ?? ''">
     <template v-if="product">
       <p class="text-caption text-medium-emphasis mb-2">{{ product.category }}</p>
       <div class="d-flex align-center ga-2 mb-3">

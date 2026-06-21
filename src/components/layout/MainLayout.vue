@@ -1,5 +1,5 @@
 <template>
-  <v-layout style="height: 100dvh; overflow: hidden;">
+  <v-layout style="height: 100dvh; overflow: hidden">
     <v-app-bar color="primary" elevation="2">
       <template v-if="$slots.prepend" #prepend>
         <slot name="prepend" />
@@ -18,7 +18,7 @@
 
     <v-bottom-navigation
       v-if="hasFooterSlot || !hideFooter"
-      :model-value="(!hasFooterSlot && !footerActions) ? activeTab : undefined"
+      :model-value="!hasFooterSlot && !footerActions ? activeTab : undefined"
       color="primary"
     >
       <!-- カスタムフッタースロット -->
@@ -68,10 +68,10 @@ const route = useRoute()
 const activeTab = computed(() => route.path)
 
 const navTabs = [
-  { icon: 'mdi-lightning-bolt', label: 'クイック', to: '/'        },
-  { icon: 'mdi-apps',           label: 'メニュー', to: '/menu'    },
-  { icon: 'mdi-magnify',        label: '検索',     to: '/search'  },
-  { icon: 'mdi-cog',            label: '設定',     to: '/settings' },
+  { icon: 'mdi-lightning-bolt', label: 'クイック', to: '/' },
+  { icon: 'mdi-apps', label: 'メニュー', to: '/menu' },
+  { icon: 'mdi-magnify', label: '検索', to: '/search' },
+  { icon: 'mdi-cog', label: '設定', to: '/settings' },
 ]
 </script>
 

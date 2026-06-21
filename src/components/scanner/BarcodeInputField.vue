@@ -30,22 +30,25 @@ import type { ScanResult } from '@/types/scanner'
 
 defineOptions({ inheritAttrs: false })
 
-withDefaults(defineProps<{
-  modelValue?: string
-  label?: string
-  placeholder?: string
-  hint?: string
-  clearable?: boolean
-  disabled?: boolean
-}>(), {
-  modelValue: '',
-  clearable: false,
-  disabled: false,
-})
+withDefaults(
+  defineProps<{
+    modelValue?: string
+    label?: string
+    placeholder?: string
+    hint?: string
+    clearable?: boolean
+    disabled?: boolean
+  }>(),
+  {
+    modelValue: '',
+    clearable: false,
+    disabled: false,
+  }
+)
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  'scan': [result: ScanResult]
+  scan: [result: ScanResult]
 }>()
 
 const store = useScannerStore()

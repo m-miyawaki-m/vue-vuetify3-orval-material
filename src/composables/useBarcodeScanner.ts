@@ -30,29 +30,27 @@ export function useBarcodeScanner(
       const hints = new Map<DecodeHintType, unknown>()
       hints.set(DecodeHintType.TRY_HARDER, true)
       const reader = new BrowserMultiFormatReader(hints)
-      controls = await reader.decodeFromVideoDevice(
-        undefined,
-        videoRef.value,
-        (result) => {
-          if (!result) return
-          const now = Date.now()
-          const text = result.getText()
-          if (text === lastScanText && now - lastScanTime < SCAN_COOLDOWN_MS) return
-          lastScanText = text
-          lastScanTime = now
-          const fmtNum = result.getBarcodeFormat() as number
-          const fmtName: string = BarcodeFormat[fmtNum] ?? String(fmtNum)
-          options.onScan({ text, format: fmtName, timestamp: now })
-        }
-      ) as ScannerControls
+      controls = (await reader.decodeFromVideoDevice(undefined, videoRef.value, (result) => {
+        if (!result) return
+        const now = Date.now()
+        const text = result.getText()
+        if (text === lastScanText && now - lastScanTime < SCAN_COOLDOWN_MS) return
+        lastScanText = text
+        lastScanTime = now
+        const fmtNum = result.getBarcodeFormat() as number
+        const fmtName: string = BarcodeFormat[fmtNum] ?? String(fmtNum)
+        options.onScan({ text, format: fmtName, timestamp: now })
+      })) as ScannerControls
       isScanning.value = true
       torchAvailable.value = typeof controls.switchTorch === 'function'
     } catch (e) {
       if (e instanceof Error) {
         error.value =
-          e.name === 'NotAllowedError' ? 'カメラへのアクセスが拒否されました。設定から許可してください。' :
-          e.name === 'NotFoundError'   ? 'カメラが見つかりません。' :
-                                         'カメラの起動に失敗しました。'
+          e.name === 'NotAllowedError'
+            ? 'カメラへのアクセスが拒否されました。設定から許可してください。'
+            : e.name === 'NotFoundError'
+              ? 'カメラが見つかりません。'
+              : 'カメラの起動に失敗しました。'
       } else {
         error.value = 'カメラの起動に失敗しました。'
       }

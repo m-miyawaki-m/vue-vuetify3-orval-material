@@ -8,7 +8,7 @@
         readonly
         placeholder="HH:mm"
         hide-details
-        style="flex:1"
+        style="flex: 1"
       />
       <span class="text-body-2 mx-1">〜</span>
       <v-text-field
@@ -18,7 +18,7 @@
         readonly
         placeholder="HH:mm"
         hide-details
-        style="flex:1"
+        style="flex: 1"
       />
       <v-btn icon="mdi-clock-start" variant="tonal" color="primary" class="ml-1" @click="open" />
     </div>
@@ -32,12 +32,16 @@
           <v-time-picker
             v-if="step === 'start'"
             v-model="tempStart"
-            format="24hr" color="primary" elevation="0"
+            format="24hr"
+            color="primary"
+            elevation="0"
           />
           <v-time-picker
             v-else
             v-model="tempEnd"
-            format="24hr" color="primary" elevation="0"
+            format="24hr"
+            color="primary"
+            elevation="0"
             :min="tempStart ?? undefined"
           />
         </div>
@@ -46,16 +50,15 @@
           <v-btn variant="text" @click="dialog = false">キャンセル</v-btn>
           <v-btn
             v-if="step === 'start'"
-            color="primary" variant="elevated"
+            color="primary"
+            variant="elevated"
             :disabled="!tempStart"
             @click="step = 'end'"
-          >次へ</v-btn>
-          <v-btn
-            v-else
-            color="primary" variant="elevated"
-            :disabled="!tempEnd"
-            @click="confirm"
-          >OK</v-btn>
+            >次へ</v-btn
+          >
+          <v-btn v-else color="primary" variant="elevated" :disabled="!tempEnd" @click="confirm"
+            >OK</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -65,36 +68,39 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = withDefaults(defineProps<{
-  start:       string | null
-  end:         string | null
-  labelStart?: string
-  labelEnd?:   string
-}>(), {
-  labelStart: '開始時刻',
-  labelEnd:   '終了時刻',
-})
+const props = withDefaults(
+  defineProps<{
+    start: string | null
+    end: string | null
+    labelStart?: string
+    labelEnd?: string
+  }>(),
+  {
+    labelStart: '開始時刻',
+    labelEnd: '終了時刻',
+  }
+)
 
 const emit = defineEmits<{
   'update:start': [string | null]
-  'update:end':   [string | null]
+  'update:end': [string | null]
 }>()
 
-const dialog    = ref(false)
-const step      = ref<'start' | 'end'>('start')
+const dialog = ref(false)
+const step = ref<'start' | 'end'>('start')
 const tempStart = ref<string | null>(null)
-const tempEnd   = ref<string | null>(null)
+const tempEnd = ref<string | null>(null)
 
 function open() {
   tempStart.value = props.start
-  tempEnd.value   = props.end
-  step.value      = 'start'
-  dialog.value    = true
+  tempEnd.value = props.end
+  step.value = 'start'
+  dialog.value = true
 }
 
 function confirm() {
   emit('update:start', tempStart.value)
-  emit('update:end',   tempEnd.value)
+  emit('update:end', tempEnd.value)
   dialog.value = false
 }
 </script>
