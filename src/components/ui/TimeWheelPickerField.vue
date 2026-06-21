@@ -1,5 +1,6 @@
 <template>
   <v-text-field
+    v-bind="$attrs"
     :model-value="modelValue ?? ''"
     :label="label"
     variant="outlined"
@@ -30,14 +31,16 @@
 import { ref } from 'vue'
 import TimeWheelPicker from '@/components/ui/TimeWheelPicker.vue'
 
+defineOptions({ inheritAttrs: false })
+
 const props = defineProps<{
   modelValue: string | null
-  label:      string
+  label: string
 }>()
 const emit = defineEmits<{ 'update:modelValue': [string | null] }>()
 
 const dialog = ref(false)
-const temp   = ref<string | null>(null)
+const temp = ref<string | null>(null)
 
 function open() {
   temp.value = props.modelValue

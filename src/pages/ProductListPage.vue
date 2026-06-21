@@ -11,9 +11,9 @@
       <!-- 検索条件 -->
       <div class="px-4 pt-3 pb-2">
         <SearchConditionChips
-          :q="route.query.q as string | undefined"
-          :category="route.query.category as string | undefined"
-          :in-stock="route.query.inStock === 'true'"
+          :q="queryQ"
+          :category="queryCategory"
+          :in-stock="queryInStock"
         />
       </div>
 
@@ -71,11 +71,7 @@
     </template>
 
     <!-- クイックビューダイアログ -->
-    <ProductDialog
-      v-model="dialogOpen"
-      :product="selectedProduct"
-      @detail="goDetail"
-    />
+    <ProductDialog v-model="dialogOpen" :product="selectedProduct" @detail="goDetail" />
   </MainLayout>
 </template>
 
@@ -99,10 +95,14 @@ const currentPage = ref(1)
 const selectedProduct = ref<Product | null>(null)
 const dialogOpen = ref(false)
 
+const queryQ = computed(() => route.query.q as string | undefined)
+const queryCategory = computed(() => route.query.category as Product['category'] | undefined)
+const queryInStock = computed(() => route.query.inStock === 'true')
+
 const params = computed(() => ({
-  q: route.query.q as string | undefined,
-  category: route.query.category as Product['category'] | undefined,
-  inStock: route.query.inStock === 'true' || undefined,
+  q: queryQ.value,
+  category: queryCategory.value,
+  inStock: queryInStock.value || undefined,
   page: currentPage.value,
   pageSize: PAGE_SIZE,
 }))
@@ -113,12 +113,12 @@ const mockFallback = computed<ProductListResponse>(() =>
   filterProducts(
     mockProducts as Product[],
     {
-      q: route.query.q as string | undefined,
-      category: route.query.category as string | undefined,
-      inStock: route.query.inStock === 'true',
+      q: queryQ.value,
+      category: queryCategory.value,
+      inStock: queryInStock.value,
     },
     currentPage.value,
-    PAGE_SIZE,
+    PAGE_SIZE
   )
 )
 
