@@ -5,14 +5,11 @@ export default defineConfig({
     input: './openapi/products.yaml',
     output: {
       target: './src/api/products.ts',
-      client: 'vue-query',
+      client: 'axios',
       override: {
         mutator: {
           path: './src/plugins/axios.ts',
           name: 'customAxiosInstance',
-        },
-        query: {
-          useQuery: true,
         },
       },
     },

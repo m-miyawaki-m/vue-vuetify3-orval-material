@@ -1,0 +1,102 @@
+@startuml search-component-tree
+title 検索機能 コンポーネントツリー
+
+skinparam componentStyle rectangle
+skinparam backgroundColor #FAFAFA
+skinparam component {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+skinparam package {
+  BackgroundColor #FFF9C4
+  BorderColor #F9A825
+}
+skinparam note {
+  BackgroundColor #F3E5F5
+  BorderColor #7B1FA2
+}
+
+' ── ページ層 ──────────────────────────────
+package "pages/" {
+  component "SearchPage" as SP <<Page>> #C8E6C9
+  component "ProductListPage" as PLP <<Page>> #C8E6C9
+}
+
+' ── レイアウト ────────────────────────────
+package "layout/" {
+  component "MainLayout" as ML {
+    portin " #prepend" as PP
+    portin " #default" as PD
+    portin " #footer (footerActions)" as PF
+  }
+}
+
+' ── 検索コンポーネント ─────────────────────
+package "search/" {
+  component "ProductFilterDialog" as PFD {
+    note right
+      Props:
+      - modelValue: boolean
+      - category: Category
+      - inStock: boolean
+      Emits:
+      - update:modelValue
+      - update:category
+      - update:inStock
+      - reset
+    end note
+  }
+  component "SearchConditionChips" as SCC {
+    note right
+      Props:
+      - q?: string
+      - category?: string
+      - inStock?: boolean
+      - closable?: boolean
+      Emits:
+      - remove(key)
+    end note
+  }
+}
+
+' ── 商品コンポーネント ─────────────────────
+package "product/" {
+  component "ProductCard" as PC
+  component "ProductDialog" as PD2
+}
+
+' ── ユーティリティ ────────────────────────
+package "utils/" {
+  component "buildSearchQuery()" as BSQ <<function>> #FFE0B2
+  component "filterProducts()" as FP <<function>> #FFE0B2
+}
+
+' ── API / Store ───────────────────────────
+package "api/" {
+  component "useGetProducts(params)" as UGP <<Vue Query Hook>> #FFCDD2
+}
+
+' ── Router ────────────────────────────────
+component "vue-router" as VR <<Router>> #E1F5FE
+
+' ── 関係定義 ──────────────────────────────
+SP --> ML : uses
+SP -down-> PFD : v-model(filterDialog)\n:category :inStock\n@update:category @update:inStock\n@reset
+SP -down-> SCC : :q :category :inStock\nclosable @remove
+SP --> BSQ : search() で呼ぶ
+BSQ --> VR : router.push({ path:'/products', query })
+
+PLP --> ML : uses
+PLP --> SCC : :q :category :inStock
+PLP --> PC : v-for product
+PLP --> PD2 : v-model(dialogOpen) :product
+PLP --> UGP : useGetProducts(params)
+PLP --> FP : mockFallback 計算で使う
+UGP ..> VR : baseURL + query params でリクエスト
+
+ML --> PP : slot
+ML --> PD : slot
+ML --> PF : slot (footerActions → 検索ボタン, スキャンボタン)
+
+@enduml

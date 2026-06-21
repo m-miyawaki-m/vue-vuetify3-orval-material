@@ -78,14 +78,17 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useGetProducts } from '@/api/products'
+import { getProductsAPI } from '@/api/products'
 import type { Product, ProductListResponse } from '@/api/products'
 import { mockProducts } from '@/mocks/products'
+import { useAsync } from '@/composables/useAsync'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 import ProductDialog from '@/components/product/ProductDialog.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
 import { filterProducts } from '@/utils/searchUtils'
+
+const { getProducts } = getProductsAPI()
 
 const PAGE_SIZE = 5
 const router = useRouter()
@@ -107,7 +110,10 @@ const params = computed(() => ({
   pageSize: PAGE_SIZE,
 }))
 
-const { data, isLoading, isError } = useGetProducts(params)
+const { data, isLoading, isError } = useAsync(
+  () => getProducts(params.value),
+  params,
+)
 
 const mockFallback = computed<ProductListResponse>(() =>
   filterProducts(
@@ -118,13 +124,13 @@ const mockFallback = computed<ProductListResponse>(() =>
       inStock: queryInStock.value,
     },
     currentPage.value,
-    PAGE_SIZE
-  )
+    PAGE_SIZE,
+  ),
 )
 
 const isFallback = computed(() => isError.value)
 const displayData = computed<ProductListResponse>(() =>
-  isFallback.value ? mockFallback.value : (data.value?.data ?? mockFallback.value)
+  isFallback.value ? mockFallback.value : (data.value ?? mockFallback.value),
 )
 
 function onPageChange(page: number) {

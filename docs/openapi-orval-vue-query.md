@@ -11,6 +11,7 @@
 3. [Orval による型・フック生成](#orval-による型フック生成)
 4. [Vue Query との連携](#vue-query-との連携)
 5. [新しいエンドポイントを追加するときの手順](#新しいエンドポイントを追加するときの手順)
+6. [JSON ファイルでテストデータを管理する](#json-ファイルでテストデータを管理する)
 
 ---
 
@@ -937,3 +938,291 @@ export interface ProductWithMemo extends Product {
   memo: string
 }
 ```
+
+---
+
+## JSON ファイルでテストデータを管理する
+
+テストデータを `.ts` に直書きせず JSON ファイルに分離することで、
+モックサーバー（Prism）・ユニットテスト・コンポーネントテストの3箇所で同じデータを使い回せる。
+
+### ファイル構成
+
+```
+openapi/
+  products.yaml
+  examples/
+    products-list.json     ← Prism が返す一覧レスポンス
+    product-detail.json    ← Prism が返す詳細レスポンス
+
+src/
+  mocks/
+    products.ts            ← JSON を import してアプリ内フォールバックに使う
+  fixtures/                ← テスト専用フィクスチャ（テストコード以外からは import しない）
+    product.fixture.ts     ← 単一商品・バリエーション
+    products-list.fixture.ts ← 一覧レスポンス
+```
+
+---
+
+### 手法1: Prism モックサーバーに JSON を読み込ませる
+
+OpenAPI YAML の `example` に外部 JSON を参照させる（`$ref` の `externalValue`）。
+
+```yaml
+# openapi/products.yaml
+paths:
+  /products:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+              # examples キーで外部 JSON を参照
+              examples:
+                default:
+                  externalValue: './examples/products-list.json'
+```
+
+`externalValue` を使うと Prism は JSON ファイルをそのまま返すレスポンスとして使う。
+
+> **注意**: Prism v4 は `externalValue` を部分サポート。動作しない場合は
+> `example:` ブロックに直接インライン記述するか、下記の `--mock-dynamic` オプションを検討する。
+
+**安定した代替手段**: YAML の `example` ブロックに JSON の中身を直書き（現状のプロジェクトの方式）:
+
+```yaml
+example:
+  items:
+    - id: 1
+      name: オーガニック緑茶
+      # ... JSON と同じ内容を YAML 形式で記述
+```
+
+---
+
+### 手法2: アプリのフォールバックモックに JSON を使う
+
+`src/mocks/products.ts` で JSON ファイルを import して型を当てる。
+
+```typescript
+// src/mocks/products.ts
+import type { Product } from '@/api/products'
+import rawList from '../../openapi/examples/products-list.json'
+
+// JSON の items 配列を Product[] として使う
+export const mockProducts: Product[] = rawList.items as Product[]
+```
+
+`vite.config.ts` に `resolveJsonModule` は不要（Vite は JSON import をデフォルト対応）。
+TypeScript 側は `tsconfig.json` に `"resolveJsonModule": true` が必要:
+
+```json
+// tsconfig.json（または tsconfig.app.json）
+{
+  "compilerOptions": {
+    "resolveJsonModule": true
+  }
+}
+```
+
+---
+
+### 手法3: テスト専用フィクスチャを JSON から生成する
+
+ユニットテスト・コンポーネントテストで使う型付きフィクスチャを `src/fixtures/` に置く。
+
+#### フィクスチャファイルの作り方
+
+```typescript
+// src/fixtures/product.fixture.ts
+import type { Product, ProductListResponse } from '@/api/products'
+
+// ベースとなる1件のデータ
+export const productFixture: Product = {
+  id: 1,
+  name: 'オーガニック緑茶',
+  category: '食品',
+  price: 1200,
+  inStock: true,
+  description: '厳選された国産茶葉を使用した風味豊かな緑茶。',
+  rating: 4,
+  reviews: [
+    { id: 1, author: '田中太郎', rating: 5, comment: '香りが良く飲みやすいです。' },
+  ],
+}
+
+// バリエーション: 在庫なし
+export const outOfStockProductFixture: Product = {
+  ...productFixture,
+  id: 2,
+  name: '天然蜂蜜',
+  inStock: false,
+}
+
+// ヘルパー: 任意のフィールドを上書きして生成
+export function buildProduct(overrides: Partial<Product> = {}): Product {
+  return { ...productFixture, ...overrides }
+}
+```
+
+```typescript
+// src/fixtures/products-list.fixture.ts
+import type { ProductListResponse } from '@/api/products'
+import { productFixture } from './product.fixture'
+
+export const productsListFixture: ProductListResponse = {
+  items: [productFixture],
+  total: 1,
+  page: 1,
+  pageSize: 5,
+  totalPages: 1,
+}
+
+// ページネーション検証用: 複数ページがある状態
+export function buildProductsList(
+  items: ProductListResponse['items'],
+  page = 1,
+  total = items.length,
+): ProductListResponse {
+  const pageSize = 5
+  return {
+    items,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+  }
+}
+```
+
+#### JSON ファイルから直接フィクスチャを生成する場合
+
+```typescript
+// src/fixtures/products-list.fixture.ts（JSON ベース版）
+import type { ProductListResponse } from '@/api/products'
+import rawList from '../../openapi/examples/products-list.json'
+
+// JSON をそのまま型付きフィクスチャとして export
+export const productsListFixture = rawList as ProductListResponse
+```
+
+---
+
+### 手法4: Vitest でフィクスチャを使う
+
+#### コンポーネントテスト（ProductCard）
+
+```typescript
+// src/components/product/__tests__/ProductCard.test.ts
+import { describe, it, expect } from 'vitest'
+import { mount } from '@vue/test-utils'
+import ProductCard from '../ProductCard.vue'
+import { buildProduct } from '@/fixtures/product.fixture'
+
+describe('ProductCard', () => {
+  it('在庫なし商品は「在庫なし」チップを表示', () => {
+    const product = buildProduct({ inStock: false })  // フィクスチャから生成
+    const wrapper = mount(ProductCard, { props: { product } })
+    expect(wrapper.text()).toContain('在庫なし')
+  })
+
+  it('価格が正しくフォーマットされる', () => {
+    const product = buildProduct({ price: 12000 })
+    const wrapper = mount(ProductCard, { props: { product } })
+    expect(wrapper.text()).toContain('12,000')
+  })
+})
+```
+
+#### Vue Query フックのテスト（useGetProducts をモック）
+
+`@tanstack/vue-query` の `QueryClient` を使ってキャッシュにデータを注入する方法:
+
+```typescript
+// src/pages/__tests__/ProductListPage.test.ts
+import { describe, it, expect, vi } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
+import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query'
+import ProductListPage from '../ProductListPage.vue'
+import { productsListFixture } from '@/fixtures/products-list.fixture'
+import { getGetProductsQueryKey } from '@/api/products'
+
+// vue-router をスタブ
+vi.mock('vue-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('vue-router')>()
+  return {
+    ...actual,
+    useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
+    useRoute: () => ({ query: { q: '緑茶' } }),
+  }
+})
+
+describe('ProductListPage', () => {
+  it('取得した商品一覧をリスト表示する', async () => {
+    // QueryClient を作成してキャッシュにフィクスチャを注入
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    queryClient.setQueryData(
+      getGetProductsQueryKey({ q: '緑茶', page: 1, pageSize: 5 }),
+      { data: productsListFixture, status: 200 },
+    )
+
+    const wrapper = mount(ProductListPage, {
+      global: {
+        plugins: [
+          [VueQueryPlugin, { queryClient }],
+        ],
+      },
+    })
+
+    await flushPromises()
+
+    // フィクスチャの商品名が表示されることを確認
+    expect(wrapper.text()).toContain(productsListFixture.items[0].name)
+  })
+})
+```
+
+#### API 関数自体をモックする方法（`vi.mock`）
+
+QueryClient を使わず、生成された API 関数ごと差し替える方法:
+
+```typescript
+import { vi } from 'vitest'
+import * as productsApi from '@/api/products'
+import { productsListFixture } from '@/fixtures/products-list.fixture'
+
+// useGetProducts フック全体をモック
+vi.mock('@/api/products', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/products')>()
+  return {
+    ...actual,
+    useGetProducts: () => ({
+      data: { value: { data: productsListFixture, status: 200 } },
+      isLoading: { value: false },
+      isError: { value: false },
+    }),
+  }
+})
+```
+
+> **使い分け**
+> - `QueryClient.setQueryData` — フックの挙動（ローディング状態遷移など）も含めてテストしたいとき
+> - `vi.mock('@/api/products')` — レンダリング結果だけ確認したい軽量なテストのとき
+
+---
+
+### JSON ファイルの管理方針まとめ
+
+| ファイル | 用途 | 更新タイミング |
+|---|---|---|
+| `openapi/examples/*.json` | Prism モックサーバーのレスポンス・YAML の example 参照 | API 仕様変更時 |
+| `src/mocks/products.ts` | アプリ内オフラインフォールバック | データを増やしたいとき |
+| `src/fixtures/*.fixture.ts` | ユニット・コンポーネントテスト用フィクスチャ | テスト追加・仕様変更時 |
+
+**原則**: テストコードは `fixtures/` を import する。`mocks/` は本番コードのフォールバック専用。
+`openapi/examples/` の JSON は Prism 用なので本番コード・テストコードから直接 import しない。

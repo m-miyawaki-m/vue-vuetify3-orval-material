@@ -1,0 +1,136 @@
+@startuml search-sequence
+title 検索機能 イベントシーケンス図
+
+skinparam backgroundColor #FAFAFA
+skinparam sequence {
+  ActorBorderColor #1565C0
+  ActorBackgroundColor #E3F2FD
+  ParticipantBorderColor #1565C0
+  ParticipantBackgroundColor #E3F2FD
+  LifeLineBorderColor #90A4AE
+  ArrowColor #37474F
+  BoxBackgroundColor #FFF9C4
+  BoxBorderColor #F9A825
+}
+
+actor ユーザー as User
+
+box "SearchPage" #E8F5E9
+  participant "SearchPage\n<script>" as SP
+  participant "ProductFilter\nDialog" as PFD
+  participant "SearchCondition\nChips" as SCC
+end box
+
+participant "vue-router" as Router
+
+box "ProductListPage" #E3F2FD
+  participant "ProductList\nPage\n<script>" as PLP
+  participant "useGetProducts\n(Vue Query)" as VQ
+end box
+
+participant "Prism /\nAPI Server" as API
+
+' ════════════════════════════════════════
+' 1. 検索ページ初期表示
+' ════════════════════════════════════════
+== 1. 検索ページ 初期表示 ==
+
+User -> Router : /search へ遷移
+Router -> SP : SearchPage マウント
+SP -> SP : keyword='' / selectedCategory='' / inStockOnly=false 初期化
+
+' ════════════════════════════════════════
+' 2. キーワード入力
+' ════════════════════════════════════════
+== 2. キーワード入力 ==
+
+User -> SP : v-text-field にキーワード入力
+SP -> SP : v-model="keyword" 更新
+
+' ════════════════════════════════════════
+' 3. フィルタダイアログ操作
+' ════════════════════════════════════════
+== 3. フィルタダイアログ 操作 ==
+
+User -> SP : 「絞り込み」ボタン クリック
+SP -> SP : filterDialog = true
+SP -> PFD : v-model=true でダイアログ表示
+
+User -> PFD : カテゴリ選択（ラジオ）
+PFD -> SP : emit('update:category', '食品')
+SP -> SP : selectedCategory = '食品'
+
+User -> PFD : 在庫ありスイッチ ON
+PFD -> SP : emit('update:inStock', true)
+SP -> SP : inStockOnly = true
+
+SP -> SCC : :category="selectedCategory"\n:inStock="inStockOnly" で\nチップ表示更新
+
+User -> PFD : 「閉じる」クリック
+PFD -> SP : emit('update:modelValue', false)
+SP -> SP : filterDialog = false
+
+' ════════════════════════════════════════
+' 4. 検索実行
+' ════════════════════════════════════════
+== 4. 検索実行（フッターの検索ボタン） ==
+
+User -> SP : フッター「検索」ボタン クリック
+SP -> SP : search() 呼び出し
+SP -> SP : buildSearchQuery(keyword, selectedCategory, inStockOnly)\n→ { q:'xxx', category:'食品', inStock:'true' }
+SP -> Router : router.push({ path:'/products', query })
+Router -> PLP : ProductListPage マウント
+
+' ════════════════════════════════════════
+' 5. 商品一覧取得
+' ════════════════════════════════════════
+== 5. ProductListPage 商品一覧取得 ==
+
+PLP -> PLP : route.query から\nqueryQ / queryCategory / queryInStock\ncomputed 生成
+PLP -> PLP : params computed 生成\n{ q, category, inStock, page:1, pageSize:5 }
+PLP -> VQ : useGetProducts(params)
+VQ -> API : GET /products?q=xxx&category=食品&inStock=true&page=1&pageSize=5
+API --> VQ : 200 OK { items:[...], total:N, page:1, ... }
+VQ --> PLP : data.value.data = ProductListResponse
+
+PLP -> PLP : displayData computed 更新
+PLP -> SCC : :q :category :inStock でチップ表示
+
+' ════════════════════════════════════════
+' 6. ページネーション
+' ════════════════════════════════════════
+== 6. ページネーション ==
+
+User -> PLP : v-pagination で 2ページ クリック
+PLP -> PLP : onPageChange(2)\ncurrentPage = 2
+note right of PLP : params computed が再評価\n→ page: 2 に変わる
+PLP -> VQ : params 変更を検知して自動再フェッチ
+VQ -> API : GET /products?...&page=2&pageSize=5
+API --> VQ : 200 OK { items:[...], page:2, ... }
+VQ --> PLP : data.value.data 更新
+
+' ════════════════════════════════════════
+' 7. フィルタチップ削除
+' ════════════════════════════════════════
+== 7. SearchConditionChips からフィルタ削除 ==
+
+User -> SCC : カテゴリチップの × クリック
+SCC -> SP : emit('remove', 'category')
+SP -> SP : onRemoveFilter('category')\nselectedCategory = ''
+SP -> SCC : :category=undefined でチップ非表示
+
+note over SP : 削除後は SearchPage の state が更新されるだけ。\n再検索は「検索ボタン」を押すまで行われない。
+
+' ════════════════════════════════════════
+' 8. API エラー時のフォールバック
+' ════════════════════════════════════════
+== 8. API エラー時（オフライン） ==
+
+PLP -> VQ : useGetProducts(params)
+VQ -> API : GET /products?...
+API --> VQ : ERR_CONNECTION_REFUSED
+VQ --> PLP : isError = true
+PLP -> PLP : isFallback = true\ndisplayData = mockFallback.value
+note right of PLP : filterProducts(mockProducts, ...) で\nローカルモックをフィルタして表示
+
+@enduml
