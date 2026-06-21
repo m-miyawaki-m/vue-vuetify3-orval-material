@@ -1,5 +1,6 @@
 <template>
   <v-text-field
+    v-bind="$attrs"
     :model-value="modelValue ? formatDate(modelValue) : ''"
     :label="label"
     variant="outlined"
@@ -27,6 +28,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+defineOptions({ inheritAttrs: false })
+
 const props = defineProps<{
   modelValue: Date | null
   label: string
@@ -34,7 +37,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [Date | null] }>()
 
 const dialog = ref(false)
-const temp   = ref<Date | null>(null)
+const temp = ref<Date | null>(null)
 
 function open() {
   temp.value = props.modelValue
