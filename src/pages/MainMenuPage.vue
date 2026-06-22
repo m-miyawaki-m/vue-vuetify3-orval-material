@@ -1,8 +1,9 @@
 <template>
   <MainLayout title="メインメニュー">
     <v-container class="py-4">
+      <v-progress-linear v-if="menuStore.isLoading" indeterminate color="primary" class="mb-4" />
       <div class="menu-grid">
-        <div v-for="item in MAIN_MENU" :key="item.id" class="menu-item" @click="openSubMenu(item)">
+        <div v-for="item in menuStore.items" :key="item.id" class="menu-item" @click="openSubMenu(item)">
           <v-icon size="40" color="primary">{{ item.icon }}</v-icon>
           <span class="text-body-2 font-weight-medium mt-1">{{ item.label }}</span>
         </div>
@@ -34,16 +35,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '@/components/layout/MainLayout.vue'
-import { MAIN_MENU, type MainMenuItem } from '@/data/mainMenu'
+import { useMainMenuStore } from '@/stores/menu'
+import type { MenuItem } from '@/api/index'
 
+const menuStore = useMainMenuStore()
 const router = useRouter()
 const sheet = ref(false)
-const activeItem = ref<MainMenuItem | null>(null)
+const activeItem = ref<MenuItem | null>(null)
 
-function openSubMenu(item: MainMenuItem) {
+onMounted(() => {
+  if (!menuStore.items?.length) {
+    menuStore.fetchMenu()
+  }
+})
+
+function openSubMenu(item: MenuItem) {
   activeItem.value = item
   sheet.value = true
 }

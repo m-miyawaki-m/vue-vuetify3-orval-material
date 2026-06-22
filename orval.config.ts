@@ -1,10 +1,10 @@
 import { defineConfig } from 'orval'
 
 export default defineConfig({
-  products: {
-    input: './openapi/products.yaml',
+  api: {
+    input: './openapi/api.yaml',
     output: {
-      target: './src/api/products.ts',
+      target: './src/api/index.ts',
       client: 'axios',
       override: {
         mutator: {

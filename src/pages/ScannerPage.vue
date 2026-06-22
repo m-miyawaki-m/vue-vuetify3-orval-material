@@ -53,6 +53,27 @@
         </div>
       </div>
 
+      <!-- 開発用モック入力 -->
+      <div
+        v-if="isDev"
+        class="d-flex align-center gap-2 px-3 py-2"
+        style="background: rgba(255,165,0,0.15); border-top: 1px solid rgba(255,165,0,0.4); flex-shrink: 0;"
+      >
+        <v-text-field
+          v-model="mockValue"
+          label="DEV: モック入力"
+          density="compact"
+          variant="outlined"
+          hide-details
+          bg-color="#1a1a1a"
+          style="flex: 1;"
+          @keydown.enter="onMockScan"
+        />
+        <v-btn color="orange" variant="elevated" size="small" @click="onMockScan">
+          確定
+        </v-btn>
+      </div>
+
       <!-- continuous モード: 履歴リスト -->
       <template v-if="store.mode === 'continuous'">
         <div style="flex: 1; overflow-y: auto; background: #111;">
@@ -111,11 +132,14 @@ import { useWorkSessionStore } from '@/stores/workSessionStore'
 import { useBarcodeScanner } from '@/composables/useBarcodeScanner'
 import type { ScanResult } from '@/types/scanner'
 
+const isDev = import.meta.env.DEV
+
 const store = useScannerStore()
 const workStore = useWorkSessionStore()
 const videoRef = ref<HTMLVideoElement | null>(null)
 const results = ref<ScanResult[]>([])
 const torchOn = ref(false)
+const mockValue = ref('')
 
 // Guard: prevent ZXing callback re-firing between complete() and actual unmount
 let completing = false
@@ -136,7 +160,9 @@ const { start, stop, error, torchAvailable, switchTorch } = useBarcodeScanner(vi
 })
 
 const cameraAreaStyle = computed(() => ({
-  height: store.mode === 'continuous' ? '45%' : 'calc(100dvh - 52px)',
+  height: store.mode === 'continuous'
+    ? '45%'
+    : isDev ? 'calc(100dvh - 52px - 60px)' : 'calc(100dvh - 52px)',
   flexShrink: '0',
 }))
 
@@ -151,6 +177,23 @@ function onComplete() {
   stop()
   workStore.clearSession()
   store.complete([...results.value])
+}
+
+function onMockScan() {
+  if (!mockValue.value.trim()) return
+  const result: ScanResult = { text: mockValue.value.trim(), format: 'MOCK', timestamp: Date.now() }
+  mockValue.value = ''
+  // onScan と同じコードパスを通す
+  if (completing) return
+  if (store.mode === 'continuous') {
+    results.value.push(result)
+    workStore.updateBarcodes(results.value.map(r => r.text))
+  } else {
+    completing = true
+    stop()
+    workStore.clearSession()
+    store.complete([result])
+  }
 }
 
 async function onToggleTorch() {

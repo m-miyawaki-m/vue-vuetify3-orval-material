@@ -1,102 +1,166 @@
 <template>
   <SubLayout :title="product?.name ?? '詳細'">
     <template #footer>
-      <v-btn
-        color="primary"
-        variant="flat"
-        prepend-icon="mdi-content-save"
-        :disabled="!product"
-        @click="saveMemo"
-      >
-        登録
-      </v-btn>
+      <div class="d-flex align-center justify-center w-100" style="position: relative;">
+        <v-btn
+          v-if="errorHistory.length > 0"
+          color="error"
+          variant="tonal"
+          icon
+          style="position: absolute; left: 8px;"
+          @click="errorSheetOpen = true"
+        >
+          <v-badge :content="errorHistory.length" color="error" floating>
+            <v-icon>mdi-alert-circle-outline</v-icon>
+          </v-badge>
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="flat"
+          prepend-icon="mdi-content-save"
+          :disabled="!product"
+          @click="confirmOpen = true"
+        >
+          登録
+        </v-btn>
+      </div>
     </template>
+
     <v-container v-if="product" class="pb-6">
       <v-tabs v-model="tab" class="mb-4" color="primary">
-        <v-tab value="info">商品情報</v-tab>
-        <v-tab value="reviews">レビュー</v-tab>
-        <v-tab value="related">関連商品</v-tab>
+        <v-tab value="info">基本情報</v-tab>
+        <v-tab value="issues">
+          エラー一覧
+          <v-badge
+            v-if="unresolvedCount > 0"
+            :content="unresolvedCount"
+            color="error"
+            inline
+            class="ml-1"
+          />
+        </v-tab>
       </v-tabs>
 
       <v-window v-model="tab">
-        <!-- 商品情報タブ -->
+        <!-- 基本情報タブ -->
         <v-window-item value="info">
-          <v-card>
+          <v-card class="mb-3">
             <v-card-title>{{ product.name }}</v-card-title>
             <v-card-subtitle>{{ product.category }}</v-card-subtitle>
             <v-card-text>
-              <p class="text-h5 mb-2">¥{{ product.price.toLocaleString() }}</p>
               <v-chip :color="product.inStock ? 'success' : 'error'" variant="tonal" class="mb-3">
                 {{ product.inStock ? '在庫あり' : '在庫なし' }}
               </v-chip>
-              <v-rating :model-value="product.rating" readonly color="amber" class="mb-3" />
               <p class="text-body-1">{{ product.description }}</p>
             </v-card-text>
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                variant="elevated"
-                size="large"
-                :disabled="!product.inStock"
-                prepend-icon="mdi-cart"
-              >
-                カートに追加
-              </v-btn>
-            </v-card-actions>
+          </v-card>
 
-            <v-divider class="mx-4" />
-
-            <v-card-text>
-              <v-textarea
+          <v-card>
+            <v-card-text class="d-flex flex-column ga-2">
+              <SelectPickerField
+                v-model="localLocation"
+                label="ロケーション *"
+                placeholder="棚・場所を選択"
+                :items="locationItems"
+                :error="!!fieldErrors.location"
+                :error-messages="fieldErrors.location"
+              />
+              <SelectPickerField
+                v-model="localGroup"
+                label="グループ *"
+                placeholder="グループを選択"
+                :items="groupItems"
+                :error="!!fieldErrors.group"
+                :error-messages="fieldErrors.group"
+              />
+              <BarcodeInputField
                 v-model="localMemo"
                 label="メモ"
-                placeholder="メモを入力..."
-                variant="outlined"
-                rows="3"
-                auto-grow
+                placeholder="メモを入力またはバーコードをスキャン"
                 clearable
               />
             </v-card-text>
           </v-card>
         </v-window-item>
 
-        <!-- レビュータブ -->
-        <v-window-item value="reviews">
-          <v-radio-group v-model="reviewFilter" label="評価で絞り込み" inline class="mb-3">
-            <v-radio label="すべて" :value="0" />
-            <v-radio v-for="n in 5" :key="n" :label="`${n}★`" :value="n" />
-          </v-radio-group>
-          <v-expansion-panels v-if="filteredReviews.length > 0">
-            <v-expansion-panel v-for="review in filteredReviews" :key="review.id">
-              <v-expansion-panel-title>
-                {{ review.author }}
-                <v-rating
-                  :model-value="review.rating"
-                  readonly
-                  density="compact"
-                  size="small"
-                  color="amber"
-                  class="ml-2"
-                />
-              </v-expansion-panel-title>
-              <v-expansion-panel-text>{{ review.comment }}</v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
-          <v-alert v-else type="info" variant="tonal"> 該当するレビューがありません。 </v-alert>
-        </v-window-item>
+        <!-- エラー一覧タブ -->
+        <v-window-item value="issues">
+          <v-alert v-if="issues.length === 0" type="info" variant="tonal">
+            エラーはありません。
+          </v-alert>
 
-        <!-- 関連商品タブ -->
-        <v-window-item value="related">
-          <template v-if="relatedProducts.length > 0">
-            <ProductCard
-              v-for="p in relatedProducts"
-              :key="p.id"
-              :product="p"
-              @click="goDetail(p)"
-              @detail="goDetail(p)"
-            />
-          </template>
-          <v-alert v-else type="info" variant="tonal"> 関連商品はありません。 </v-alert>
+          <v-card
+            v-for="issue in issues"
+            :key="issue.id"
+            class="mb-3"
+          >
+            <v-card-title class="text-body-1 d-flex align-center ga-2 pt-4">
+              {{ issue.title }}
+              <v-chip
+                :color="issue.resolved ? 'success' : 'error'"
+                size="x-small"
+                variant="tonal"
+              >
+                {{ issue.resolved ? '対応済み' : '未対応' }}
+              </v-chip>
+            </v-card-title>
+
+            <v-card-text class="d-flex flex-column ga-3">
+              <div class="d-flex align-center ga-3">
+                <span class="text-body-2 text-medium-emphasis" style="min-width: 40px;">数量</span>
+                <v-btn
+                  icon="mdi-minus"
+                  size="small"
+                  variant="outlined"
+                  :disabled="issue.quantity <= 0 || issue.resolved"
+                  @click="issue.quantity--"
+                />
+                <span class="text-body-1 font-weight-bold" style="min-width: 32px; text-align: center;">
+                  {{ issue.quantity }}
+                </span>
+                <v-btn
+                  icon="mdi-plus"
+                  size="small"
+                  variant="outlined"
+                  :disabled="issue.resolved"
+                  @click="issue.quantity++"
+                />
+              </div>
+
+              <v-textarea
+                v-model="issue.comment"
+                label="コメント"
+                rows="2"
+                auto-grow
+                variant="outlined"
+                density="compact"
+                hide-details
+                :disabled="issue.resolved"
+              />
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                v-if="!issue.resolved"
+                color="success"
+                variant="elevated"
+                size="small"
+                prepend-icon="mdi-check"
+                @click="issue.resolved = true"
+              >
+                対応済みにする
+              </v-btn>
+              <v-btn
+                v-else
+                variant="text"
+                size="small"
+                @click="issue.resolved = false"
+              >
+                未対応に戻す
+              </v-btn>
+            </v-card-actions>
+          </v-card>
         </v-window-item>
       </v-window>
     </v-container>
@@ -105,59 +169,154 @@
       <v-alert type="error" variant="tonal">商品が見つかりませんでした。</v-alert>
     </v-container>
   </SubLayout>
+
+  <!-- 確認ダイアログ -->
+  <ConfirmDialog
+    v-model="confirmOpen"
+    title="登録確認"
+    message="入力内容を登録します。よろしいですか？"
+    @confirm="onConfirm"
+    @cancel="confirmOpen = false"
+  />
+
+  <!-- エラー履歴ボトムシート -->
+  <v-bottom-sheet v-model="errorSheetOpen">
+    <v-card rounded="t-xl">
+      <v-card-title class="pt-5 px-5 pb-1 text-h6 d-flex align-center">
+        <v-icon color="error" class="mr-2">mdi-alert-circle-outline</v-icon>
+        エラー履歴
+        <v-spacer />
+        <v-btn icon="mdi-close" variant="text" size="small" @click="errorSheetOpen = false" />
+      </v-card-title>
+
+      <v-list lines="two" class="px-2">
+        <v-list-item
+          v-for="(err, i) in errorHistory"
+          :key="i"
+          :subtitle="err.timestamp"
+          rounded="lg"
+        >
+          <template #prepend>
+            <v-icon color="error" size="20">mdi-alert</v-icon>
+          </template>
+          <template #title>
+            <span class="text-body-2">{{ err.field }}：{{ err.message }}</span>
+          </template>
+        </v-list-item>
+      </v-list>
+
+      <div class="pa-4 pt-2 d-flex ga-2">
+        <v-btn
+          variant="outlined"
+          color="error"
+          size="small"
+          prepend-icon="mdi-delete-outline"
+          @click="errorHistory = []"
+        >
+          履歴をクリア
+        </v-btn>
+        <v-spacer />
+        <v-btn variant="text" @click="errorSheetOpen = false">閉じる</v-btn>
+      </div>
+    </v-card>
+  </v-bottom-sheet>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useMemoStore } from '@/stores/memo'
 import { useSnackbar } from '@/composables/useSnackbar'
-import type { Product } from '@/types/product'
 import SubLayout from '@/components/layout/SubLayout.vue'
-import ProductCard from '@/components/product/ProductCard.vue'
+import BarcodeInputField from '@/components/scanner/BarcodeInputField.vue'
+import SelectPickerField from '@/components/ui/SelectPickerField.vue'
+import ConfirmDialog from '@/components/dialog/ConfirmDialog.vue'
+import { useSettingsStore } from '@/stores/settings'
+
+interface Issue {
+  id: number
+  title: string
+  quantity: number
+  resolved: boolean
+  comment: string
+}
+
+interface ErrorRecord {
+  field: string
+  message: string
+  timestamp: string
+}
 
 const props = defineProps<{ id: string }>()
 const store = useProductStore()
 const memoStore = useMemoStore()
 const { showSnack } = useSnackbar()
-const router = useRouter()
+const settingsStore = useSettingsStore()
 
 const tab = ref('info')
-const reviewFilter = ref(0)
 const localMemo = ref('')
+const localLocation = ref('')
+const localGroup = ref('')
+const confirmOpen = ref(false)
+const errorSheetOpen = ref(false)
+const fieldErrors = ref<Record<string, string>>({})
+const errorHistory = ref<ErrorRecord[]>([])
+
+const locationItems = ['A棚-1', 'A棚-2', 'B棚-1', 'B棚-2', 'C棚-1', 'C棚-2']
+const groupItems = ['グループA', 'グループB', 'グループC']
 
 const product = computed(() => store.products.find((p) => p.id === Number(props.id)) ?? null)
 
+const issues = ref<Issue[]>([
+  { id: 1, title: '数量不一致', quantity: 3, resolved: false, comment: '' },
+  { id: 2, title: '商品ラベル破損', quantity: 1, resolved: false, comment: '' },
+  { id: 3, title: '入庫日未入力', quantity: 0, resolved: true, comment: '2026/06/20 確認済み' },
+])
+
+const unresolvedCount = computed(() => issues.value.filter((i) => !i.resolved).length)
+
 watch(
   product,
-  (p) => {
-    localMemo.value = p ? memoStore.getMemo(p.id) : ''
-  },
-  { immediate: true }
+  (p) => { localMemo.value = p ? memoStore.getMemo(p.id) : '' },
+  { immediate: true },
 )
 
-function saveMemo() {
+function validate(): boolean {
+  const errors: Record<string, string> = {}
+  const now = new Date().toLocaleString('ja-JP')
+
+  if (!localLocation.value) errors.location = 'ロケーションを選択してください'
+  if (!localGroup.value) errors.group = 'グループを選択してください'
+
+  fieldErrors.value = errors
+
+  if (Object.keys(errors).length > 0) {
+    for (const [field, message] of Object.entries(errors)) {
+      errorHistory.value.unshift({ field: fieldLabel(field), message, timestamp: now })
+    }
+    const limit = settingsStore.errorHistoryLimit
+    if (errorHistory.value.length > limit) {
+      errorHistory.value = errorHistory.value.slice(0, limit)
+    }
+    return false
+  }
+  return true
+}
+
+function fieldLabel(key: string): string {
+  const map: Record<string, string> = { location: 'ロケーション', group: 'グループ' }
+  return map[key] ?? key
+}
+
+function onConfirm() {
+  confirmOpen.value = false
+  if (!validate()) {
+    errorSheetOpen.value = true
+    tab.value = 'info'
+    return
+  }
   if (!product.value) return
   memoStore.setMemo(product.value.id, localMemo.value)
   showSnack('success', '登録しました')
-}
-
-const filteredReviews = computed(() => {
-  if (!product.value) return []
-  if (reviewFilter.value === 0) return product.value.reviews
-  return product.value.reviews.filter((r) => r.rating === reviewFilter.value)
-})
-
-const relatedProducts = computed(() => {
-  if (!product.value) return []
-  return store.products
-    .filter((p) => p.category === product.value!.category && p.id !== product.value!.id)
-    .slice(0, 4)
-})
-
-function goDetail(p: Product) {
-  store.selectProduct(p)
-  router.push(`/detail/${p.id}`)
 }
 </script>

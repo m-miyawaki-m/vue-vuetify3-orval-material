@@ -71,7 +71,6 @@ const navTabs = [
   { icon: 'mdi-lightning-bolt', label: 'クイック', to: '/' },
   { icon: 'mdi-apps', label: 'メニュー', to: '/menu' },
   { icon: 'mdi-magnify', label: '検索', to: '/search' },
-  { icon: 'mdi-cog', label: '設定', to: '/settings' },
 ]
 </script>
 

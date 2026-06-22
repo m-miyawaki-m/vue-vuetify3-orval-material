@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useScannerStore } from '@/stores/scannerStore'
 import type { ScanResult } from '@/types/scanner'
 
@@ -53,11 +54,15 @@ const emit = defineEmits<{
 
 const store = useScannerStore()
 
-function openScanner() {
-  store.requestScan('single', ([result]) => {
-    if (!result) return
+onMounted(() => {
+  const result = store.consumePendingResult()
+  if (result) {
     emit('update:modelValue', result.text)
     emit('scan', result)
-  })
+  }
+})
+
+function openScanner() {
+  store.requestScan('single', () => {})
 }
 </script>

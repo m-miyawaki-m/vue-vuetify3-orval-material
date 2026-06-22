@@ -39,14 +39,13 @@
 
     <!-- スクロールエリア -->
     <div class="list-body">
-      <v-container fluid class="pb-6">
+      <v-container fluid class="pb-2">
         <template v-if="!isLoading">
           <template v-if="displayData.items.length > 0">
             <ProductCard
               v-for="product in displayData.items"
               :key="product.id"
               :product="product"
-              @click="openDialog(product)"
               @detail="goDetail(product)"
             />
           </template>
@@ -57,46 +56,41 @@
       </v-container>
     </div>
 
-    <!-- フッター: ページネーション -->
-    <template #footer>
-      <div class="pagination-wrap">
-        <v-pagination
-          :model-value="currentPage"
-          :length="displayData.totalPages"
-          :total-visible="3"
-          density="compact"
-          @update:model-value="onPageChange"
-        />
-      </div>
-    </template>
+    <!-- ページネーション（フッター上部固定） -->
+    <div class="pagination-bar">
+      <v-pagination
+        :model-value="currentPage"
+        :length="displayData.totalPages"
+        :total-visible="3"
+        density="compact"
+        @update:model-value="onPageChange"
+      />
+    </div>
 
-    <!-- クイックビューダイアログ -->
-    <ProductDialog v-model="dialogOpen" :product="selectedProduct" @detail="goDetail" />
   </MainLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getProductsAPI } from '@/api/products'
-import type { Product, ProductListResponse } from '@/api/products'
-import { mockProducts } from '@/mocks/products'
+import { getAppAPI } from '@/api/index'
+import type { Product, ProductListResponse } from '@/api/index'
+import mockProductsData from '@/mocks/products-data.json'
 import { useAsync } from '@/composables/useAsync'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
-import ProductDialog from '@/components/product/ProductDialog.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
 import { filterProducts } from '@/utils/searchUtils'
 
-const { getProducts } = getProductsAPI()
+const mockProducts = mockProductsData as Product[]
+
+const { getProducts } = getAppAPI()
 
 const PAGE_SIZE = 5
 const router = useRouter()
 const route = useRoute()
 
 const currentPage = ref(1)
-const selectedProduct = ref<Product | null>(null)
-const dialogOpen = ref(false)
 
 const queryQ = computed(() => route.query.q as string | undefined)
 const queryCategory = computed(() => route.query.category as Product['category'] | undefined)
@@ -137,13 +131,7 @@ function onPageChange(page: number) {
   currentPage.value = page
 }
 
-function openDialog(product: Product) {
-  selectedProduct.value = product
-  dialogOpen.value = true
-}
-
 function goDetail(product: Product) {
-  dialogOpen.value = false
   router.push(`/detail/${product.id}`)
 }
 </script>
@@ -161,21 +149,14 @@ function goDetail(product: Product) {
   flex: 1;
 }
 
-.pagination-wrap {
-  width: 100%;
-}
-
-/* 全ボタン（数字・…・prev・next）を同じ幅に固定 */
-.pagination-wrap :deep(.v-pagination__list) {
+.pagination-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background-color: rgb(var(--v-theme-background));
+  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   display: flex;
   justify-content: center;
-}
-
-.pagination-wrap :deep(.v-btn.v-pagination__item),
-.pagination-wrap :deep(.v-btn.v-pagination__prev),
-.pagination-wrap :deep(.v-btn.v-pagination__next) {
-  width: 36px !important;
-  min-width: 36px !important;
-  flex: 0 0 36px;
+  padding: 4px 0;
 }
 </style>

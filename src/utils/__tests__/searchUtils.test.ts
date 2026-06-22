@@ -8,7 +8,7 @@
 // ============================================================
 import { describe, it, expect } from 'vitest'
 import { buildSearchQuery, filterProducts } from '../searchUtils'
-import type { Product } from '@/api/products'
+import type { Product } from '@/api/index'
 
 // ============================================================
 // デシジョンテーブル: buildSearchQuery

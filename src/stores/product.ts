@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Product } from '@/types/product'
-import { mockProducts } from '@/mocks/products'
+import mockProductsData from '@/mocks/products-data.json'
+
+const mockProducts = mockProductsData as Product[]
 
 const PAGE_SIZE = 5
 

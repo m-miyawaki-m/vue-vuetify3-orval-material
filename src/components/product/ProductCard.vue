@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mb-3" @click="emit('click', product)">
+  <v-card class="mb-3" @click="emit('detail', product)">
     <div class="px-4 pt-3 pb-0">
       <v-chip
         :color="memoStore.hasMemo(product.id) ? 'success' : 'default'"
@@ -44,7 +44,6 @@ import { useMemoStore } from '@/stores/memo'
 defineProps<{ product: Product }>()
 const memoStore = useMemoStore()
 const emit = defineEmits<{
-  click: [product: Product]
   detail: [product: Product]
 }>()
 </script>

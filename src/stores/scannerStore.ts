@@ -6,7 +6,7 @@ import type { ScanResult } from '@/types/scanner'
 export const useScannerStore = defineStore('scanner', () => {
   const mode = ref<'single' | 'continuous'>('single')
   const title = ref<string | undefined>(undefined)
-  // plain variable — functions shouldn't be reactive state
+  const pendingResult = ref<ScanResult | null>(null)
   let _callback: ((results: ScanResult[]) => void) | null = null
 
   function requestScan(
@@ -21,9 +21,18 @@ export const useScannerStore = defineStore('scanner', () => {
   }
 
   function complete(results: ScanResult[]) {
+    if (mode.value === 'single' && results.length > 0) {
+      pendingResult.value = results[0]
+    }
     _callback?.(results)
     _callback = null
     router.back()
+  }
+
+  function consumePendingResult(): ScanResult | null {
+    const r = pendingResult.value
+    pendingResult.value = null
+    return r
   }
 
   function cancel() {
@@ -31,5 +40,5 @@ export const useScannerStore = defineStore('scanner', () => {
     router.back()
   }
 
-  return { mode, title, requestScan, complete, cancel }
+  return { mode, title, pendingResult, requestScan, complete, consumePendingResult, cancel }
 })

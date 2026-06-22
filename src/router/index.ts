@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import ComingSoonPage from '@/pages/ComingSoonPage.vue'
 import QuickMenuPage from '@/pages/QuickMenuPage.vue'
 import MainMenuPage from '@/pages/MainMenuPage.vue'
 import SearchPage from '@/pages/SearchPage.vue'
@@ -21,6 +22,7 @@ const router = createRouter({
     { path: '/detail/:id', component: DetailPage, props: true },
     { path: '/samples',    component: ComponentSamplePage  },
     { path: '/scanner',    component: ScannerPage          },
+    { path: '/:pathMatch(.*)*', component: ComingSoonPage },
   ],
 })
 

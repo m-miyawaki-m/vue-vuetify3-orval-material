@@ -5,6 +5,9 @@
         <v-btn icon="mdi-arrow-left" @click="router.back()" />
       </template>
       <v-app-bar-title>{{ title }}</v-app-bar-title>
+      <template v-if="$slots.actions" #append>
+        <slot name="actions" />
+      </template>
     </v-app-bar>
 
     <v-main>
