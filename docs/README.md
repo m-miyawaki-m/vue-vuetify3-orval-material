@@ -14,6 +14,7 @@
 | [playwright-reference.md](./playwright-reference.md) | Playwright 文法・よく使うパターン集（操作 / アサーション / デバッグ） |
 | [typescript-reference.md](./typescript-reference.md) | TypeScript 文法・概念リファレンス（型定義 / ジェネリクス / ユーティリティ型 / 型ガード） |
 | [vue-reference.md](./vue-reference.md) | Vue 3 文法・概念リファレンス（Composition API / defineProps / スロット / Pinia / Router） |
+| [vue-sequence.md](./vue-sequence.md) | Vue 3 概念フロー シーケンス図（ライフサイクル / ref連鎖 / Props-Emits / Pinia / Router など10種） |
 
 ## 図の描画
 
