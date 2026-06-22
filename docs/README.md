@@ -12,6 +12,8 @@
 | [test-flow.md](./test-flow.md) | テスト作成フロー（Vitest 関数・コンポーネント・ページ・Store / Playwright E2E） |
 | [vitest-reference.md](./vitest-reference.md) | Vitest 文法・よく使うパターン集（アサーション / モック / Vue Test Utils） |
 | [playwright-reference.md](./playwright-reference.md) | Playwright 文法・よく使うパターン集（操作 / アサーション / デバッグ） |
+| [typescript-reference.md](./typescript-reference.md) | TypeScript 文法・概念リファレンス（型定義 / ジェネリクス / ユーティリティ型 / 型ガード） |
+| [vue-reference.md](./vue-reference.md) | Vue 3 文法・概念リファレンス（Composition API / defineProps / スロット / Pinia / Router） |
 
 ## 図の描画
 
