@@ -9,6 +9,7 @@
 | [state-transition.md](./state-transition.md) | 状態遷移図（画面遷移・スキャナー・ワークセッション・バリデーション） |
 | [screen-definition.md](./screen-definition.md) | 画面項目定義書（全ページの入力項目・表示項目・操作） |
 | [store-definition.md](./store-definition.md) | Store 定義書（全 Pinia store の State / Getters / Actions） |
+| [test-flow.md](./test-flow.md) | テスト作成フロー（Vitest 関数・コンポーネント・ページ・Store / Playwright E2E） |
 
 ## 図の描画
 
