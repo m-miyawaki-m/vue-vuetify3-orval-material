@@ -10,6 +10,8 @@
 | [screen-definition.md](./screen-definition.md) | 画面項目定義書（全ページの入力項目・表示項目・操作） |
 | [store-definition.md](./store-definition.md) | Store 定義書（全 Pinia store の State / Getters / Actions） |
 | [test-flow.md](./test-flow.md) | テスト作成フロー（Vitest 関数・コンポーネント・ページ・Store / Playwright E2E） |
+| [vitest-reference.md](./vitest-reference.md) | Vitest 文法・よく使うパターン集（アサーション / モック / Vue Test Utils） |
+| [playwright-reference.md](./playwright-reference.md) | Playwright 文法・よく使うパターン集（操作 / アサーション / デバッグ） |
 
 ## 図の描画
 
