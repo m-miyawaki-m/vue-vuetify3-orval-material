@@ -3,6 +3,9 @@
     "vue.volar",
     "vuetifyjs.vuetify-vscode",
     "vscjava.vscode-gradle",
-    "redhat.vscode-xml"
+    "redhat.vscode-xml",
+    // Android デバッグ
+    "abhiagr.logcat",
+    "vinicioslc.adb-interface-vscode"
   ]
 }
