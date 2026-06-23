@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Android WebView",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/src",
+      "urlFilter": "*",
+      "sourceMaps": true,
+      "preLaunchTask": "adb:forward"
+    }
+  ]
+}

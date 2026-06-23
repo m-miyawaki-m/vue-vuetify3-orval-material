@@ -55,6 +55,13 @@
       "detail": "ビルド後に Android プロジェクトへ反映"
     },
     {
+      "label": "adb:forward",
+      "type": "shell",
+      "command": "adb forward tcp:9222 localabstract:chrome_devtools_remote",
+      "problemMatcher": [],
+      "detail": "WebView デバッグ用に ADB ポートフォワードを設定（エミュレータ起動後に実行）"
+    },
+    {
       "label": "emulator:start",
       "type": "shell",
       "command": "${env:ANDROID_HOME}/emulator/emulator -avd Pixel6_API33",
