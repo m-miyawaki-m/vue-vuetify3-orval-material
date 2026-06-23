@@ -22,7 +22,7 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src",
     "orval": "orval",
-    "mock:prism": "npx @stoplight/prism-cli mock openapi/products.yaml --port 4010 --cors",
+    "mock:prism": "npx @stoplight/prism-cli mock openapi/api.yaml --port 4010 --cors",
     "dev:mock": "run-p dev mock:prism"
   },
   "dependencies": {

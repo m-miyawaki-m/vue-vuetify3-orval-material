@@ -2,7 +2,12 @@
   <MainLayout title="メインメニュー">
     <v-container class="py-4">
       <v-progress-linear v-if="menuStore.isLoading" indeterminate color="primary" class="mb-4" />
-      <div class="menu-grid">
+      <div v-if="menuStore.isError" class="mb-4">
+        <v-chip color="warning" variant="tonal" size="small" prepend-icon="mdi-wifi-off">
+          オフラインモード（ローカルデータ）
+        </v-chip>
+      </div>
+      <div v-if="!menuStore.isLoading" class="menu-grid">
         <div v-for="item in menuStore.items" :key="item.id" class="menu-item" @click="openSubMenu(item)">
           <v-icon size="40" color="primary">{{ item.icon }}</v-icon>
           <span class="text-body-2 font-weight-medium mt-1">{{ item.label }}</span>
@@ -35,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import { useMainMenuStore } from '@/stores/menu'
@@ -45,12 +50,6 @@ const menuStore = useMainMenuStore()
 const router = useRouter()
 const sheet = ref(false)
 const activeItem = ref<MenuItem | null>(null)
-
-onMounted(() => {
-  if (!menuStore.items?.length) {
-    menuStore.fetchMenu()
-  }
-})
 
 function openSubMenu(item: MenuItem) {
   activeItem.value = item

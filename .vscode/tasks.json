@@ -10,6 +10,29 @@
       "detail": "Mode 1: Vite dev server をブラウザで開く"
     },
     {
+      "label": "mock:prism",
+      "type": "shell",
+      "command": "npm run mock:prism",
+      "presentation": { "reveal": "always", "panel": "new" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": ".", "file": 1, "location": 2, "message": 3 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Prism is listening"
+        }
+      },
+      "detail": "Prism モックサーバーを起動（port 4010）"
+    },
+    {
+      "label": "dev:mock",
+      "dependsOn": ["dev:browser", "mock:prism"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "detail": "Vite dev server + Prism モックサーバーを同時起動"
+    },
+    {
       "label": "build:web",
       "type": "shell",
       "command": "npm run build",

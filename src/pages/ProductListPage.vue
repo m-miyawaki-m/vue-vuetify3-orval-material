@@ -21,7 +21,8 @@
 
       <!-- 件数 -->
       <div class="px-4 py-2">
-        <span class="text-body-2 text-medium-emphasis">{{ displayData.total }}件</span>
+        <span v-if="!isLoading" class="text-body-2 text-medium-emphasis">{{ displayData.total }}件</span>
+        <v-skeleton-loader v-else type="text" width="60" />
       </div>
 
       <v-divider />

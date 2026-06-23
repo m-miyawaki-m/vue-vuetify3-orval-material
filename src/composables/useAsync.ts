@@ -11,7 +11,7 @@ export function useAsync<T>(
   deps?: WatchSource | WatchSource[],
 ) {
   const data = ref<T | null>(null) as Ref<T | null>
-  const isLoading = ref(false)
+  const isLoading = ref(true)
   const isError = ref(false)
   const error = ref<unknown>(null)
 

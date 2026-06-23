@@ -8,7 +8,7 @@ const fallback = fallbackData as MenuItem[]
 
 export const useMainMenuStore = defineStore('mainMenu', () => {
   const items = ref<MenuItem[]>([])
-  const isLoading = ref(false)
+  const isLoading = ref(true)
   const isError = ref(false)
 
   async function fetchMenu() {
@@ -24,6 +24,8 @@ export const useMainMenuStore = defineStore('mainMenu', () => {
       isLoading.value = false
     }
   }
+
+  fetchMenu()
 
   return { items, isLoading, isError, fetchMenu }
 })
