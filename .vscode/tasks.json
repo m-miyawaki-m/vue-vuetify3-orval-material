@@ -30,7 +30,14 @@
       "dependsOn": ["dev:browser", "mock:prism"],
       "dependsOrder": "parallel",
       "problemMatcher": [],
-      "detail": "Vite dev server + Prism モックサーバーを同時起動"
+      "detail": "Vite dev server + Prism モックサーバーを同時起動（ブラウザ確認用）"
+    },
+    {
+      "label": "emulator:mock",
+      "dependsOn": ["mock:prism", "android:livereload"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "detail": "Prism モック + エミュレータ livereload を同時起動（android:livereload が Vite を内包）"
     },
     {
       "label": "build:web",

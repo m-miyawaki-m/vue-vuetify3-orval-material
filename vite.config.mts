@@ -44,5 +44,11 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4010',
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 })
