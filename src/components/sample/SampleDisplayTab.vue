@@ -43,6 +43,31 @@
         </div>
       </v-card>
 
+      <v-card variant="outlined" class="mb-4 pa-4">
+        <p class="text-subtitle-2 font-weight-bold mb-1">v-expansion-panels — アコーディオン</p>
+        <p class="text-caption text-medium-emphasis mb-3">
+          複数のセクションを折りたたんで表示します。FAQや設定項目のグループ化に最適。
+        </p>
+        <v-expansion-panels variant="accordion">
+          <v-expansion-panel title="基本情報">
+            <v-expansion-panel-text>
+              <p class="text-body-2">名前・住所などの基本情報をここに表示します。</p>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+          <v-expansion-panel title="連絡先">
+            <v-expansion-panel-text>
+              <p class="text-body-2">メールアドレス・電話番号などの連絡先情報です。</p>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+          <v-expansion-panel title="詳細設定">
+            <v-expansion-panel-text>
+              <p class="text-body-2">詳細な設定項目をここに配置します。</p>
+              <v-switch label="通知を受け取る" color="primary" hide-details density="compact" class="mt-2" />
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-card>
+
       <v-card variant="outlined" class="pa-4">
         <p class="text-subtitle-2 font-weight-bold mb-1">v-menu — ポップアップメニュー</p>
         <p class="text-caption text-medium-emphasis mb-3">

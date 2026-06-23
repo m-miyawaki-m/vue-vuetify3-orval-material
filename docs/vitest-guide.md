@@ -864,3 +864,131 @@ npx vitest run src/utils/__tests__/searchUtils.test.ts
 # テスト名でフィルタ
 npx vitest run --reporter=verbose -t "buildSearchQuery"
 ```
+
+---
+
+## このプロジェクト固有の注意点
+
+### 1. menuStore の自動フェッチ
+
+`useMainMenuStore`（`src/stores/menu.ts`）はストア初期化時に `fetchMenu()` を自動実行する。
+`MainMenuPage` をマウントすると即座に API コールが走るため、`vi.mock('@/api/index')` が必須。
+
+```ts
+// MainMenuPage をテストする場合は必ず API をモック
+vi.mock('@/api/index', () => ({
+  getAppAPI: () => ({
+    getMenu: vi.fn().mockResolvedValue([]),
+  }),
+}))
+```
+
+モックなしでマウントすると実際の axios 呼び出しが発生し、ネットワークエラーや
+フォールバック処理が走ってテスト結果が不安定になる。
+
+---
+
+### 2. useAsync の isLoading 初期値は true
+
+`useAsync`（`src/composables/useAsync.ts`）は `isLoading = ref(true)` で初期化される。
+`flushPromises()` を呼ぶ前の時点では必ずローディング中となる。
+
+```ts
+// ✅ isLoading は最初から true
+const wrapper = mount(ProductListPage, { ... })
+expect(wrapper.find('.v-progress-linear').exists()).toBe(true) // ローディング中
+
+await flushPromises()
+expect(wrapper.find('.v-progress-linear').exists()).toBe(false) // 完了後
+```
+
+旧来の `isLoading = ref(false)` を前提としたテストは書き直しが必要。
+
+---
+
+### 3. SearchPage: makeRouter に全ナビゲーションルートを定義する
+
+`SearchPage` は `MainLayout` を使い、`v-bottom-navigation` 内で `<RouterLink>` が描画される。
+定義されていないパスへのリンクがあると Vue Router が警告を出し、テストが不安定になる。
+
+```ts
+// ✅ ナビゲーションタブが使うルートをすべて定義する
+function makeRouter() {
+  return createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/',        component: { template: '<div />' } },
+      { path: '/menu',    component: { template: '<div />' } },
+      { path: '/search',  component: { template: '<div />' } },
+      { path: '/products', component: { template: '<div />' } },
+      { path: '/scanner', component: { template: '<div />' } },
+    ],
+  })
+}
+```
+
+---
+
+### 4. SearchPage: フッターボタンは document.body から探す
+
+`v-bottom-navigation` は teleport により `<body>` 直下に描画される。
+`wrapper.findAll('button')` ではフッター内のボタンが見つからない場合がある。
+
+```ts
+// ❌ wrapper 内を探しても見つからない場合がある
+const btn = wrapper.findAll('button').find(b => b.text().includes('検索'))
+
+// ✅ document.body から探す
+const btn = Array.from(document.body.querySelectorAll('button'))
+  .find(b => b.textContent?.includes('検索'))
+btn?.click()
+await flushPromises()
+```
+
+同様に `v-dialog`・`v-bottom-sheet` も teleport されるため、
+中身の確認は `document.body.textContent` で行う（パターン4 参照）。
+
+---
+
+### 5. attachTo: document.body 使用時は必ず unmount
+
+teleport を使うコンポーネントで `attachTo: document.body` を指定した場合、
+`wrapper.unmount()` を忘れると DOM が次のテストに残留して干渉する。
+
+```ts
+// ✅ afterEach でまとめて unmount する
+let wrapper: ReturnType<typeof mount>
+afterEach(() => wrapper?.unmount())
+
+it('テスト', () => {
+  wrapper = mount(Component, { attachTo: document.body })
+  // ...
+})
+
+// ✅ または各テスト末尾で呼ぶ
+it('テスト', () => {
+  const wrapper = mount(Component, { attachTo: document.body })
+  // ...
+  wrapper.unmount()
+})
+```
+
+---
+
+### 6. Pinia Store はテスト関数の中で呼ぶ
+
+`src/test/setup.ts` の `beforeEach` で `setActivePinia(createPinia())` が実行される。
+`describe` 直下（テスト関数の外）で Store を呼ぶと Pinia 未初期化エラーになる。
+
+```ts
+// ✅ テスト関数の中で呼ぶ
+it('テスト', () => {
+  const store = useMemoStore()
+  store.setMemo(1, 'memo')
+  expect(store.hasMemo(1)).toBe(true)
+})
+
+// ❌ describe の直下で呼ぶ（Pinia 未初期化でエラー）
+const store = useMemoStore() // Error: getActivePinia was called with no active Pinia
+describe('...', () => { ... })
+```
