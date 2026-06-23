@@ -23,7 +23,8 @@
     "format": "prettier --write src",
     "orval": "orval",
     "mock:prism": "npx @stoplight/prism-cli mock openapi/api.yaml --port 4010 --cors",
-    "dev:mock": "run-p dev mock:prism"
+    "dev:mock": "run-p dev mock:prism",
+    "build:android-mock": "vite build --mode android"
   },
   "dependencies": {
     "@capacitor/android": "^7.6.6",

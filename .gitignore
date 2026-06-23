@@ -6,6 +6,7 @@ dist-ssr/
 .env.*
 !.env.example
 !.env.development
+!.env.android
 ios/
 .superpowers/
 

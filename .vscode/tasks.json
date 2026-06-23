@@ -101,6 +101,64 @@
       "dependsOn": "cap:sync",
       "problemMatcher": [],
       "detail": "Mode 4: Android Studio でリリースビルド・署名・Logcat"
+    },
+
+    // ── APK standalone + Prism 連携 ──────────────────────────────────
+    {
+      "label": "apk-mock:build",
+      "type": "shell",
+      "command": "npm run build:android-mock",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": [],
+      "detail": "[apk-mock] .env.android (10.0.2.2:4010) で Vite ビルド"
+    },
+    {
+      "label": "apk-mock:sync",
+      "type": "shell",
+      "command": "npx cap sync android",
+      "dependsOn": ["apk-mock:build"],
+      "dependsOrder": "sequence",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": [],
+      "detail": "[apk-mock] ビルド成果物を Android プロジェクトへ反映"
+    },
+    {
+      "label": "apk-mock:assemble",
+      "type": "shell",
+      "command": ".\\gradlew.bat assembleDebug",
+      "options": { "cwd": "${workspaceFolder}/android" },
+      "dependsOn": ["apk-mock:sync"],
+      "dependsOrder": "sequence",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": [],
+      "detail": "[apk-mock] デバッグ APK をビルド"
+    },
+    {
+      "label": "apk-mock:install",
+      "type": "shell",
+      "command": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+      "dependsOn": ["apk-mock:assemble"],
+      "dependsOrder": "sequence",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": [],
+      "detail": "[apk-mock] エミュレータに APK をインストール"
+    },
+    {
+      "label": "apk-mock:launch",
+      "type": "shell",
+      "command": "adb shell am start -n com.example.myapp/.MainActivity",
+      "dependsOn": ["apk-mock:install"],
+      "dependsOrder": "sequence",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": [],
+      "detail": "[apk-mock] エミュレータ上でアプリを起動"
+    },
+    {
+      "label": "emulator:apk-mock",
+      "dependsOn": ["mock:prism", "apk-mock:launch"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "detail": "APK standalone + Prism 連携起動（Prism先行 / ビルド→sync→assemble→install→launch）"
     }
   ]
 }
