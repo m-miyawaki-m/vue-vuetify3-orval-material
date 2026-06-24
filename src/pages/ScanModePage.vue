@@ -131,7 +131,7 @@ const MODE_FORMATS: Record<Exclude<ScanMode, 'ocr'>, BarcodeFormat[]> = {
 
 const { start, stop, error, torchAvailable, switchTorch } = useBarcodeScanner(videoRef, {
   onScan: handleScan,
-  formats: () => scanMode.value !== 'ocr' ? MODE_FORMATS[scanMode.value] : [],
+  formats: () => scanMode.value !== 'ocr' ? MODE_FORMATS[scanMode.value as Exclude<ScanMode, 'ocr'>] : [],
 })
 
 async function handleScan(result: ScanResult) {
