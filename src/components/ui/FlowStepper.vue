@@ -41,6 +41,9 @@ const isFuture  = (n: number) => n > props.step
 
 <style scoped>
 .flow-stepper {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   padding: 8px 16px;
