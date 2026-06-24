@@ -13,7 +13,10 @@ interface ScannerControls {
 
 export function useBarcodeScanner(
   videoRef: Ref<HTMLVideoElement | null>,
-  options: { onScan: (result: ScanResult) => void }
+  options: {
+    onScan: (result: ScanResult) => void
+    formats?: () => BarcodeFormat[]
+  }
 ) {
   const isScanning = ref(false)
   const error = ref<string | null>(null)
@@ -29,6 +32,8 @@ export function useBarcodeScanner(
     try {
       const hints = new Map<DecodeHintType, unknown>()
       hints.set(DecodeHintType.TRY_HARDER, true)
+      const fmts = options.formats?.()
+      if (fmts?.length) hints.set(DecodeHintType.POSSIBLE_FORMATS, fmts)
       const reader = new BrowserMultiFormatReader(hints)
       controls = (await reader.decodeFromVideoDevice(undefined, videoRef.value, (result) => {
         if (!result) return
