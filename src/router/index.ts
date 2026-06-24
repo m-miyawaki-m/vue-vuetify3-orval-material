@@ -22,8 +22,9 @@ const router = createRouter({
     { path: '/detail/:id', component: DetailPage, props: true },
     { path: '/samples',    component: ComponentSamplePage  },
     { path: '/scanner',    component: ScannerPage          },
-    { path: '/scan-list', component: () => import('@/pages/ScanListPage.vue') },
-    { path: '/scan-mode', component: () => import('@/pages/ScanModePage.vue') },
+    { path: '/scan-list',    component: () => import('@/pages/ScanListPage.vue')   },
+    { path: '/scan-mode',    component: () => import('@/pages/ScanModePage.vue')   },
+    { path: '/card-samples', component: () => import('@/pages/CardSamplePage.vue') },
     { path: '/:pathMatch(.*)*', component: ComingSoonPage },
   ],
 })
