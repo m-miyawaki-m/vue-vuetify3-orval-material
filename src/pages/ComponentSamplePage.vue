@@ -7,7 +7,6 @@
           <v-tab value="display">表示制御</v-tab>
           <v-tab value="dialog">ダイアログ</v-tab>
           <v-tab value="notification">通知</v-tab>
-          <v-tab value="scanner">スキャナー</v-tab>
         </v-tabs>
       </div>
       <div class="sample-content">
@@ -16,7 +15,6 @@
           <v-window-item value="display"><SampleDisplayTab /></v-window-item>
           <v-window-item value="dialog"><SampleDialogTab /></v-window-item>
           <v-window-item value="notification"><SampleNotificationTab /></v-window-item>
-          <v-window-item value="scanner"><SampleScannerTab /></v-window-item>
         </v-window>
       </div>
     </div>
@@ -30,7 +28,6 @@ import SampleInputTab from '@/components/sample/SampleInputTab.vue'
 import SampleDisplayTab from '@/components/sample/SampleDisplayTab.vue'
 import SampleDialogTab from '@/components/sample/SampleDialogTab.vue'
 import SampleNotificationTab from '@/components/sample/SampleNotificationTab.vue'
-import SampleScannerTab from '@/components/sample/SampleScannerTab.vue'
 
 const activeTab = ref('input')
 </script>

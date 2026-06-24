@@ -14,7 +14,7 @@ export const MENU_MASTER: MenuItem[] = [
   { id: 'settings',  label: '設定',             icon: 'mdi-cog',            to: '/settings'  },
   { id: 'samples',      label: 'コンポーネント',  icon: 'mdi-palette-swatch',  to: '/samples'      },
   { id: 'card-samples', label: 'カードサンプル',  icon: 'mdi-card-multiple',   to: '/card-samples' },
-  { id: 'scanner',      label: 'スキャナー',      icon: 'mdi-barcode-scan',    to: '/scanner'      },
+  { id: 'scanner',      label: 'スキャナー',      icon: 'mdi-barcode-scan',    to: '/scanner-sample' },
 ]
 
 export const useMenuStore = defineStore('menu', () => {
