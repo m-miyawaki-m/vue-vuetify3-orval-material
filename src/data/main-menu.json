@@ -62,5 +62,16 @@
     "children": [
       { "label": "アプリ設定", "to": "/settings", "icon": "mdi-tune" }
     ]
+  },
+  {
+    "id": "sample",
+    "label": "サンプル",
+    "icon": "mdi-palette-swatch-outline",
+    "children": [
+      { "label": "入力・表示",       "to": "/sample-input",  "icon": "mdi-form-textbox"   },
+      { "label": "ダイアログ・通知", "to": "/sample-dialog", "icon": "mdi-bell-outline"   },
+      { "label": "カード",           "to": "/card-samples",  "icon": "mdi-card-multiple"  },
+      { "label": "スキャナー",       "to": "/scanner-sample","icon": "mdi-barcode-scan"   }
+    ]
   }
 ]

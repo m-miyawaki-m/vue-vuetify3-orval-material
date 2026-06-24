@@ -1,20 +1,16 @@
 <template>
-  <SubLayout title="コンポーネントサンプル">
+  <SubLayout title="入力・表示サンプル">
     <div class="sample-layout">
       <div class="sample-tabs">
         <v-tabs v-model="activeTab" color="primary" align-tabs="center">
           <v-tab value="input">入力・選択</v-tab>
           <v-tab value="display">表示制御</v-tab>
-          <v-tab value="dialog">ダイアログ</v-tab>
-          <v-tab value="notification">通知</v-tab>
         </v-tabs>
       </div>
       <div class="sample-content">
         <v-window v-model="activeTab">
           <v-window-item value="input"><SampleInputTab /></v-window-item>
           <v-window-item value="display"><SampleDisplayTab /></v-window-item>
-          <v-window-item value="dialog"><SampleDialogTab /></v-window-item>
-          <v-window-item value="notification"><SampleNotificationTab /></v-window-item>
         </v-window>
       </div>
     </div>
@@ -26,8 +22,6 @@ import { ref } from 'vue'
 import SubLayout from '@/components/layout/SubLayout.vue'
 import SampleInputTab from '@/components/sample/SampleInputTab.vue'
 import SampleDisplayTab from '@/components/sample/SampleDisplayTab.vue'
-import SampleDialogTab from '@/components/sample/SampleDialogTab.vue'
-import SampleNotificationTab from '@/components/sample/SampleNotificationTab.vue'
 
 const activeTab = ref('input')
 </script>

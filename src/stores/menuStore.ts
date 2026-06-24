@@ -9,12 +9,12 @@ export interface MenuItem {
 }
 
 export const MENU_MASTER: MenuItem[] = [
-  { id: 'search',    label: '商品を探す',       icon: 'mdi-magnify',        to: '/search'    },
-  { id: 'favorites', label: 'お気に入り',        icon: 'mdi-heart',          to: '/favorites' },
-  { id: 'settings',  label: '設定',             icon: 'mdi-cog',            to: '/settings'  },
-  { id: 'samples',      label: 'コンポーネント',  icon: 'mdi-palette-swatch',  to: '/samples'      },
-  { id: 'card-samples', label: 'カードサンプル',  icon: 'mdi-card-multiple',   to: '/card-samples' },
-  { id: 'scanner',      label: 'スキャナー',      icon: 'mdi-barcode-scan',    to: '/scanner-sample' },
+  { id: 'search',        label: '商品を探す',       icon: 'mdi-magnify',        to: '/search'         },
+  { id: 'settings',      label: '設定',             icon: 'mdi-cog',            to: '/settings'       },
+  { id: 'sample-input',  label: '入力・表示',       icon: 'mdi-form-textbox',   to: '/sample-input'   },
+  { id: 'sample-dialog', label: 'ダイアログ・通知', icon: 'mdi-bell-outline',   to: '/sample-dialog'  },
+  { id: 'card-samples',  label: 'カードサンプル',   icon: 'mdi-card-multiple',  to: '/card-samples'   },
+  { id: 'scanner',       label: 'スキャナー',       icon: 'mdi-barcode-scan',   to: '/scanner-sample' },
 ]
 
 export const useMenuStore = defineStore('menu', () => {
