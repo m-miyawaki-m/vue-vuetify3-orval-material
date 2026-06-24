@@ -8,6 +8,7 @@
 
     <!-- 上部固定エリア -->
     <div class="list-header">
+      <FlowStepper :step="2" />
       <!-- 検索条件 -->
       <div class="px-4 pt-3 pb-2">
         <SearchConditionChips
@@ -78,6 +79,7 @@ import { getAppAPI } from '@/api/index'
 import type { Product, ProductListResponse } from '@/api/index'
 import mockProductsData from '@/mocks/products-data.json'
 import { useAsync } from '@/composables/useAsync'
+import FlowStepper from '@/components/ui/FlowStepper.vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'

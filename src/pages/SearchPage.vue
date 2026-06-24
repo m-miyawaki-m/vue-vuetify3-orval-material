@@ -6,6 +6,7 @@
       </v-btn>
     </template>
 
+    <FlowStepper :step="1" />
     <v-container class="pb-6">
       <!-- キーワード検索 -->
       <v-text-field
@@ -54,6 +55,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import FlowStepper from '@/components/ui/FlowStepper.vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductFilterDialog, { type Category } from '@/components/search/ProductFilterDialog.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'

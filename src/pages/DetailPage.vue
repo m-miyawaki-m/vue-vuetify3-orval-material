@@ -26,6 +26,7 @@
       </div>
     </template>
 
+    <FlowStepper :step="3" />
     <v-container v-if="product" class="pb-6">
       <v-tabs v-model="tab" class="mb-4" color="primary">
         <v-tab value="info">基本情報</v-tab>
@@ -227,6 +228,7 @@ import { ref, computed, watch } from 'vue'
 import { useProductStore } from '@/stores/product'
 import { useMemoStore } from '@/stores/memo'
 import { useSnackbar } from '@/composables/useSnackbar'
+import FlowStepper from '@/components/ui/FlowStepper.vue'
 import SubLayout from '@/components/layout/SubLayout.vue'
 import BarcodeInputField from '@/components/scanner/BarcodeInputField.vue'
 import SelectPickerField from '@/components/ui/SelectPickerField.vue'
