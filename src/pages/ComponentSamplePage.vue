@@ -2,7 +2,7 @@
   <SubLayout title="コンポーネントサンプル">
     <div class="sample-layout">
       <div class="sample-tabs">
-        <v-tabs v-model="activeTab" color="primary" align-tabs="start">
+        <v-tabs v-model="activeTab" color="primary" align-tabs="center">
           <v-tab value="input">入力・選択</v-tab>
           <v-tab value="display">表示制御</v-tab>
           <v-tab value="dialog">ダイアログ</v-tab>
