@@ -1,5 +1,5 @@
 <template>
-  <v-card @click="emit('detail')">
+  <v-card @click="handleClick">
     <v-card-title class="text-body-1 font-weight-bold">{{ title }}</v-card-title>
     <v-card-text class="pt-2">
       <div v-for="(field, i) in fields" :key="i" class="field-row">
@@ -9,7 +9,7 @@
       </div>
     </v-card-text>
     <v-card-actions>
-      <v-btn variant="text" color="primary" @click.stop="emit('detail')">
+      <v-btn variant="text" color="primary" @click.stop="handleClick">
         詳細を見る
         <v-icon end>mdi-chevron-right</v-icon>
       </v-btn>
@@ -18,6 +18,8 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+
 export interface CardField {
   icon: string
   label: string
@@ -25,12 +27,19 @@ export interface CardField {
   bold?: boolean
 }
 
-defineProps<{
+const props = defineProps<{
   title: string
   fields: CardField[]
+  to?: string
 }>()
 
 const emit = defineEmits<{ detail: [] }>()
+const router = useRouter()
+
+function handleClick() {
+  if (props.to) router.push(props.to)
+  else emit('detail')
+}
 </script>
 
 <style scoped>
