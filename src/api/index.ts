@@ -4,6 +4,26 @@
  * App API
  * OpenAPI spec version: 1.0.0
  */
+import {
+  useQuery
+} from '@tanstack/vue-query';
+import type {
+  DataTag,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UseQueryOptions,
+  UseQueryReturnType
+} from '@tanstack/vue-query';
+
+import {
+  computed,
+  unref
+} from 'vue';
+import type {
+  MaybeRef
+} from 'vue';
+
 import { customAxiosInstance } from '../plugins/axios';
 export interface MenuChild {
   label: string;
@@ -98,45 +118,211 @@ pageSize?: number;
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getAppAPI = () => {
+
 /**
  * @summary メインメニュー取得
  */
-const getMenu = (
+export const getMenu = (
 
- options?: SecondParameter<typeof customAxiosInstance<MenuItem[]>>,) => {
+ options?: SecondParameter<typeof customAxiosInstance>,signal?: AbortSignal
+) => {
+
+
       return customAxiosInstance<MenuItem[]>(
-      {url: `/menu`, method: 'GET'
+      {url: `/menu`, method: 'GET', signal
     },
       options);
     }
+
+
+
+
+export const getGetMenuQueryKey = () => {
+    return [
+    'menu'
+    ] as const;
+    }
+
+
+export const getGetMenuQueryOptions = <TData = Awaited<ReturnType<typeof getMenu>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMenu>>, TError, TData>>, request?: SecondParameter<typeof customAxiosInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  getGetMenuQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMenu>>> = ({ signal }) => getMenu(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMenu>>, TError, TData>
+}
+
+export type GetMenuQueryResult = NonNullable<Awaited<ReturnType<typeof getMenu>>>
+export type GetMenuQueryError = unknown
+
+
+/**
+ * @summary メインメニュー取得
+ */
+
+export function useGetMenu<TData = Awaited<ReturnType<typeof getMenu>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMenu>>, TError, TData>>, request?: SecondParameter<typeof customAxiosInstance>}
+ , queryClient?: QueryClient
+ ): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMenuQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>;
+
+  return query;
+}
+
+
+
+
+
+
 
 /**
  * @summary 商品一覧取得
  */
-const getProducts = (
-    params?: GetProductsParams,
- options?: SecondParameter<typeof customAxiosInstance<ProductListResponse>>,) => {
+export const getProducts = (
+    params?: MaybeRef<GetProductsParams>,
+ options?: SecondParameter<typeof customAxiosInstance>,signal?: AbortSignal
+) => {
+      params = unref(params);
+
       return customAxiosInstance<ProductListResponse>(
       {url: `/products`, method: 'GET',
-        params
+        params: unref(params), signal
     },
       options);
     }
+
+
+
+
+export const getGetProductsQueryKey = (params?: MaybeRef<GetProductsParams>,) => {
+    return [
+    'products', ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetProductsQueryOptions = <TData = Awaited<ReturnType<typeof getProducts>>, TError = unknown>(params?: MaybeRef<GetProductsParams>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, request?: SecondParameter<typeof customAxiosInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  getGetProductsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProducts>>> = ({ signal }) => getProducts(params, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
+}
+
+export type GetProductsQueryResult = NonNullable<Awaited<ReturnType<typeof getProducts>>>
+export type GetProductsQueryError = unknown
+
+
+/**
+ * @summary 商品一覧取得
+ */
+
+export function useGetProducts<TData = Awaited<ReturnType<typeof getProducts>>, TError = unknown>(
+ params?: MaybeRef<GetProductsParams>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>>, request?: SecondParameter<typeof customAxiosInstance>}
+ , queryClient?: QueryClient
+ ): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>;
+
+  return query;
+}
+
+
+
+
+
+
 
 /**
  * @summary 商品詳細取得
  */
-const getProductById = (
-    id: number,
- options?: SecondParameter<typeof customAxiosInstance<Product>>,) => {
+export const getProductById = (
+    id: MaybeRef<number>,
+ options?: SecondParameter<typeof customAxiosInstance>,signal?: AbortSignal
+) => {
+      id = unref(id);
+
       return customAxiosInstance<Product>(
-      {url: `/products/${id}`, method: 'GET'
+      {url: `/products/${id}`, method: 'GET', signal
     },
       options);
     }
 
-return {getMenu,getProducts,getProductById}};
-export type GetMenuResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAppAPI>['getMenu']>>>
-export type GetProductsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAppAPI>['getProducts']>>>
-export type GetProductByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAppAPI>['getProductById']>>>
+
+
+
+export const getGetProductByIdQueryKey = (id: MaybeRef<number>,) => {
+    return [
+    'products',id
+    ] as const;
+    }
+
+
+export const getGetProductByIdQueryOptions = <TData = Awaited<ReturnType<typeof getProductById>>, TError = ErrorResponse>(id: MaybeRef<number>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductById>>, TError, TData>>, request?: SecondParameter<typeof customAxiosInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  getGetProductByIdQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductById>>> = ({ signal }) => getProductById(id, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: computed(() => unref(id) !== null && unref(id) !== undefined), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductById>>, TError, TData>
+}
+
+export type GetProductByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getProductById>>>
+export type GetProductByIdQueryError = ErrorResponse
+
+
+/**
+ * @summary 商品詳細取得
+ */
+
+export function useGetProductById<TData = Awaited<ReturnType<typeof getProductById>>, TError = ErrorResponse>(
+ id: MaybeRef<number>, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductById>>, TError, TData>>, request?: SecondParameter<typeof customAxiosInstance>}
+ , queryClient?: QueryClient
+ ): UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryReturnType<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = unref(queryOptions).queryKey as DataTag<QueryKey, TData, TError>;
+
+  return query;
+}

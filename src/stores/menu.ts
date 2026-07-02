@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getAppAPI } from '@/api/index'
+import { getMenu } from '@/api/index'
 import type { MenuItem } from '@/api/index'
 import fallbackData from '@/data/main-menu.json'
 
@@ -15,7 +15,6 @@ export const useMainMenuStore = defineStore('mainMenu', () => {
     isLoading.value = true
     isError.value = false
     try {
-      const { getMenu } = getAppAPI()
       items.value = await getMenu()
     } catch {
       items.value = fallback

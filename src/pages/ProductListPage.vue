@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getAppAPI } from '@/api/index'
+import { getProducts } from '@/api/index'
 import type { Product, ProductListResponse } from '@/api/index'
 import mockProductsData from '@/mocks/products-data.json'
 import { useAsync } from '@/composables/useAsync'
@@ -86,8 +86,6 @@ import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
 import { filterProducts } from '@/utils/searchUtils'
 
 const mockProducts = mockProductsData as Product[]
-
-const { getProducts } = getAppAPI()
 
 const PAGE_SIZE = 5
 const router = useRouter()
