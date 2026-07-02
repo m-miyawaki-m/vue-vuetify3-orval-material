@@ -76,6 +76,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGetProducts } from '@/api/index'
+import { keepPreviousData } from '@tanstack/vue-query'
 import type { Product, ProductListResponse } from '@/api/index'
 import mockProductsData from '@/mocks/products-data.json'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
@@ -105,7 +106,10 @@ const params = computed(() => ({
 }))
 
 // vue-query: params の変化で自動再フェッチ・同一 queryKey はキャッシュから即表示
-const { data, isLoading, isError } = useGetProducts(params)
+// ページ遷移中は前ページのデータを保持（モックへのフォールバック点滅を防ぐ）
+const { data, isLoading, isError } = useGetProducts(params, {
+  query: { placeholderData: keepPreviousData },
+})
 
 const mockFallback = computed<ProductListResponse>(() =>
   filterProducts(
