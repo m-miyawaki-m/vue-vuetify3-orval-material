@@ -170,7 +170,7 @@ export default defineConfig({
 
 1. **正規化**: axios レスポンスインターセプターで HTTP エラーを `ApiError { status, message, cause }` に変換。呼び出し側は axios の内部構造を知らなくてよい
 2. **通知**: QueryCache の `onError` で `useSnackbar` によるグローバル通知。画面固有のエラー表示（フォールバック UI 等）は各ページの `isError` で個別対応
-3. **フォールバック**: `menu.ts` の「失敗時ローカル JSON」パターンは vue-query の `placeholderData` へ移行
+3. **フォールバック**: `menu.ts` の「失敗時ローカル JSON」パターンは、生成 composable の `isError` を見て computed でローカル JSON に切り替える方式で維持（`placeholderData` は「ロード前の仮表示」でありエラー時フォールバックとは意味が異なるため不採用）
 4. **zod 違反**: `validated()` が throw する `ZodError` は「yaml とデータの乖離」を意味する開発時バグとして扱い、通常のエラー通知に載せる
 
 ## テスト方針
@@ -189,9 +189,9 @@ export default defineConfig({
 | `src/plugins/axios.ts` | インターセプター追加（mutator シグネチャは維持） |
 | `src/plugins/vueQuery.ts` | 新規（QueryClient 設定 + プラグイン登録） |
 | `src/api/validated.ts` | 新規（zod ヘルパー） |
-| `src/stores/menu.ts` | 生成 composable + placeholderData へ移行 |
+| `src/stores/menu.ts` | 削除（利用者は MainMenuPage のみ。ページ側で生成 `useGetMenu` + エラー時ローカル JSON フォールバック） |
 | `src/pages/ProductListPage.vue` | `useAsync` → 生成 `useGetProducts` へ |
-| `src/stores/product.ts` | サーバーデータ（`products`）を query 側へ移し、UI 状態のみに縮小 |
+| `src/stores/product.ts` | 削除（利用者は DetailPage のみ。検索条件は route query 経由のため UI 状態も不要。DetailPage は生成 `useGetProductById` へ） |
 | `src/composables/useAsync.ts` | 全移行完了後に削除（段階的移行中は残置可） |
 
 ## スコープ外（YAGNI）
