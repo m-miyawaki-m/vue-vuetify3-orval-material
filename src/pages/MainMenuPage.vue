@@ -1,14 +1,14 @@
 <template>
   <MainLayout title="メインメニュー">
     <v-container class="py-4">
-      <v-progress-linear v-if="menuStore.isLoading" indeterminate color="primary" class="mb-4" />
-      <div v-if="menuStore.isError" class="mb-4">
+      <v-progress-linear v-if="isLoading" indeterminate color="primary" class="mb-4" />
+      <div v-if="isError" class="mb-4">
         <v-chip color="warning" variant="tonal" size="small" prepend-icon="mdi-wifi-off">
           オフラインモード（ローカルデータ）
         </v-chip>
       </div>
-      <div v-if="!menuStore.isLoading" class="menu-grid">
-        <div v-for="item in menuStore.items" :key="item.id" class="menu-item" @click="openSubMenu(item)">
+      <div v-if="!isLoading" class="menu-grid">
+        <div v-for="item in items" :key="item.id" class="menu-item" @click="openSubMenu(item)">
           <v-icon size="40" color="primary">{{ item.icon }}</v-icon>
           <span class="text-body-2 font-weight-medium mt-1">{{ item.label }}</span>
         </div>
@@ -40,16 +40,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '@/components/layout/MainLayout.vue'
-import { useMainMenuStore } from '@/stores/menu'
+import { useGetMenu } from '@/api/index'
 import type { MenuItem } from '@/api/index'
+import fallbackData from '@/data/main-menu.json'
 
-const menuStore = useMainMenuStore()
+const fallback = fallbackData as MenuItem[]
+
 const router = useRouter()
 const sheet = ref(false)
 const activeItem = ref<MenuItem | null>(null)
+
+const { data, isLoading, isError } = useGetMenu()
+
+// エラー時はローカル JSON にフォールバック（オフラインモード）
+const items = computed<MenuItem[]>(() =>
+  isError.value ? fallback : (data.value ?? []),
+)
 
 function openSubMenu(item: MenuItem) {
   activeItem.value = item
