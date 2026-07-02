@@ -49,6 +49,7 @@
               :key="product.id"
               :product="product"
               @detail="goDetail(product)"
+              @click="goDetail(product)"
             />
           </template>
           <v-alert v-else type="info" variant="tonal">
@@ -75,9 +76,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { z } from 'zod'
 import { useGetProducts } from '@/api/index'
 import { keepPreviousData } from '@tanstack/vue-query'
 import type { Product, ProductListResponse } from '@/api/index'
+import { GetProductByIdResponse } from '@/api/index.zod'
 import mockProductsData from '@/mocks/products-data.json'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
@@ -85,7 +88,7 @@ import ProductCard from '@/components/product/ProductCard.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
 import { filterProducts } from '@/utils/searchUtils'
 
-const mockProducts = mockProductsData as Product[]
+const mockProducts: Product[] = z.array(GetProductByIdResponse).parse(mockProductsData)
 
 const PAGE_SIZE = 5
 const router = useRouter()

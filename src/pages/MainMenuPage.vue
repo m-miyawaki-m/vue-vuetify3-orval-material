@@ -45,9 +45,10 @@ import { useRouter } from 'vue-router'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import { useGetMenu } from '@/api/index'
 import type { MenuItem } from '@/api/index'
+import { GetMenuResponse } from '@/api/index.zod'
 import fallbackData from '@/data/main-menu.json'
 
-const fallback = fallbackData as MenuItem[]
+const fallback: MenuItem[] = GetMenuResponse.parse(fallbackData)
 
 const router = useRouter()
 const sheet = ref(false)

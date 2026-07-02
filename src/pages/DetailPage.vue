@@ -167,7 +167,8 @@
     </v-container>
 
     <v-container v-else>
-      <v-alert type="error" variant="tonal">商品が見つかりませんでした。</v-alert>
+      <v-progress-linear v-if="isLoading" indeterminate color="primary" />
+      <v-alert v-else type="error" variant="tonal">商品が見つかりませんでした。</v-alert>
     </v-container>
   </SubLayout>
 
@@ -225,8 +226,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { z } from 'zod'
 import { useGetProductById } from '@/api/index'
 import type { Product } from '@/api/index'
+import { GetProductByIdResponse } from '@/api/index.zod'
 import mockProductsData from '@/mocks/products-data.json'
 import { useMemoStore } from '@/stores/memo'
 import { useSnackbar } from '@/composables/useSnackbar'
@@ -252,7 +255,7 @@ interface ErrorRecord {
 }
 
 const props = defineProps<{ id: string }>()
-const mockProducts = mockProductsData as Product[]
+const mockProducts: Product[] = z.array(GetProductByIdResponse).parse(mockProductsData)
 const memoStore = useMemoStore()
 const { showSnack } = useSnackbar()
 const settingsStore = useSettingsStore()
@@ -270,7 +273,7 @@ const locationItems = ['A棚-1', 'A棚-2', 'B棚-1', 'B棚-2', 'C棚-1', 'C棚-2
 const groupItems = ['グループA', 'グループB', 'グループC']
 
 const productId = computed(() => Number(props.id))
-const { data, isError } = useGetProductById(productId)
+const { data, isError, isLoading } = useGetProductById(productId)
 
 // API エラー時はモック JSON にフォールバック（オフラインモード）
 const product = computed<Product | null>(() =>
