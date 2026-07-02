@@ -45,7 +45,7 @@ import { ref } from 'vue'
 
 defineOptions({ inheritAttrs: false })
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     modelValue?: string
     label?: string

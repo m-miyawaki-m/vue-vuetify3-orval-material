@@ -4,7 +4,7 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 
 export default tseslint.config(
   // ── 対象外ディレクトリ ──────────────────────────────────────────────────
-  { ignores: ['dist/**', 'android/**', 'ios/**', 'node_modules/**'] },
+  { ignores: ['dist/**', 'android/**', 'ios/**', 'node_modules/**', 'html/**', 'coverage/**', 'playwright-report/**', 'test-results/**', '.superpowers/**'] },
 
   // ── TypeScript 推奨ルール（.ts ファイル向け） ──────────────────────────
   ...tseslint.configs.recommended,
