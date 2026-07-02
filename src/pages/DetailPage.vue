@@ -225,7 +225,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useProductStore } from '@/stores/product'
+import { useGetProductById } from '@/api/index'
+import type { Product } from '@/api/index'
+import mockProductsData from '@/mocks/products-data.json'
 import { useMemoStore } from '@/stores/memo'
 import { useSnackbar } from '@/composables/useSnackbar'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
@@ -250,7 +252,7 @@ interface ErrorRecord {
 }
 
 const props = defineProps<{ id: string }>()
-const store = useProductStore()
+const mockProducts = mockProductsData as Product[]
 const memoStore = useMemoStore()
 const { showSnack } = useSnackbar()
 const settingsStore = useSettingsStore()
@@ -267,7 +269,15 @@ const errorHistory = ref<ErrorRecord[]>([])
 const locationItems = ['A棚-1', 'A棚-2', 'B棚-1', 'B棚-2', 'C棚-1', 'C棚-2']
 const groupItems = ['グループA', 'グループB', 'グループC']
 
-const product = computed(() => store.products.find((p) => p.id === Number(props.id)) ?? null)
+const productId = computed(() => Number(props.id))
+const { data, isError } = useGetProductById(productId)
+
+// API エラー時はモック JSON にフォールバック（オフラインモード）
+const product = computed<Product | null>(() =>
+  isError.value
+    ? (mockProducts.find((p) => p.id === productId.value) ?? null)
+    : (data.value ?? null),
+)
 
 const issues = ref<Issue[]>([
   { id: 1, title: '数量不一致', quantity: 3, resolved: false, comment: '' },
