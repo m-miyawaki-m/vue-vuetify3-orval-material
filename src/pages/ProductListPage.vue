@@ -75,10 +75,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getProducts } from '@/api/index'
+import { useGetProducts } from '@/api/index'
 import type { Product, ProductListResponse } from '@/api/index'
 import mockProductsData from '@/mocks/products-data.json'
-import { useAsync } from '@/composables/useAsync'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
@@ -105,10 +104,8 @@ const params = computed(() => ({
   pageSize: PAGE_SIZE,
 }))
 
-const { data, isLoading, isError } = useAsync(
-  () => getProducts(params.value),
-  params,
-)
+// vue-query: params の変化で自動再フェッチ・同一 queryKey はキャッシュから即表示
+const { data, isLoading, isError } = useGetProducts(params)
 
 const mockFallback = computed<ProductListResponse>(() =>
   filterProducts(
