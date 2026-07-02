@@ -17,12 +17,16 @@ Object.defineProperty(window, 'ResizeObserver', {
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { createPinia, setActivePinia } from 'pinia'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { beforeEach } from 'vitest'
 
 const vuetify = createVuetify({ components, directives })
 
-config.global.plugins = [vuetify]
-
 beforeEach(() => {
   setActivePinia(createPinia())
+  // テスト毎に新しい QueryClient（キャッシュ持ち越し防止・retry 無効で高速化）
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  config.global.plugins = [vuetify, [VueQueryPlugin, { queryClient }]]
 })
