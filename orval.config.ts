@@ -7,6 +7,7 @@ export default defineConfig({
     output: {
       target: './src/api/index.ts',
       client: 'vue-query',
+      // httpClient を省略すると fetch 用のラップ型 ({data,status,headers}) が生成され mutator と非互換になるため必須
       httpClient: 'axios',
       override: {
         mutator: {

@@ -101,7 +101,7 @@
           variant="text"
           size="small"
           prepend-icon="mdi-delete-outline"
-          @click="items.value = []"
+          @click="items = []"
         >クリア</v-btn>
         <v-btn
           color="primary"
