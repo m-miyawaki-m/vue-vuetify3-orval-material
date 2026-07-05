@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import type { Product } from '@/types/api'
-import { useMemoStore } from '@/stores/memo'
+import { useMemoStore } from '@/stores/memoStore'
 
 defineProps<{ product: Product }>()
 const memoStore = useMemoStore()

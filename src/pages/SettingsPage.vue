@@ -33,7 +33,7 @@
 import MainLayout from '@/components/layout/MainLayout.vue'
 import SettingsThemePanel from '@/components/settings/SettingsThemePanel.vue'
 import MenuSettingsPanel from '@/components/menu/MenuSettingsPanel.vue'
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 const settingsStore = useSettingsStore()
 </script>

@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { useThemeStore, THEMES } from '@/stores/theme'
+import { useThemeStore, THEMES } from '@/stores/themeStore'
 
 const themeStore = useThemeStore()
 </script>

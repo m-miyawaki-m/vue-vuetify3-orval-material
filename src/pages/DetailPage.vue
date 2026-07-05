@@ -229,13 +229,13 @@
 import { ref, computed, watch } from 'vue'
 import { useProductDetail } from '@/composables/queries/useProductDetail'
 import { useRegisterProduct } from '@/composables/mutations/useRegisterProduct'
-import { useMemoStore } from '@/stores/memo'
+import { useMemoStore } from '@/stores/memoStore'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
 import SubLayout from '@/components/layout/SubLayout.vue'
 import BarcodeInputField from '@/components/scanner/BarcodeInputField.vue'
 import SelectPickerField from '@/components/ui/SelectPickerField.vue'
 import ConfirmDialog from '@/components/dialog/ConfirmDialog.vue'
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 interface Issue {
   id: number

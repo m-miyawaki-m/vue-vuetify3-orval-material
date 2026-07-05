@@ -1,5 +1,5 @@
 // ============================================================
-// テスト対象: useMemoStore (src/stores/memo.ts)
+// テスト対象: useMemoStore (src/stores/memoStore.ts)
 // 種別: ストアユニットテスト
 // ------------------------------------------------------------
 // テストケース一覧
@@ -12,7 +12,7 @@
 //   [7] 商品ごとに独立して管理される
 // ============================================================
 import { describe, it, expect } from 'vitest'
-import { useMemoStore } from '../memo'
+import { useMemoStore } from '../memoStore'
 
 describe('useMemoStore', () => {
   it('初期状態ではメモが空', () => {

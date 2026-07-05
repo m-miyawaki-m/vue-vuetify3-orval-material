@@ -36,16 +36,14 @@ export const THEMES: ThemeMeta[] = [
   },
 ]
 
-const STORAGE_KEY = 'appTheme'
-
 export const useThemeStore = defineStore('theme', () => {
-  const saved = localStorage.getItem(STORAGE_KEY) as AppTheme | null
-  const currentTheme = ref<AppTheme>(saved ?? 'dark')
+  const currentTheme = ref<AppTheme>('dark')
 
   function setTheme(theme: AppTheme) {
     currentTheme.value = theme
-    localStorage.setItem(STORAGE_KEY, theme)
   }
 
   return { currentTheme, setTheme }
+}, {
+  persist: true,
 })

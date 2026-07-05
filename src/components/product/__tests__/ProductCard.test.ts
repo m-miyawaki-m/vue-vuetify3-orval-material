@@ -20,7 +20,7 @@
 // ============================================================
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { useMemoStore } from '@/stores/memo'
+import { useMemoStore } from '@/stores/memoStore'
 import ProductCard from '../ProductCard.vue'
 import type { Product } from '@/types/api'
 
