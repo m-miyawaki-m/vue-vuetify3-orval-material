@@ -91,6 +91,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /products/stock-search:
+    post:
+      operationId: searchStockProducts
+      summary: 在庫検索（在庫検索画面専用の検索条件で商品を検索）
+      tags: [products]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockSearchCondition'
+      responses:
+        '200':
+          description: 検索結果（商品一覧と同形式）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+              example:
+                $ref: './examples/products-list.json'
+
   /products/{id}:
     get:
       operationId: getProductById
@@ -185,6 +206,24 @@ components:
           type: boolean
         description:
           type: string
+
+    StockSearchCondition:
+      type: object
+      description: 在庫検索画面専用の検索条件（画面固有オブジェクトのお手本。プロパティ構成は画面ごとに自由に定義する）
+      properties:
+        keywords:
+          type: array
+          description: キーワード（複数指定時は OR。name・description を対象）
+          items:
+            type: string
+        categories:
+          type: array
+          description: カテゴリ（複数指定時は OR）
+          items:
+            $ref: '#/components/schemas/ProductCategory'
+        inStockOnly:
+          type: boolean
+          description: 在庫ありのみに絞り込む
 
     Product:
       type: object

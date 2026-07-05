@@ -14,3 +14,4 @@ export * from './productCategory';
 export * from './productInput';
 export * from './productListResponse';
 export * from './review';
+export * from './stockSearchCondition';

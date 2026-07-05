@@ -85,6 +85,45 @@ export const PostProductResponse = zod.void()
 
 
 /**
+ * @summary 在庫検索（在庫検索画面専用の検索条件で商品を検索）
+ */
+export const SearchStockProductsBody = zod.object({
+  "keywords": zod.array(zod.string()).optional().describe('キーワード（複数指定時は OR。name・description を対象）'),
+  "categories": zod.array(zod.enum(['食品', '電子機器', 'ファッション', '家具', 'スポーツ'])).optional().describe('カテゴリ（複数指定時は OR）'),
+  "inStockOnly": zod.boolean().optional().describe('在庫ありのみに絞り込む')
+}).describe('在庫検索画面専用の検索条件（画面固有オブジェクトのお手本。プロパティ構成は画面ごとに自由に定義する）')
+
+export const searchStockProductsResponseItemsItemRatingMin = 0;
+export const searchStockProductsResponseItemsItemRatingMax = 5;
+
+export const searchStockProductsResponseItemsItemReviewsItemRatingMax = 5;
+
+
+
+export const SearchStockProductsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.enum(['食品', '電子機器', 'ファッション', '家具', 'スポーツ']),
+  "price": zod.number().describe('価格（円）'),
+  "inStock": zod.boolean(),
+  "description": zod.string(),
+  "rating": zod.number().min(searchStockProductsResponseItemsItemRatingMin).max(searchStockProductsResponseItemsItemRatingMax),
+  "reviews": zod.array(zod.object({
+  "id": zod.number(),
+  "author": zod.string(),
+  "rating": zod.number().min(1).max(searchStockProductsResponseItemsItemReviewsItemRatingMax),
+  "comment": zod.string()
+}))
+})),
+  "total": zod.number().describe('フィルタ後の総件数'),
+  "page": zod.number(),
+  "pageSize": zod.number(),
+  "totalPages": zod.number()
+})
+
+
+/**
  * @summary 商品詳細取得
  */
 export const GetProductByIdParams = zod.object({

@@ -20,6 +20,7 @@ const router = createRouter({
     { path: '/settings',   component: SettingsPage    },
     { path: '/detail/:id', component: DetailPage, props: true },
     { path: '/scanner',    component: ScannerPage     },
+    { path: '/stock-search',   component: () => import('@/pages/StockSearchPage.vue')        },
     { path: '/scan-list',      component: () => import('@/pages/ScanListPage.vue')           },
     { path: '/scan-mode',      component: () => import('@/pages/ScanModePage.vue')           },
     { path: '/card-samples',   component: () => import('@/pages/CardSamplePage.vue')         },

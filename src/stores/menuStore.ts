@@ -10,6 +10,7 @@ export interface MenuItem {
 
 export const MENU_MASTER: MenuItem[] = [
   { id: 'search',        label: '商品を探す',       icon: 'mdi-magnify',        to: '/search'         },
+  { id: 'stock-search',  label: '在庫検索',         icon: 'mdi-warehouse',      to: '/stock-search'   },
   { id: 'sample-input',  label: '入力・表示',       icon: 'mdi-form-textbox',   to: '/sample-input'   },
   { id: 'sample-dialog', label: 'ダイアログ・通知', icon: 'mdi-bell-outline',   to: '/sample-dialog'  },
   { id: 'card-samples',  label: 'カードサンプル',   icon: 'mdi-card-multiple',  to: '/card-samples'   },

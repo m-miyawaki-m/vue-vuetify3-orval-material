@@ -361,6 +361,42 @@ export function useXxxYyy() {
 }
 ```
 
+### 応用: 画面固有の検索オブジェクトを POST で送る（複雑な検索条件）
+
+検索条件が多い画面（複数キーワード OR・複数カテゴリ OR など）は、GET のクエリパラメータでは
+表現しきれません。その場合は **画面専用の検索条件オブジェクトを openapi.yaml に定義し、
+POST で送る**パターンを使います。お手本一式:
+
+| 役割 | ファイル |
+|---|---|
+| API 契約（画面固有の条件スキーマ） | `openapi/api.yaml` の `POST /products/stock-search` と `StockSearchCondition` |
+| composable | `src/composables/queries/useStockSearch.ts` |
+| テスト | `src/composables/queries/__tests__/useStockSearch.test.ts` |
+| 画面 | `src/pages/StockSearchPage.vue`（`/stock-search`） |
+
+ポイントは3つ:
+
+1. **条件オブジェクトのプロパティ構成は画面ごとに自由**。ただし必ず openapi.yaml にスキーマとして
+   定義する（`Record<string, unknown>` のような何でも入る型は禁止 — 型補完・zod 検証・Prism モックが
+   全部効かなくなる）。
+2. **HTTP は POST でも「検索＝取得」なので useQuery で包む**。orval は POST を useMutation として
+   生成するが、それは使わず、生成された素の関数（`searchStockProducts`）を `useQuery` の `queryFn` に
+   渡す。この吸収は composable 内で行うので、ページから見た形は他の取得系と同じ:
+
+   ```typescript
+   const condition = ref<StockSearchCondition | null>(null)  // null の間は検索しない
+   const { searchResult, isLoading, error } = useStockSearch(condition)
+
+   function onSearch() {
+     condition.value = { keywords: [...], categories: [...], inStockOnly: true }  // ← ここで初めて通信
+   }
+   ```
+
+3. **queryKey は `['products', 'stock-search', condition]` のように手書きになる**（orval が
+   query 用のキーを生成しないため。これはこのパターンだけの例外）。先頭を `'products'` に
+   しておくことで、商品登録時の invalidate（`['products']` 前方一致）で検索結果も自動で
+   再取得される。
+
 ---
 
 ## 4. 状態を持ちたい（store か ref か）

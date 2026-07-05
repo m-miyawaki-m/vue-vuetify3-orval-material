@@ -34,7 +34,8 @@ import type {
   MenuItem,
   Product,
   ProductInput,
-  ProductListResponse
+  ProductListResponse,
+  StockSearchCondition
 } from '../types/api';
 
 import { customAxiosInstance } from '../plugins/axios';
@@ -247,6 +248,70 @@ export const usePostProduct = <TError = ErrorResponse,
         TContext
       > => {
       return useMutation(getPostProductMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary 在庫検索（在庫検索画面専用の検索条件で商品を検索）
+ */
+export const searchStockProducts = (
+    stockSearchCondition: MaybeRef<StockSearchCondition>,
+ options?: SecondParameter<typeof customAxiosInstance>,signal?: AbortSignal
+) => {
+      stockSearchCondition = unref(stockSearchCondition);
+
+      return customAxiosInstance<ProductListResponse>(
+      {url: `/products/stock-search`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: stockSearchCondition, signal
+    },
+      options);
+    }
+
+
+
+export const getSearchStockProductsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof searchStockProducts>>, TError,{data: StockSearchCondition}, TContext>, request?: SecondParameter<typeof customAxiosInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof searchStockProducts>>, TError,{data: StockSearchCondition}, TContext> => {
+
+const mutationKey = ['searchStockProducts'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof searchStockProducts>>, {data: StockSearchCondition}> = (props) => {
+          const {data} = props ?? {};
+
+          return  searchStockProducts(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SearchStockProductsMutationResult = NonNullable<Awaited<ReturnType<typeof searchStockProducts>>>
+    export type SearchStockProductsMutationBody = StockSearchCondition
+    export type SearchStockProductsMutationError = unknown
+
+    /**
+ * @summary 在庫検索（在庫検索画面専用の検索条件で商品を検索）
+ */
+export const useSearchStockProducts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof searchStockProducts>>, TError,{data: StockSearchCondition}, TContext>, request?: SecondParameter<typeof customAxiosInstance>}
+ , queryClient?: QueryClient): UseMutationReturnType<
+        Awaited<ReturnType<typeof searchStockProducts>>,
+        TError,
+        {data: StockSearchCondition},
+        TContext
+      > => {
+      return useMutation(getSearchStockProductsMutationOptions(options), queryClient);
     }
 
 /**
