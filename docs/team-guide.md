@@ -456,6 +456,29 @@ export const useXxxStore = defineStore('xxx', () => {
 
 ## 5. テストの書き方
 
+### 考え方: 層ごとに「何を検証し、どこをモックするか」を分ける
+
+このプロジェクトのテストは3層に分かれます。**下の層で保証済みのことを上の層で再検証しない**のが
+分離の大原則です。上の層に行くほど「モックする境界」が1段ずつ上がります。
+
+| 層 | 検証すること | モックする境界 | 雛形 |
+|---|---|---|---|
+| 純関数（`utils/`） | 入力 → 出力の変換ロジック | なし（モック不要） | `searchUtils.test.ts` |
+| composable（関数テスト） | 「API がこう応答したら、こういう ref を返す」 | `customAxiosInstance`（通信の一番外側） | `useProductDetail.test.ts` / `useStockSearch.test.ts` |
+| ページ | 「入力→条件組み立て」「状態→表示分岐」「操作→遷移」 | **composable を丸ごと**（`vi.mock`） | `StockSearchPage.test.ts` |
+
+それぞれの層で**書かないこと**も決まっています:
+
+- **composable テストで書かないこと**: 画面の表示（それはページの責務）、ApiError への正規化
+  （`apiError.test.ts` で保証済み）、キャッシュの挙動（vue-query の責務）
+- **ページテストで書かないこと**: 通信の URL・メソッド・ボディ（composable テストで保証済み）、
+  snackbar が出るか（`vueQuery.test.ts` で保証済み）、Vuetify コンポーネント自体の動作
+  （v-select が開くか等 — ライブラリの責務）
+
+この分離を守ると「壊れたら本当にその層のバグ」というテストだけになり、内部実装のリファクタで
+無関係なテストが落ちなくなります。逆に、ページ内の条件組み立てが複雑になってきたら
+（例: `buildSearchQuery`）、純関数として `utils/` に切り出して1層目でテストするのが定石です。
+
 ### composable テスト（`useProductDetail.test.ts` の解説）
 
 雛形: `src/composables/queries/__tests__/useProductDetail.test.ts`
@@ -486,26 +509,47 @@ vue-query は Vue コンポーネントの `setup()` 内でしか使えないた
 新しい取得系 composable を作ったら、このファイルをコピーして `import` と期待値を書き換えるだけで
 同じ形のテストが書けます。
 
-### ページテストで composable を `vi.mock` する例
+### ページテスト（`StockSearchPage.test.ts` の解説）
 
-ページのテストでは「composable がどう動くか」ではなく「composable の結果をページがどう表示するか」
-だけを検証したいので、composable そのものをモックします。
+雛形: `src/pages/__tests__/StockSearchPage.test.ts`
+
+ページのテストでは「composable がどう動くか」ではなく「composable の結果をページがどう扱うか」
+だけを検証したいので、**composable そのものをモック**します。ポイントは、戻り値の ref を
+テスト側に持っておき、**通信を偽装する代わりに ref へ直接代入して状態を作る**ことです:
 
 ```typescript
-// ページテストでの composable モック例
-vi.mock('@/composables/queries/useProductDetail', () => ({
-  useProductDetail: () => ({
-    product: computed(() => ({ id: 1, name: 'テスト商品', /* ... */ })),
-    isLoading: ref(false),
-    error: ref(null),
-    refetch: vi.fn(),
-  }),
-}))
+vi.mock('@/composables/queries/useStockSearch')
+const mockedUseStockSearch = vi.mocked(useStockSearch)
+
+const searchResult = ref<ProductListResponse | null>(null)
+const isLoading = ref(false)
+const error = ref<ApiError | null>(null)
+let receivedCondition: Ref<StockSearchCondition | null>  // ページが渡した引数を捕まえる
+
+beforeEach(() => {
+  mockedUseStockSearch.mockImplementation((condition) => {
+    receivedCondition = condition as Ref<StockSearchCondition | null>
+    return { searchResult, isLoading, error, refetch: vi.fn() } as unknown as ReturnType<typeof useStockSearch>
+  })
+})
 ```
 
-こうしておくと、API 応答やキャッシュの都合を考えずに「`product` がこの値のときページはこう表示される」
-だけをテストできます。既存のページテスト（`src/pages/__tests__/SearchPage.test.ts` など）は
-`vue-router` の `vi.mock` パターンを使っています。考え方は同じで、composable 版に置き換えて使ってください。
+これで「画面の責務」3種類がそれぞれ1〜2行で検証できます:
+
+1. **入力 → 引数の組み立て**: フォーム操作 → 検索ボタン → `receivedCondition.value` を `toEqual` で検証
+   （例: スペース区切りキーワードが `['緑茶', '蜂蜜']` に分割されるか）
+2. **状態 → 表示の分岐**: `isLoading.value = true` や `searchResult.value = 0件データ` を代入 →
+   プログレスバー・0件メッセージ・カード・エラー表示の出し分けを検証
+3. **操作 → 遷移**: カードを `trigger('click')` → `mockPush` が `/detail/1` で呼ばれたか検証
+   （`vue-router` のモックは `SearchPage.test.ts:20-29` と同じイディオム）
+
+補足:
+
+- `v-text-field` / `v-select` は内部にローダー用の `.v-progress-linear` を常時描画しているため、
+  「ローディング表示が出ているか」をクラスセレクタで探すと誤ヒットします。ページ側の対象要素に
+  `data-testid` を付けて特定するのが確実です（`StockSearchPage.vue` の `data-testid="search-loading"` 参照）。
+- `src/test/setup.ts` が Vuetify・Pinia・QueryClient をテスト毎に登録済みなので、mount 時のプラグイン
+  追加は MainLayout 用の最小ルーターだけで足ります（雛形の `makeRouter()` 参照）。
 
 ---
 

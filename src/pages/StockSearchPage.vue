@@ -48,7 +48,13 @@
 
       <!-- 検索結果（検索ボタン押下前は何も出さない） -->
       <template v-if="condition">
-        <v-progress-linear v-if="isLoading" indeterminate color="primary" class="mb-3" />
+        <v-progress-linear
+          v-if="isLoading"
+          data-testid="search-loading"
+          indeterminate
+          color="primary"
+          class="mb-3"
+        />
         <template v-else-if="searchResult">
           <p class="text-body-2 text-medium-emphasis mb-2">{{ searchResult.total }}件</p>
           <v-alert
