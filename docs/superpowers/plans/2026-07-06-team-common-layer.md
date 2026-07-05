@@ -1119,17 +1119,39 @@ git commit -m "feat: pages/components からの @/api・vue-query・axios 直接
 
 ---
 
-### Task 9: チームガイド（docs/team-guide.md）作成
+### Task 9: チームガイド＋アーキテクチャ資料の作成
 
 **Files:**
-- Create: `docs/team-guide.md`
-- Modify: `docs/README.md`（存在する場合、team-guide へのリンクを追加）
+- Create: `docs/team-guide.md`（使い方 — がっつり詳細）
+- Create: `docs/common-layer-architecture.md`（考え方・アーキテクチャ）
+- Modify: `docs/README.md`（存在する場合、両ドキュメントへのリンクを追加）
 
 **Interfaces:**
-- Consumes: Task 1〜8 の成果物（composable の実名・パス・テスト雛形）
-- Produces: ページ製造メンバーが読む唯一の入口ドキュメント
+- Consumes: Task 1〜8 の成果物（composable の実名・パス・テスト雛形・ESLint ルール）
+- Produces: ページ製造メンバーが読む入口ドキュメント（team-guide）と、共通層の設計意図を説明する資料（architecture）
 
-- [ ] **Step 1: team-guide.md を作成**
+**要求（ユーザー指示）:** 使い方ドキュメントは詳細に。考え方とアーキテクチャも残すこと。
+
+**team-guide.md の必須内容**（下記 Step 1 の雛形をベースに、各セクションを詳細化する）:
+- 大原則2行と「なぜそうするか」への architecture 資料リンク
+- 取得系: 基本パターン／ローディング・エラー・空状態の template 実例／`isFallback` 等の追加フィールドの扱い／`refetch` の使いどころ／params がリアクティブに再フェッチされる仕組みの説明
+- 更新系: 基本パターン／`onSuccess` で画面遷移・後処理を書く理由／snackbar とキャッシュ無効化が自動である説明／`error` を個別表示したい場合の書き方
+- 新 API 追加手順: openapi/api.yaml の書き方（既存 GET/POST の実例参照）→ `npm run orval` → composable 雛形コピー → テスト雛形コピー、の各ステップを画面例つきで
+- store か ref か: 判断表＋判断フローの文章説明＋store 雛形＋persist の注意（手書き localStorage 禁止の理由）
+- テストの書き方: composable テスト雛形の解説（なぜ customAxiosInstance を mock するのか）／ページテストで composable を vi.mock する例
+- ESLint に怒られたら: 代表的なエラーメッセージと直し方の対応表
+- よくある質問（最低5項目。例: 「同じ API を2ページで呼んだら2回通信される？」→ キャッシュの説明、「エラー時に snackbar を出したくない」、「一覧を手動で再読み込みしたい」、「POST 成功後に一覧が古いまま」、「型はどこから import する？」）
+
+**common-layer-architecture.md の必須内容**:
+- 全体レイヤー図（openapi.yaml → orval 生成物 → composables → pages、store と snackbar の位置づけ含む）
+- データフロー: 取得系のシーケンス（ページ表示 → composable → orval フック → axios → キャッシュ → ref 更新）と更新系のシーケンス（submit → mutation → invalidate → 再取得）
+- エラー処理3段構えの図と各層の責務（axios 正規化 / グローバル snackbar / ページのオプトイン）
+- vue-query の考え方の入門解説（queryKey・キャッシュ・staleTime・invalidate を、vue-query を知らないメンバー向けに この構成の文脈で説明）
+- サーバー状態とクライアント状態を分ける考え方（なぜ store にサーバーデータを入れないか）
+- 設計判断の記録: なぜドメイン composable 手書きか（汎用ファクトリを作らない理由）／なぜ型を src/types/api に分離したか／なぜ ESLint で import 制限するか — スペックの検討過程から要約転記
+- 関連資料リンク（スペック・既存の docs/vue-query-architecture.md 等）
+
+- [ ] **Step 1: team-guide.md を作成（下記はベース構成。上記必須内容に沿って各セクションを詳細化すること）**
 
 `docs/team-guide.md`:
 
@@ -1317,26 +1339,31 @@ vi.mock('@/composables/queries/useProductDetail', () => ({
 | ページの `error` | あなた（任意） | フォールバック表示等、画面固有の対応をしたい時だけ |
 ````
 
-- [ ] **Step 2: docs/README.md にリンク追加**
+- [ ] **Step 2: common-layer-architecture.md を作成**
+
+上記「common-layer-architecture.md の必須内容」に沿って作成する。レイヤー図・シーケンスは Mermaid（```mermaid ブロック）または ASCII 図で表現。設計判断の記録はスペック `docs/superpowers/specs/2026-07-06-team-common-layer-design.md` の「検討過程」から要約し、スペックへのリンクを付ける。
+
+- [ ] **Step 3: docs/README.md にリンク追加**
 
 `docs/README.md` を確認し、ドキュメント一覧の先頭付近に追加:
 
 ```markdown
 - [チーム製造ガイド（ページの作り方）](./team-guide.md) — **ページを製造する人はまずこれ**
+- [共通層の考え方とアーキテクチャ](./common-layer-architecture.md) — 共通層の設計意図・データフロー・エラー処理の全体像
 ```
 
-（README.md に一覧形式がない場合は、冒頭に上記1行を追加するだけでよい）
+（README.md に一覧形式がない場合は、冒頭に上記2行を追加するだけでよい）
 
-- [ ] **Step 3: 検証**
+- [ ] **Step 4: 検証**
 
 Run: `npx eslint src && npm run type-check && npm run test:run`
 Expected: 全て成功（最終確認）
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add docs/team-guide.md docs/README.md
-git commit -m "docs: チーム製造ガイド（共通層の使い方・雛形集）を追加"
+git add docs/team-guide.md docs/common-layer-architecture.md docs/README.md
+git commit -m "docs: チーム製造ガイドと共通層アーキテクチャ資料を追加"
 ```
 
 ---
