@@ -29,7 +29,7 @@
 ### Pinia ストアから切り替える（推奨）
 
 ```ts
-import { useThemeStore } from '@/stores/theme'
+import { useThemeStore } from '@/stores/themeStore'
 
 const themeStore = useThemeStore()
 themeStore.setTheme('dark')     // ダーク
@@ -64,7 +64,7 @@ theme.global.name.value = 'dark'
 </template>
 
 <script setup lang="ts">
-import { useThemeStore } from '@/stores/theme'
+import { useThemeStore } from '@/stores/themeStore'
 const themeStore = useThemeStore()
 </script>
 ```

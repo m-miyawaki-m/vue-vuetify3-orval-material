@@ -1,5 +1,8 @@
 # Store 定義書
 
+> 新しく store を作る場合の判断基準（store か ref か・persist の付け方）は
+> [チーム製造ガイド](./team-guide.md) の「4. 状態を持ちたい（store か ref か）」を参照してください。
+
 ## Store 一覧
 
 | Store ID | ファイル | export 名 | persist | 用途 |
@@ -8,10 +11,10 @@
 | `mainMenu` | `src/stores/menu.ts` | `useMainMenuStore` | × | メインメニューデータ（API取得） |
 | `menu` | `src/stores/menuStore.ts` | `useMenuStore` | ✓ | ナビタブのカスタマイズ設定 |
 | `scanner` | `src/stores/scannerStore.ts` | `useScannerStore` | × | バーコードスキャナー制御 |
-| `memo` | `src/stores/memo.ts` | `useMemoStore` | ✓ | 商品メモ（productId → text） |
+| `memo` | `src/stores/memoStore.ts` | `useMemoStore` | ✓ | 商品メモ（productId → text） |
 | `workSession` | `src/stores/workSessionStore.ts` | `useWorkSessionStore` | ✓ | スキャナー作業セッション |
-| `theme` | `src/stores/theme.ts` | `useThemeStore` | × | アプリテーマ選択（localStorage直書き） |
-| `settings` | `src/stores/settings.ts` | `useSettingsStore` | × | アプリ設定（localStorage直書き） |
+| `theme` | `src/stores/themeStore.ts` | `useThemeStore` | ✓ | アプリテーマ選択 |
+| `settings` | `src/stores/settingsStore.ts` | `useSettingsStore` | ✓ | アプリ設定 |
 
 ---
 
@@ -153,7 +156,7 @@ interface ScanResult {
 
 ## 5. memo store
 
-**ファイル**: `src/stores/memo.ts`  
+**ファイル**: `src/stores/memoStore.ts`  
 **Store ID**: `memo`  
 **persist**: `true`
 
@@ -220,9 +223,9 @@ interface WorkSession {
 
 ## 7. theme store
 
-**ファイル**: `src/stores/theme.ts`  
+**ファイル**: `src/stores/themeStore.ts`  
 **Store ID**: `theme`  
-**persist**: localStorage に直接書き込み（`STORAGE_KEY = 'appTheme'`）
+**persist**: `true`（pinia-plugin-persistedstate。手書き localStorage は廃止）
 
 ### State
 
@@ -242,15 +245,15 @@ interface WorkSession {
 
 | 名前 | 引数 | 説明 |
 |------|------|------|
-| `setTheme(theme)` | `AppTheme` | テーマ変更 + localStorage 保存 |
+| `setTheme(theme)` | `AppTheme` | テーマ変更（`persist: true` により localStorage への保存は自動） |
 
 ---
 
 ## 8. settings store
 
-**ファイル**: `src/stores/settings.ts`  
+**ファイル**: `src/stores/settingsStore.ts`  
 **Store ID**: `settings`  
-**persist**: localStorage (`STORAGE_KEY = 'app-settings'`) に watch で直接書き込み
+**persist**: `true`（pinia-plugin-persistedstate。手書き localStorage は廃止）
 
 ### State
 
@@ -258,7 +261,7 @@ interface WorkSession {
 |------|----|--------|------|
 | `errorHistoryLimit` | `number` | `100` | エラー履歴の最大保持件数（1〜1000） |
 
-> **設定方法**: 設定ページ (`/settings`) の「エラー履歴の保持件数」フィールドから変更。変更後すぐに localStorage へ書き込まれる。
+> **設定方法**: 設定ページ (`/settings`) の「エラー履歴の保持件数」フィールドから変更。`persist: true` により変更後すぐに localStorage へ保存される。
 
 ---
 

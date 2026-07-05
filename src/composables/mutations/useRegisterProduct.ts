@@ -1,6 +1,8 @@
+import type { Ref } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { usePostProduct, getGetProductsQueryKey } from '@/api'
 import type { Product, ProductInput } from '@/types/api'
+import type { ApiError } from '@/api/apiError'
 import { useSnackbar } from '@/composables/useSnackbar'
 
 /**
@@ -35,6 +37,7 @@ export function useRegisterProduct() {
   return {
     submit,
     isSubmitting: mutation.isPending,
-    error: mutation.error, // ApiError | null（axios 層で正規化済み）
+    // axios 層で全エラーが ApiError に正規化されるため、この型が実行時に正確
+    error: mutation.error as Ref<ApiError | null>,
   }
 }

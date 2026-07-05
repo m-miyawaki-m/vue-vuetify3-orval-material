@@ -1,7 +1,8 @@
-import { computed } from 'vue'
+import { computed, type Ref } from 'vue'
 import { useGetMenu } from '@/api'
 import { GetMenuResponse } from '@/api/index.zod'
 import type { MenuItem } from '@/types/api'
+import type { ApiError } from '@/api/apiError'
 import fallbackData from '@/data/main-menu.json'
 
 // ローカル JSON は信頼境界のため zod で実行時検証する
@@ -23,7 +24,8 @@ export function useMenu() {
     menuItems,
     isFallback,
     isLoading: query.isLoading,
-    error: query.error,
+    // axios 層で全エラーが ApiError に正規化されるため、この型が実行時に正確
+    error: query.error as Ref<ApiError | null>,
     refetch: query.refetch,
   }
 }

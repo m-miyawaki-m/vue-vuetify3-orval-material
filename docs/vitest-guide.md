@@ -874,6 +874,9 @@ npx vitest run --reporter=verbose -t "buildSearchQuery"
 `useMainMenuStore`（`src/stores/menu.ts`）はストア初期化時に `fetchMenu()` を自動実行する。
 `MainMenuPage` をマウントすると即座に API コールが走るため、`vi.mock('@/api/index')` が必須。
 
+> **注記（現行との差分）**: 現在はページから `@/api` を直接使わないため、composable を `vi.mock` する方式が現行
+> （[docs/team-guide.md §テスト](./team-guide.md#5-テストの書き方) 参照）。
+
 ```ts
 // MainMenuPage をテストする場合は必ず API をモック
 vi.mock('@/api/index', () => ({

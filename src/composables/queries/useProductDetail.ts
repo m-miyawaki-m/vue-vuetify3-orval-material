@@ -1,8 +1,9 @@
-import { computed, unref, type MaybeRef } from 'vue'
+import { computed, unref, type MaybeRef, type Ref } from 'vue'
 import { z } from 'zod'
 import { useGetProductById } from '@/api'
 import { GetProductByIdResponse } from '@/api/index.zod'
 import type { Product } from '@/types/api'
+import type { ApiError } from '@/api/apiError'
 import mockProductsData from '@/mocks/products-data.json'
 
 // モック JSON は信頼境界のため zod で実行時検証する
@@ -24,7 +25,8 @@ export function useProductDetail(id: MaybeRef<number>) {
   return {
     product,
     isLoading: query.isLoading,
-    error: query.error,
+    // axios 層で全エラーが ApiError に正規化されるため、この型が実行時に正確
+    error: query.error as Ref<ApiError | null>,
     refetch: query.refetch,
   }
 }

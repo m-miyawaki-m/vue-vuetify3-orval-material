@@ -1,9 +1,10 @@
-import { computed, unref, type MaybeRef } from 'vue'
+import { computed, unref, type MaybeRef, type Ref } from 'vue'
 import { z } from 'zod'
 import { keepPreviousData } from '@tanstack/vue-query'
 import { useGetProducts } from '@/api'
 import { GetProductByIdResponse } from '@/api/index.zod'
 import type { GetProductsParams, Product, ProductListResponse } from '@/types/api'
+import type { ApiError } from '@/api/apiError'
 import mockProductsData from '@/mocks/products-data.json'
 import { filterProducts } from '@/utils/searchUtils'
 
@@ -40,7 +41,8 @@ export function useProductList(params: MaybeRef<GetProductsParams>) {
     productList,
     isFallback,
     isLoading: query.isLoading,
-    error: query.error,
+    // axios 層で全エラーが ApiError に正規化されるため、この型が実行時に正確
+    error: query.error as Ref<ApiError | null>,
     refetch: query.refetch,
   }
 }
