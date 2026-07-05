@@ -177,7 +177,8 @@ const onSave = () => submit(form.value, { onSuccess: () => router.back() })
 | ファイル | 是正内容 |
 |---|---|
 | `src/stores/settings.ts` | 手書き localStorage → `persist: true` に移行。`settingsStore.ts` にリネーム |
-| `src/stores/memo.ts` / `theme.ts` | `memoStore.ts` / `themeStore.ts` にリネーム（内容は変更なし） |
+| `src/stores/theme.ts` | 手書き localStorage → `persist: true` に移行。`themeStore.ts` にリネーム |
+| `src/stores/memo.ts` | `memoStore.ts` にリネーム（内容は変更なし） |
 
 ## ESLint による import 制限
 
