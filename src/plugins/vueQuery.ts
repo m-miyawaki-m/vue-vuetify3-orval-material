@@ -1,4 +1,4 @@
-import { QueryCache, QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { MutationCache, QueryCache, QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import type { App } from 'vue'
 import { ApiError } from '@/api/apiError'
 import { useSnackbar } from '@/composables/useSnackbar'
@@ -11,6 +11,13 @@ export function createAppQueryClient(): QueryClient {
       onError: (error) => {
         const message =
           error instanceof ApiError ? error.message : 'データの取得に失敗しました'
+        showSnack('error', message)
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        const message =
+          error instanceof ApiError ? error.message : '処理に失敗しました'
         showSnack('error', message)
       },
     }),
