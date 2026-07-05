@@ -65,7 +65,10 @@
 
 ```
 src/
-  api/                  ← orval 自動生成（手編集禁止・ページから import 禁止）
+  api/                  ← orval 自動生成: フック実体（手編集禁止・ページから import 禁止）
+  types/
+    api/                ← orval 自動生成: 型定義（output.schemas で生成先を分離。手編集禁止）
+    *.ts                ← 手書き型（画面ローカルの型など）
   plugins/
     axios.ts            ← ApiError 正規化（既存のまま）
     vueQuery.ts         ← QueryCache onError（既存）＋ MutationCache onError（追加）
@@ -73,12 +76,13 @@ src/
     queries/            ← 取得系。1エンドポイント = 1ファイル（useProductList.ts 等）
     mutations/          ← 更新系。1操作 = 1ファイル（useRegisterProduct.ts 等）
   stores/               ← クライアント状態のみ（サーバーデータ禁止）
-  pages/ components/    ← import してよいのは composables と stores の useXxx() だけ
+  pages/ components/    ← import してよいのは composables / stores の useXxx() と @/types の型だけ
 ```
 
-ページ製造メンバーに伝えるルールは1行:
+ページ製造メンバーに伝えるルールは2行:
 
-> **ページが使ってよいのは `@/composables/**` と `@/stores/**` の `useXxx()` だけ。`@/api`・`@tanstack/vue-query`・`axios` を直接 import したら ESLint エラー。**
+> **処理は `@/composables/**`・`@/stores/**` の `useXxx()`、型は `@/types/**` から。**
+> **`@/api`・`@tanstack/vue-query`・`axios` を直接 import したら ESLint エラー。**
 
 ## 取得系 composable 規約
 
@@ -110,7 +114,7 @@ const { product, isLoading, error } = useProductDetail(productId)
 - `keepPreviousData`・モック JSON フォールバック・zod 検証などの個別ロジックは composable 内に隠す。現在 ProductListPage / DetailPage にインラインで書かれているものを移設する
 - 引数は `MaybeRef` で受け、リアクティブな再フェッチに対応する
 - queryKey は orval 生成の `getXxxQueryKey()` のみ使用（前提スペックの規約を継続）
-- **型も composable から re-export する**（`export type { Product } from '@/api'`）。ページは `@/api` を型 import 含め一切参照しない（ESLint 制限と整合させるため）
+- **型は `@/types/api` から import する**。orval の `output.schemas` オプションで型定義の生成先を `src/types/api/` に分離し、ページ・コンポーネントは型をそこから import する（既存の `src/types/` 慣習と統一。ページは `@/api` を型 import 含め一切参照しない）
 
 移設対象の初期セット: `useMenu`（MainMenuPage）、`useProductList`（ProductListPage、keepPreviousData 込み）、`useProductDetail`（DetailPage、モックフォールバック込み）。
 
@@ -204,7 +208,9 @@ const onSave = () => submit(form.value, { onSuccess: () => router.back() })
 | ファイル | 変更内容 |
 |---|---|
 | `openapi/api.yaml` | `POST /products` 追加 |
-| `src/api/*`（再生成） | `npm run orval` で useMutation フック生成 |
+| `orval.config.ts` | `output.schemas: './src/types/api'` 追加（型生成先の分離） |
+| `src/api/*` / `src/types/api/*`（再生成） | `npm run orval` で useMutation フック生成＋型を `src/types/api/` へ |
+| `src/types/product.ts` | 削除（orval 生成 `Product` 型の手書き重複。利用箇所 ProductCard / ProductDialog 等は `@/types/api` に切り替え） |
 | `src/composables/queries/useMenu.ts` ほか | 新規（取得系3本の移設） |
 | `src/composables/mutations/useRegisterProduct.ts` | 新規（更新系お手本） |
 | `src/plugins/vueQuery.ts` | MutationCache onError 追加 |
