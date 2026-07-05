@@ -226,11 +226,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { z } from 'zod'
-import { useGetProductById } from '@/api/index'
-import type { Product } from '@/types/api'
-import { GetProductByIdResponse } from '@/api/index.zod'
-import mockProductsData from '@/mocks/products-data.json'
+import { useProductDetail } from '@/composables/queries/useProductDetail'
 import { useMemoStore } from '@/stores/memo'
 import { useSnackbar } from '@/composables/useSnackbar'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
@@ -255,7 +251,6 @@ interface ErrorRecord {
 }
 
 const props = defineProps<{ id: string }>()
-const mockProducts: Product[] = z.array(GetProductByIdResponse).parse(mockProductsData)
 const memoStore = useMemoStore()
 const { showSnack } = useSnackbar()
 const settingsStore = useSettingsStore()
@@ -273,14 +268,7 @@ const locationItems = ['A棚-1', 'A棚-2', 'B棚-1', 'B棚-2', 'C棚-1', 'C棚-2
 const groupItems = ['グループA', 'グループB', 'グループC']
 
 const productId = computed(() => Number(props.id))
-const { data, isError, isLoading } = useGetProductById(productId)
-
-// API エラー時はモック JSON にフォールバック（オフラインモード）
-const product = computed<Product | null>(() =>
-  isError.value
-    ? (mockProducts.find((p) => p.id === productId.value) ?? null)
-    : (data.value ?? null),
-)
+const { product, isLoading } = useProductDetail(productId)
 
 const issues = ref<Issue[]>([
   { id: 1, title: '数量不一致', quantity: 3, resolved: false, comment: '' },
