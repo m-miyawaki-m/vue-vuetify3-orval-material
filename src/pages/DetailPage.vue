@@ -19,6 +19,7 @@
           variant="flat"
           prepend-icon="mdi-content-save"
           :disabled="!product"
+          :loading="isSubmitting"
           @click="confirmOpen = true"
         >
           登録
@@ -227,8 +228,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useProductDetail } from '@/composables/queries/useProductDetail'
+import { useRegisterProduct } from '@/composables/mutations/useRegisterProduct'
 import { useMemoStore } from '@/stores/memo'
-import { useSnackbar } from '@/composables/useSnackbar'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
 import SubLayout from '@/components/layout/SubLayout.vue'
 import BarcodeInputField from '@/components/scanner/BarcodeInputField.vue'
@@ -252,7 +253,7 @@ interface ErrorRecord {
 
 const props = defineProps<{ id: string }>()
 const memoStore = useMemoStore()
-const { showSnack } = useSnackbar()
+const { submit, isSubmitting } = useRegisterProduct()
 const settingsStore = useSettingsStore()
 
 const tab = ref('info')
@@ -318,8 +319,17 @@ function onConfirm() {
     tab.value = 'info'
     return
   }
-  if (!product.value) return
-  memoStore.setMemo(product.value.id, localMemo.value)
-  showSnack('success', '登録しました')
+  const p = product.value
+  if (!p) return
+  submit(
+    {
+      name: p.name,
+      category: p.category,
+      price: p.price,
+      inStock: p.inStock,
+      description: p.description,
+    },
+    { onSuccess: () => memoStore.setMemo(p.id, localMemo.value) },
+  )
 }
 </script>
