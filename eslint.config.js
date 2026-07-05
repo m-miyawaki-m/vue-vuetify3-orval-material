@@ -38,6 +38,34 @@ export default tseslint.config(
     },
   },
 
+  // ── レイヤー規約: pages/components は共通層（composables/stores/types）経由のみ ──
+  // テストコードは対象外（vue-query のテストセットアップ等で低レイヤーに触るため）
+  {
+    files: ['src/pages/**/*.{ts,vue}', 'src/components/**/*.{ts,vue}'],
+    ignores: ['**/__tests__/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/api', '@/api/*'],
+              message: '@/api は直接使わず、@/composables の useXxx() と @/types/api の型を使ってください（docs/team-guide.md 参照）。',
+            },
+            {
+              group: ['@tanstack/vue-query'],
+              message: 'vue-query は composables 層専用です。@/composables の useXxx() を使ってください（docs/team-guide.md 参照）。',
+            },
+            {
+              group: ['axios', '@/plugins/axios'],
+              message: 'axios は直接使わず、@/composables の useXxx() を使ってください（docs/team-guide.md 参照）。',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   // ── Prettier と競合するルールを無効化（必ず最後に置く） ────────────────
   eslintConfigPrettier,
 )
