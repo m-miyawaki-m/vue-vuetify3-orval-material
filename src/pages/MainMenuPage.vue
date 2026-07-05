@@ -44,7 +44,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import { useGetMenu } from '@/api/index'
-import type { MenuItem } from '@/api/index'
+import type { MenuItem } from '@/types/api'
 import { GetMenuResponse } from '@/api/index.zod'
 import fallbackData from '@/data/main-menu.json'
 

@@ -228,7 +228,7 @@
 import { ref, computed, watch } from 'vue'
 import { z } from 'zod'
 import { useGetProductById } from '@/api/index'
-import type { Product } from '@/api/index'
+import type { Product } from '@/types/api'
 import { GetProductByIdResponse } from '@/api/index.zod'
 import mockProductsData from '@/mocks/products-data.json'
 import { useMemoStore } from '@/stores/memo'

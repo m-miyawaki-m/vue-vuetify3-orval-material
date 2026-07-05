@@ -5,13 +5,17 @@
  * OpenAPI spec version: 1.0.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/vue-query';
 import type {
   DataTag,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationReturnType,
   UseQueryOptions,
   UseQueryReturnType
 } from '@tanstack/vue-query';
@@ -24,97 +28,16 @@ import type {
   MaybeRef
 } from 'vue';
 
+import type {
+  ErrorResponse,
+  GetProductsParams,
+  MenuItem,
+  Product,
+  ProductInput,
+  ProductListResponse
+} from '../types/api';
+
 import { customAxiosInstance } from '../plugins/axios';
-export interface MenuChild {
-  label: string;
-  to: string;
-  icon?: string;
-}
-
-export interface MenuItem {
-  id: string;
-  label: string;
-  icon: string;
-  children: MenuChild[];
-}
-
-export type ProductCategory = typeof ProductCategory[keyof typeof ProductCategory];
-
-
-export const ProductCategory = {
-  食品: '食品',
-  電子機器: '電子機器',
-  ファッション: 'ファッション',
-  家具: '家具',
-  スポーツ: 'スポーツ',
-} as const;
-
-export interface Review {
-  id: number;
-  author: string;
-  /**
-     * @minimum 1
-     * @maximum 5
-     */
-  rating: number;
-  comment: string;
-}
-
-export interface Product {
-  id: number;
-  name: string;
-  category: ProductCategory;
-  /** 価格（円） */
-  price: number;
-  inStock: boolean;
-  description: string;
-  /**
-     * @minimum 0
-     * @maximum 5
-     */
-  rating: number;
-  reviews: Review[];
-}
-
-export interface ProductListResponse {
-  items: Product[];
-  /** フィルタ後の総件数 */
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-
-export interface ErrorResponse {
-  message: string;
-}
-
-export type GetProductsParams = {
-/**
- * キーワード検索（name・description を対象）
- */
-q?: string;
-/**
- * カテゴリフィルタ
- */
-category?: ProductCategory;
-/**
- * 在庫ありのみ
- */
-inStock?: boolean;
-/**
- * ページ番号（1始まり）
- * @minimum 1
- */
-page?: number;
-/**
- * 1ページあたりの件数
- * @minimum 1
- * @maximum 100
- */
-pageSize?: number;
-};
-
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
@@ -261,6 +184,70 @@ export function useGetProducts<TData = Awaited<ReturnType<typeof getProducts>>, 
 
 
 
+
+/**
+ * @summary 商品登録
+ */
+export const postProduct = (
+    productInput: MaybeRef<ProductInput>,
+ options?: SecondParameter<typeof customAxiosInstance>,signal?: AbortSignal
+) => {
+      productInput = unref(productInput);
+
+      return customAxiosInstance<Product>(
+      {url: `/products`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: productInput, signal
+    },
+      options);
+    }
+
+
+
+export const getPostProductMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProduct>>, TError,{data: ProductInput}, TContext>, request?: SecondParameter<typeof customAxiosInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postProduct>>, TError,{data: ProductInput}, TContext> => {
+
+const mutationKey = ['postProduct'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postProduct>>, {data: ProductInput}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postProduct(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostProductMutationResult = NonNullable<Awaited<ReturnType<typeof postProduct>>>
+    export type PostProductMutationBody = ProductInput
+    export type PostProductMutationError = ErrorResponse
+
+    /**
+ * @summary 商品登録
+ */
+export const usePostProduct = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postProduct>>, TError,{data: ProductInput}, TContext>, request?: SecondParameter<typeof customAxiosInstance>}
+ , queryClient?: QueryClient): UseMutationReturnType<
+        Awaited<ReturnType<typeof postProduct>>,
+        TError,
+        {data: ProductInput},
+        TContext
+      > => {
+      return useMutation(getPostProductMutationOptions(options), queryClient);
+    }
 
 /**
  * @summary 商品詳細取得

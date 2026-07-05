@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Product } from '@/types/product'
+import type { Product } from '@/types/api'
 import BaseDialog from '@/components/dialog/BaseDialog.vue'
 
 const model = defineModel<boolean>()

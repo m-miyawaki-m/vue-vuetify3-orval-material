@@ -6,6 +6,8 @@ export default defineConfig({
     input: './openapi/api.yaml',
     output: {
       target: './src/api/index.ts',
+      // 型定義は src/types/api/ に分離生成（ページは @/types/api から型を import する）
+      schemas: './src/types/api',
       client: 'vue-query',
       // httpClient を省略すると fetch 用のラップ型 ({data,status,headers}) が生成され mutator と非互換になるため必須
       httpClient: 'axios',

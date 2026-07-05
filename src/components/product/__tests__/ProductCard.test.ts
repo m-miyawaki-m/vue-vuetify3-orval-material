@@ -22,7 +22,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { useMemoStore } from '@/stores/memo'
 import ProductCard from '../ProductCard.vue'
-import type { Product } from '@/types/product'
+import type { Product } from '@/types/api'
 
 const baseProduct: Product = {
   id: 1,

@@ -1,4 +1,4 @@
-import type { Product, ProductListResponse } from '@/api/index'
+import type { Product, ProductListResponse } from '@/types/api'
 
 /** SearchPage.search() のクエリ生成ロジック */
 export function buildSearchQuery(

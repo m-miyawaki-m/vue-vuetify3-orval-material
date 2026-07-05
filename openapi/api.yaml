@@ -67,6 +67,30 @@ paths:
               example:
                 $ref: './examples/products-list.json'
 
+    post:
+      operationId: postProduct
+      summary: 商品登録
+      tags: [products]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: 登録した商品
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: 入力エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /products/{id}:
     get:
       operationId: getProductById
@@ -144,6 +168,22 @@ components:
           minimum: 1
           maximum: 5
         comment:
+          type: string
+
+    ProductInput:
+      type: object
+      required: [name, category, price, inStock, description]
+      properties:
+        name:
+          type: string
+        category:
+          $ref: '#/components/schemas/ProductCategory'
+        price:
+          type: integer
+          description: 価格（円）
+        inStock:
+          type: boolean
+        description:
           type: string
 
     Product:

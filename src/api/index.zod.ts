@@ -71,6 +71,20 @@ export const GetProductsResponse = zod.object({
 
 
 /**
+ * @summary 商品登録
+ */
+export const PostProductBody = zod.object({
+  "name": zod.string(),
+  "category": zod.enum(['食品', '電子機器', 'ファッション', '家具', 'スポーツ']),
+  "price": zod.number().describe('価格（円）'),
+  "inStock": zod.boolean(),
+  "description": zod.string()
+})
+
+export const PostProductResponse = zod.void()
+
+
+/**
  * @summary 商品詳細取得
  */
 export const GetProductByIdParams = zod.object({
