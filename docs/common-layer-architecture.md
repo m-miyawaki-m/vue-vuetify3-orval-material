@@ -334,7 +334,7 @@ Pinia store（src/stores/）
 
 判断基準を1行で言うと: **「サーバーに問い合わせないと分からない値」は composable、
 「このアプリの中だけで完結する値」は store かページ内 `ref`**、です。
-実務での判断表・判断フローは [team-guide.md の「状態を持ちたい」](./team-guide.md#4-状態を持ちたいstore-か-ref-か) を参照してください。
+実務での判断表・判断フローは [team-guide.md の「状態を持ちたい」](./team-guide.md#4-状態を持ちたい-store-か-ref-か) を参照してください。
 
 ---
 

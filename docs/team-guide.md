@@ -197,7 +197,7 @@ const mutation = usePostProduct({
 - 成功 snackbar は composable 内で `showSnack('success', '登録しました')` を呼んで出しています。
   文言を変えたい場合は composable 側を編集します（ページからは変更できません）。
 - **失敗時**は何もしなくても表示されます。これは `src/plugins/vueQuery.ts` の `MutationCache.onError`
-  がグローバルに snackbar を出しているためです（詳しくは「6. エラー処理の考え方」）。
+  がグローバルに snackbar を出しているためです（詳しくは「7. エラー処理の考え方（読むだけでOK）」）。
 
 ### `error` を個別表示したい場合の書き方
 
@@ -486,6 +486,21 @@ vi.mock('@/composables/queries/useProductDetail', () => ({
 
 これらのルールは `src/pages/**/*.{ts,vue}` と `src/components/**/*.{ts,vue}`（`__tests__` 配下は除く）にのみ
 適用されます。`src/composables/**` の中は制限なし（ここだけが orval に触ってよい場所です）。
+
+---
+
+## 7. エラー処理の考え方（読むだけでOK）
+
+ページに書くコードは変わりませんが、裏で何が起きているかを知っておくと安心です。3段構えになっています。
+
+| 層 | 誰が書くか | 内容 |
+|---|---|---|
+| axios インターセプタ | 共通層（済） | 全エラーを `ApiError`（`message` / `status`）に正規化 |
+| グローバル snackbar | 共通層（済） | 取得失敗・更新失敗を自動通知（`src/plugins/vueQuery.ts` の `QueryCache`/`MutationCache` の `onError`） |
+| ページの `error` | あなた（任意） | フォールバック表示等、画面固有の対応をしたい時だけ使う |
+
+詳しい図（シーケンス）と各層の責務は
+[common-layer-architecture.md のエラー処理3段構え](./common-layer-architecture.md#エラー処理3段構え) を参照してください。
 
 ---
 
