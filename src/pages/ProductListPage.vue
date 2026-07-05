@@ -22,7 +22,7 @@
 
       <!-- 件数 -->
       <div class="px-4 py-2">
-        <span v-if="!isLoading" class="text-body-2 text-medium-emphasis">{{ displayData.total }}件</span>
+        <span v-if="!isLoading" class="text-body-2 text-medium-emphasis">{{ productList.total }}件</span>
         <v-skeleton-loader v-else type="text" width="60" />
       </div>
 
@@ -43,9 +43,9 @@
     <div class="list-body">
       <v-container fluid class="pb-2">
         <template v-if="!isLoading">
-          <template v-if="displayData.items.length > 0">
+          <template v-if="productList.items.length > 0">
             <ProductCard
-              v-for="product in displayData.items"
+              v-for="product in productList.items"
               :key="product.id"
               :product="product"
               @detail="goDetail(product)"
@@ -63,7 +63,7 @@
     <div class="pagination-bar">
       <v-pagination
         :model-value="currentPage"
-        :length="displayData.totalPages"
+        :length="productList.totalPages"
         :total-visible="3"
         density="compact"
         @update:model-value="onPageChange"
@@ -76,19 +76,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { z } from 'zod'
-import { useGetProducts } from '@/api/index'
-import { keepPreviousData } from '@tanstack/vue-query'
-import type { Product, ProductListResponse } from '@/types/api'
-import { GetProductByIdResponse } from '@/api/index.zod'
-import mockProductsData from '@/mocks/products-data.json'
+import { useProductList } from '@/composables/queries/useProductList'
+import type { GetProductsParams, Product } from '@/types/api'
 import FlowStepper from '@/components/ui/FlowStepper.vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
 import ProductCard from '@/components/product/ProductCard.vue'
 import SearchConditionChips from '@/components/search/SearchConditionChips.vue'
-import { filterProducts } from '@/utils/searchUtils'
-
-const mockProducts: Product[] = z.array(GetProductByIdResponse).parse(mockProductsData)
 
 const PAGE_SIZE = 5
 const router = useRouter()
@@ -100,7 +93,7 @@ const queryQ = computed(() => route.query.q as string | undefined)
 const queryCategory = computed(() => route.query.category as Product['category'] | undefined)
 const queryInStock = computed(() => route.query.inStock === 'true')
 
-const params = computed(() => ({
+const params = computed<GetProductsParams>(() => ({
   q: queryQ.value,
   category: queryCategory.value,
   inStock: queryInStock.value || undefined,
@@ -108,29 +101,7 @@ const params = computed(() => ({
   pageSize: PAGE_SIZE,
 }))
 
-// vue-query: params の変化で自動再フェッチ・同一 queryKey はキャッシュから即表示
-// ページ遷移中は前ページのデータを保持（モックへのフォールバック点滅を防ぐ）
-const { data, isLoading, isError } = useGetProducts(params, {
-  query: { placeholderData: keepPreviousData },
-})
-
-const mockFallback = computed<ProductListResponse>(() =>
-  filterProducts(
-    mockProducts as Product[],
-    {
-      q: queryQ.value,
-      category: queryCategory.value,
-      inStock: queryInStock.value,
-    },
-    currentPage.value,
-    PAGE_SIZE,
-  ),
-)
-
-const isFallback = computed(() => isError.value)
-const displayData = computed<ProductListResponse>(() =>
-  isFallback.value ? mockFallback.value : (data.value ?? mockFallback.value),
-)
+const { productList, isFallback, isLoading } = useProductList(params)
 
 function onPageChange(page: number) {
   currentPage.value = page
