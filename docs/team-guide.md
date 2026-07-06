@@ -465,6 +465,7 @@ export const useXxxStore = defineStore('xxx', () => {
 |---|---|---|---|
 | 純関数（`utils/`） | 入力 → 出力の変換ロジック | なし（モック不要） | `searchUtils.test.ts` |
 | composable（関数テスト） | 「API がこう応答したら、こういう ref を返す」 | `customAxiosInstance`（通信の一番外側） | 取得系: `useProductDetail.test.ts` / `useStockSearch.test.ts`、更新系: `useRegisterProduct.test.ts` |
+| 再利用コンポーネント（`components/`） | 「props → 表示」「操作 → emit」の契約 | なし（props を直接渡す） | `BaseDialog.test.ts` / `ProductCard.test.ts` |
 | ページ | 「入力→条件組み立て」「状態→表示分岐」「操作→遷移」 | **composable を丸ごと**（`vi.mock`） | `StockSearchPage.test.ts` |
 
 それぞれの層で**書かないこと**も決まっています:
@@ -541,6 +542,30 @@ vue-query は Vue コンポーネントの `setup()` 内でしか使えないた
 エラー時の snackbar はグローバル（`MutationCache` の `onError`、`vueQuery.test.ts` で保証済み）なので、
 ここでは書きません。新しい更新系 composable を作ったら、このファイルをコピーして
 `import`・payload・期待値を書き換えるだけです。
+
+### 再利用コンポーネントテスト（`BaseDialog.test.ts` / `ProductCard.test.ts` の解説）
+
+雛形: `src/components/dialog/__tests__/BaseDialog.test.ts`、`src/components/product/__tests__/ProductCard.test.ts`
+
+`components/` 配下の再利用部品（dialog / card / ui など）は、ページと違って composable を使わない
+「props を受けて表示し、操作を emit で返す」だけの部品なので、モックは不要です。検証するのは
+**公開インターフェース（契約）**だけです:
+
+1. **props → 表示**: props を渡して mount し、DOM に反映されるかを検証
+   （例: `modelValue: true` でタイトルが表示される）
+2. **slots → 表示**: スロットに渡した内容が描画されるか
+3. **操作 → emit**: 要素を `trigger('click')` して `emitted()` を検証
+   （例: `ProductCard.test.ts` — カードクリックで `click` イベントが商品オブジェクト付きで emit される）
+
+テストファイル冒頭のヘッダーコメントに props / v-model / slots / emit を列挙し、それを
+テストケースと対応させます。ヘッダーに書ききれない振る舞いが増えてきたら、部品が大きすぎるサインです。
+
+Vuetify の v-dialog / v-overlay / v-snackbar は中身を body へ teleport するため `wrapper.find` では
+見つかりません。`mount(..., { attachTo: document.body })` して `document.body` /
+`document.querySelector` で検証するのがこのプロジェクトのイディオムです（テスト末尾で `w.unmount()` を忘れずに）。
+
+なお、レイアウト（`MainLayout` / `SubLayout`）とサンプルページは手動確認で足りるため
+テストを書いていません。Vuetify コンポーネント自体の動作や CSS・見た目も検証しません。
 
 ### ページテスト（`StockSearchPage.test.ts` の解説）
 
