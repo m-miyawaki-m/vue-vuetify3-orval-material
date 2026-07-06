@@ -1,5 +1,7 @@
 # なぜ Orval + Vue Query を使うのか — 手書きコードとの対比
 
+> **📦 アーカイブ資料**: この資料は orval / vue-query 導入検討期の学習資料です。現行の構成は [guides/orval-zod-data-fetching-flow.md](../guides/orval-zod-data-fetching-flow.md) と [guides/common-layer-architecture.md](../guides/common-layer-architecture.md) を参照してください。
+
 ---
 
 ## 目次

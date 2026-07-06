@@ -1,5 +1,7 @@
 # HTTP 通信手段の比較: Ajax vs fetch vs axios vs async/await
 
+> **📦 アーカイブ資料**: この資料は orval / vue-query 導入検討期の学習資料です。現行の構成は [guides/orval-zod-data-fetching-flow.md](../guides/orval-zod-data-fetching-flow.md) と [guides/common-layer-architecture.md](../guides/common-layer-architecture.md) を参照してください。
+
 このプロジェクトで採用している axios を軸に、
 jQuery Ajax・ブラウザ標準の fetch・素の async/await との違いを整理する。
 
