@@ -42,6 +42,7 @@ App.vue
 | `src/router/index.ts` | 修正 | beforeEach / afterEach / onError で遷移中フラグを更新。`/sample-loading` ルート追加 |
 | `src/pages/LoadingSamplePage.vue` | 新規 | 動作確認用サンプルページ(下記) |
 | `src/stores/menuStore.ts` | 修正 | サンプルページのメニュー項目を追加(既存サンプルと同じ並び) |
+| `src/composables/queries/useLoadingSample.ts` | 新規 | サンプルページの遅い取得/更新(実装時に lint 規約対応でページから移動) |
 
 ## useGlobalLoading の仕様
 

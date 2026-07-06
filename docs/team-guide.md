@@ -584,6 +584,36 @@ beforeEach(() => {
 
 ---
 
+## 8. 全画面ローディング（読むだけでOK）
+
+API 通信（vue-query の fetch/mutation）とページ遷移中は、`AppLoadingOverlay` が画面全体に
+グルグル（`v-progress-circular`）を自動表示します。composable 側で表示/非表示を制御するコードを
+書く必要はありません（取得系・更新系とも `isLoading`/`isSubmitting` の4点セット・3点セットは
+今まで通り返すだけでOKです）。
+
+特定のクエリだけグルグルを出したくない場合は、その `useQuery` に `meta: { globalLoading: false }` を
+付けると対象外にできます。
+
+```typescript
+const query = useQuery({
+  queryKey: ['xxx'],
+  queryFn: fetchXxx,
+  meta: { globalLoading: false }, // このクエリの通信中は全画面グルグルを出さない
+})
+```
+
+**この規約は `useQuery`（取得系）専用です。`useMutation`（更新系）には現状効きません**
+（除外したい更新系が出てきたら仕組みの拡張を検討してください）。
+
+動作確認は `/sample-loading` ページ（`src/composables/queries/useLoadingSample.ts`）で行えます。
+「遅い取得通信」「遅い更新通信」「ページ遷移」のボタンで、それぞれ実際にグルグルが出るところを
+目視確認できます。
+
+実装本体: `src/composables/useGlobalLoading.ts`（状態の合成ロジック）、
+`src/components/ui/AppLoadingOverlay.vue`（表示コンポーネント）。
+
+---
+
 ## よくある質問
 
 **Q1. 同じ API を2ページで呼んだら2回通信される？**
