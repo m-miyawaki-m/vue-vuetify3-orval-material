@@ -281,6 +281,27 @@ post:
 
 必要なら `components.schemas` にリクエスト/レスポンスの型も追加します（`ProductInput` などを参考に）。
 
+**サンプルデータ（モック応答）を持たせる場合**: `openapi/examples/` に応答 JSON を1ファイル置き、
+レスポンス定義に `example:` で参照させます。Prism モックサーバー（`npm run dev:mock`）は
+この JSON をそのままレスポンスとして返します（`example` がない場合はスキーマから適当な値が
+自動生成されるだけになります）:
+
+```yaml
+responses:
+  '200':
+    description: 商品一覧
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/ProductListResponse'
+        example:
+          $ref: './examples/products-list.json'   # openapi/examples/ 配下に置いた JSON
+```
+
+JSON の中身は必ずスキーマと一致させてください（プロパティの欠け・型違いがあると、モックでは
+動くのに zod 検証や型で食い違う、という気づきにくい不整合になります）。実例:
+`openapi/examples/products-list.json` / `product-detail.json` / `menu.json`。
+
 ### Step 2: `npm run orval` を実行
 
 ```bash
