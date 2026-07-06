@@ -310,7 +310,7 @@ describe('SearchPage', () => {
 ### パターン
 
 > **注記（現行との差分）**: 現在はページから `@/api` を直接使わないため、composable を `vi.mock` する方式が現行
-> （[docs/team-guide.md §テスト](../guides/team-guide.md#5-テストの書き方) 参照）。
+> （[docs/guides/team-guide.md §テスト](../guides/team-guide.md#5-テストの書き方) 参照）。
 
 ```ts
 // src/stores/__tests__/menu.test.ts
