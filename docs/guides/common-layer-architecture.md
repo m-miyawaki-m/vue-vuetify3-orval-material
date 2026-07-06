@@ -291,7 +291,7 @@ await queryClient.invalidateQueries({ queryKey: getGetProductsQueryKey() })
 | invalidateQueries | 更新系 composable の `onSuccess` の中だけで使う |
 
 より詳しい状態機械やフラグの組み合わせ（`isLoading` と `isFetching` の違い等）は
-[vue-query-architecture.md](./vue-query-architecture.md) を参照してください
+[vue-query-architecture.md](../reference/vue-query-architecture.md) を参照してください
 （vue-query 自体の一般的な解説。本ドキュメントはこのプロジェクトの共通層の文脈に絞っています）。
 
 ---
@@ -341,7 +341,7 @@ Pinia store（src/stores/）
 
 ## 設計判断の記録
 
-以下は [共通層設計スペック](./superpowers/specs/2026-07-06-team-common-layer-design.md) の
+以下は [共通層設計スペック](../superpowers/specs/2026-07-06-team-common-layer-design.md) の
 「検討過程」を要約したものです。詳細な比較表は元スペックを参照してください。
 
 ### なぜドメイン composable を手書きするか（汎用ファクトリを作らない理由）
@@ -411,8 +411,8 @@ AI 利用時にしか効かず機械的強制がないため不採用）。
 ## 関連資料
 
 - [チーム製造ガイド](./team-guide.md) — 実際にページを作るときの手順・雛形・FAQ
-- [共通層設計スペック](./superpowers/specs/2026-07-06-team-common-layer-design.md) — この資料の元になった設計検討の全文（選択肢比較・変更対象一覧など）
-- [2026-07-03-data-fetching-architecture-design.md](./superpowers/specs/2026-07-03-data-fetching-architecture-design.md) — 前提となるデータ取得アーキテクチャの設計スペック
-- [vue-query-architecture.md](./vue-query-architecture.md) — vue-query 自体の詳しい解説（QueryClient・QueryKey・状態機械・Q&A）
-- [architecture.md](./architecture.md) — アプリ全体の技術スタック・レイヤー構成図・ディレクトリ構成
-- [openapi-orval-vue-query.md](./openapi-orval-vue-query.md) / [orval-zod-data-fetching-flow.md](./orval-zod-data-fetching-flow.md) — openapi.yaml 起点の orval 生成フロー
+- [共通層設計スペック](../superpowers/specs/2026-07-06-team-common-layer-design.md) — この資料の元になった設計検討の全文（選択肢比較・変更対象一覧など）
+- [2026-07-03-data-fetching-architecture-design.md](../superpowers/specs/2026-07-03-data-fetching-architecture-design.md) — 前提となるデータ取得アーキテクチャの設計スペック
+- [vue-query-architecture.md](../reference/vue-query-architecture.md) — vue-query 自体の詳しい解説（QueryClient・QueryKey・状態機械・Q&A）
+- [architecture.md](../design/architecture.md) — アプリ全体の技術スタック・レイヤー構成図・ディレクトリ構成
+- [openapi-orval-vue-query.md](../archive/openapi-orval-vue-query.md) / [orval-zod-data-fetching-flow.md](./orval-zod-data-fetching-flow.md) — openapi.yaml 起点の orval 生成フロー

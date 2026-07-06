@@ -1,7 +1,7 @@
 # Store 定義書
 
 > 新しく store を作る場合の判断基準（store か ref か・persist の付け方）は
-> [チーム製造ガイド](./team-guide.md) の「4. 状態を持ちたい（store か ref か）」を参照してください。
+> [チーム製造ガイド](../guides/team-guide.md) の「4. 状態を持ちたい（store か ref か）」を参照してください。
 
 ## Store 一覧
 

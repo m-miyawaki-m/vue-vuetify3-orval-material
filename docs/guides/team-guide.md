@@ -482,7 +482,7 @@ export const useXxxStore = defineStore('xxx', () => {
 
 なお、この3層（すべて Vitest）の上に、実ブラウザで画面をまたぐフロー（検索 → 詳細 → 登録など）を
 検証する E2E テスト（Playwright、`npm run test:e2e`）があります。書き方と Vitest との使い分けは
-[playwright-reference.md](./playwright-reference.md) を参照してください。
+[playwright-reference.md](../reference/playwright-reference.md) を参照してください。
 
 ### 純関数テスト（`searchUtils.test.ts` の解説）
 
@@ -728,7 +728,7 @@ import type { Product, GetProductsParams, MenuItem } from '@/types/api'
 このプロジェクトの composable は基本的に `isLoading` だけを返しているので、通常は `isLoading` を見れば
 十分です。より細かい状態を知りたくなった場合は
 [vue-query の考え方の入門解説](./common-layer-architecture.md#vue-query-の考え方の入門解説) と
-[vue-query-architecture.md](./vue-query-architecture.md) の状態機械の図を参照してください。
+[vue-query-architecture.md](../reference/vue-query-architecture.md) の状態機械の図を参照してください。
 
 **Q7. composable を作ったが `npm run orval` を実行し忘れて型が無いと言われる**
 
@@ -741,5 +741,5 @@ import type { Product, GetProductsParams, MenuItem } from '@/types/api'
 ## 関連資料
 
 - [共通層の考え方とアーキテクチャ](./common-layer-architecture.md) — なぜこの形にしたかの設計意図・データフロー・エラー処理の全体像
-- [共通層設計スペック](./superpowers/specs/2026-07-06-team-common-layer-design.md) — このガイドの元になった設計検討の詳細
-- [vue-query-architecture.md](./vue-query-architecture.md) — vue-query 自体のより詳しい解説（QueryClient・QueryKey・状態機械など）
+- [共通層設計スペック](../superpowers/specs/2026-07-06-team-common-layer-design.md) — このガイドの元になった設計検討の詳細
+- [vue-query-architecture.md](../reference/vue-query-architecture.md) — vue-query 自体のより詳しい解説（QueryClient・QueryKey・状態機械など）
