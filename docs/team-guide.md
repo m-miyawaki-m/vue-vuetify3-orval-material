@@ -464,7 +464,7 @@ export const useXxxStore = defineStore('xxx', () => {
 | 層 | 検証すること | モックする境界 | 雛形 |
 |---|---|---|---|
 | 純関数（`utils/`） | 入力 → 出力の変換ロジック | なし（モック不要） | `searchUtils.test.ts` |
-| composable（関数テスト） | 「API がこう応答したら、こういう ref を返す」 | `customAxiosInstance`（通信の一番外側） | `useProductDetail.test.ts` / `useStockSearch.test.ts` |
+| composable（関数テスト） | 「API がこう応答したら、こういう ref を返す」 | `customAxiosInstance`（通信の一番外側） | 取得系: `useProductDetail.test.ts` / `useStockSearch.test.ts`、更新系: `useRegisterProduct.test.ts` |
 | ページ | 「入力→条件組み立て」「状態→表示分岐」「操作→遷移」 | **composable を丸ごと**（`vi.mock`） | `StockSearchPage.test.ts` |
 
 それぞれの層で**書かないこと**も決まっています:
@@ -478,6 +478,21 @@ export const useXxxStore = defineStore('xxx', () => {
 この分離を守ると「壊れたら本当にその層のバグ」というテストだけになり、内部実装のリファクタで
 無関係なテストが落ちなくなります。逆に、ページ内の条件組み立てが複雑になってきたら
 （例: `buildSearchQuery`）、純関数として `utils/` に切り出して1層目でテストするのが定石です。
+
+なお、この3層（すべて Vitest）の上に、実ブラウザで画面をまたぐフロー（検索 → 詳細 → 登録など）を
+検証する E2E テスト（Playwright、`npm run test:e2e`）があります。書き方と Vitest との使い分けは
+[playwright-reference.md](./playwright-reference.md) を参照してください。
+
+### 純関数テスト（`searchUtils.test.ts` の解説）
+
+雛形: `src/utils/__tests__/searchUtils.test.ts`
+
+mount もモックも不要で、関数を import して入力 → 出力を `expect` するだけです。3層の中で一番
+書きやすく実行も速いので、テストしたいロジックはできるだけこの層に寄せるのが基本方針です。
+
+雛形では、条件の組み合わせ（キーワード有無 × カテゴリ有無 × 在庫のみ）を**デシジョンテーブル**として
+コメントに書き、ケース ID（`BQ-1` など）をテスト名と対応させています。条件分岐が多い関数は
+この形にすると、抜けている組み合わせが一目で分かります。
 
 ### composable テスト（`useProductDetail.test.ts` の解説）
 
@@ -508,6 +523,24 @@ vue-query は Vue コンポーネントの `setup()` 内でしか使えないた
 
 新しい取得系 composable を作ったら、このファイルをコピーして `import` と期待値を書き換えるだけで
 同じ形のテストが書けます。
+
+### 更新系 composable テスト（`useRegisterProduct.test.ts` の解説）
+
+雛形: `src/composables/mutations/__tests__/useRegisterProduct.test.ts`
+
+モックの境界は取得系と同じ `customAxiosInstance` で、`mountComposable` の使い方も同じです。
+違いは検証の観点だけです:
+
+1. **submit が正しいリクエストを送るか**: `submit(payload)` のあと `toHaveBeenCalledWith` で
+   URL・メソッド・ボディを検証（取得系の「引数 → リクエスト」に相当）
+2. **成功時の副作用**: `onSuccess` コールバックが作成結果付きで呼ばれるか、成功 snackbar が出るか
+   （`useSnackbar()` の `state` を直接読んで検証。成功通知は composable 自身の責務なのでここで書く）
+3. **完了待ちのイディオム**: mutation は非同期なので
+   `await vi.waitFor(() => expect(isSubmitting.value).toBe(false))` で完了を待ってから検証する
+
+エラー時の snackbar はグローバル（`MutationCache` の `onError`、`vueQuery.test.ts` で保証済み）なので、
+ここでは書きません。新しい更新系 composable を作ったら、このファイルをコピーして
+`import`・payload・期待値を書き換えるだけです。
 
 ### ページテスト（`StockSearchPage.test.ts` の解説）
 
