@@ -29,11 +29,15 @@ describe('AppLoadingOverlay', () => {
     expect(findSpinner()).not.toBeNull()
     endNavigation()
     await nextTick()
-    // v-overlay は leave トランジション後に DOM から消えるため waitFor で待つ
-    // jsdom での CSS transition 環境対応: display:none になるまで待つ
-    await vi.waitFor(() => {
+    // v-overlay は leave トランジション後に DOM から消えるため waitUntil で待つ。
+    // jsdom は offsetParent 等のレイアウト系プロパティを常に null 固定で返す(実装されていない)ため、
+    // 非表示判定には使えない。@vue/test-utils のグローバル transition スタブは leave 確定時に
+    // .v-overlay__content へ同期的に display:none を書き込むため、それを見て判定する。
+    await vi.waitUntil(() => {
       const spinner = findSpinner()
-      return spinner === null || (spinner as HTMLElement).offsetParent === null
+      if (spinner === null) return true
+      const content = (spinner as HTMLElement).closest<HTMLElement>('.v-overlay__content')
+      return content === null || content.style.display === 'none'
     }, { timeout: 2000 })
     w.unmount()
   })
