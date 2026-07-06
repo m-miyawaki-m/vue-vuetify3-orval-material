@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { startNavigation, endNavigation } from '@/composables/useGlobalLoading'
 import ComingSoonPage from '@/pages/ComingSoonPage.vue'
 import QuickMenuPage from '@/pages/QuickMenuPage.vue'
 import MainMenuPage from '@/pages/MainMenuPage.vue'
@@ -29,6 +30,18 @@ const router = createRouter({
     { path: '/sample-dialog',  component: () => import('@/pages/DialogNotifySamplePage.vue') },
     { path: '/:pathMatch(.*)*', component: ComingSoonPage },
   ],
+})
+
+// ページ遷移中は全画面ローディングを表示する(AppLoadingOverlay が観測)
+// 遷移失敗時も onError で必ず解除されるため消し忘れは起きない
+router.beforeEach(() => {
+  startNavigation()
+})
+router.afterEach(() => {
+  endNavigation()
+})
+router.onError(() => {
+  endNavigation()
 })
 
 export default router
