@@ -50,15 +50,15 @@ export default tseslint.config(
           patterns: [
             {
               group: ['@/api', '@/api/*'],
-              message: '@/api は直接使わず、@/composables の useXxx() と @/types/api の型を使ってください（docs/team-guide.md 参照）。',
+              message: '@/api は直接使わず、@/composables の useXxx() と @/types/api の型を使ってください（docs/guides/team-guide.md 参照）。',
             },
             {
               group: ['@tanstack/vue-query'],
-              message: 'vue-query は composables 層専用です。@/composables の useXxx() を使ってください（docs/team-guide.md 参照）。',
+              message: 'vue-query は composables 層専用です。@/composables の useXxx() を使ってください（docs/guides/team-guide.md 参照）。',
             },
             {
               group: ['axios', '@/plugins/axios'],
-              message: 'axios は直接使わず、@/composables の useXxx() を使ってください（docs/team-guide.md 参照）。',
+              message: 'axios は直接使わず、@/composables の useXxx() を使ってください（docs/guides/team-guide.md 参照）。',
             },
           ],
         },

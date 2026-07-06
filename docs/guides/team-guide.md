@@ -618,9 +618,9 @@ beforeEach(() => {
 
 | 出るメッセージ | 原因 | 直し方 |
 |---|---|---|
-| `@/api は直接使わず、@/composables の useXxx() と @/types/api の型を使ってください（docs/team-guide.md 参照）。` | ページ/コンポーネントで `@/api` から直接 `useGetXxx` や型を import した | 対応する `composables/queries` か `composables/mutations` の `useXxx()` を使う。型が欲しいだけなら `@/types/api` から import する |
-| `vue-query は composables 層専用です。@/composables の useXxx() を使ってください（docs/team-guide.md 参照）。` | ページ/コンポーネントで `@tanstack/vue-query` の `useQuery` / `useMutation` / `useQueryClient` を直接 import した | vue-query を直接使わず、composable 経由にする。無い場合は「3. 新しい API を使いたい」の手順で新規作成する |
-| `axios は直接使わず、@/composables の useXxx() を使ってください（docs/team-guide.md 参照）。` | ページ/コンポーネントで `axios` や `@/plugins/axios` を直接 import した | 同上。通信は必ず composable 経由にする |
+| `@/api は直接使わず、@/composables の useXxx() と @/types/api の型を使ってください（docs/guides/team-guide.md 参照）。` | ページ/コンポーネントで `@/api` から直接 `useGetXxx` や型を import した | 対応する `composables/queries` か `composables/mutations` の `useXxx()` を使う。型が欲しいだけなら `@/types/api` から import する |
+| `vue-query は composables 層専用です。@/composables の useXxx() を使ってください（docs/guides/team-guide.md 参照）。` | ページ/コンポーネントで `@tanstack/vue-query` の `useQuery` / `useMutation` / `useQueryClient` を直接 import した | vue-query を直接使わず、composable 経由にする。無い場合は「3. 新しい API を使いたい」の手順で新規作成する |
+| `axios は直接使わず、@/composables の useXxx() を使ってください（docs/guides/team-guide.md 参照）。` | ページ/コンポーネントで `axios` や `@/plugins/axios` を直接 import した | 同上。通信は必ず composable 経由にする |
 
 これらのルールは `src/pages/**/*.{ts,vue}` と `src/components/**/*.{ts,vue}`（`__tests__` 配下は除く）にのみ
 適用されます。`src/composables/**` の中は制限なし（ここだけが orval に触ってよい場所です）。
