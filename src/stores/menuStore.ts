@@ -9,13 +9,13 @@ export interface MenuItem {
 }
 
 export const MENU_MASTER: MenuItem[] = [
-  { id: 'search',        label: '商品を探す',       icon: 'mdi-magnify',        to: '/search'         },
-  { id: 'stock-search',  label: '在庫検索',         icon: 'mdi-warehouse',      to: '/stock-search'   },
-  { id: 'sample-input',  label: '入力・表示',       icon: 'mdi-form-textbox',   to: '/sample-input'   },
-  { id: 'sample-dialog',  label: 'ダイアログ・通知', icon: 'mdi-bell-outline',      to: '/sample-dialog'  },
-  { id: 'sample-loading', label: 'ローディング',     icon: 'mdi-progress-clock',    to: '/sample-loading' },
-  { id: 'card-samples',   label: 'カードサンプル',   icon: 'mdi-card-multiple',     to: '/card-samples'   },
-  { id: 'scanner',       label: 'スキャナー',       icon: 'mdi-barcode-scan',   to: '/scanner-sample' },
+  { id: 'search',         label: '商品を探す',       icon: 'mdi-magnify',        to: '/search'         },
+  { id: 'stock-search',   label: '在庫検索',         icon: 'mdi-warehouse',      to: '/stock-search'   },
+  { id: 'sample-input',   label: '入力・表示',       icon: 'mdi-form-textbox',   to: '/sample-input'   },
+  { id: 'sample-dialog',  label: 'ダイアログ・通知', icon: 'mdi-bell-outline',   to: '/sample-dialog'  },
+  { id: 'sample-loading', label: 'ローディング',     icon: 'mdi-progress-clock', to: '/sample-loading' },
+  { id: 'card-samples',   label: 'カードサンプル',   icon: 'mdi-card-multiple',  to: '/card-samples'   },
+  { id: 'scanner',        label: 'スキャナー',       icon: 'mdi-barcode-scan',   to: '/scanner-sample' },
 ]
 
 export const useMenuStore = defineStore('menu', () => {
