@@ -3,6 +3,7 @@
     <v-app :theme="themeStore.currentTheme" class="phone-app">
       <router-view />
       <AppSnackbar />
+      <AppLoadingOverlay />
     </v-app>
   </div>
 </template>
@@ -10,6 +11,7 @@
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/themeStore'
 import AppSnackbar from '@/components/ui/AppSnackbar.vue'
+import AppLoadingOverlay from '@/components/ui/AppLoadingOverlay.vue'
 const themeStore = useThemeStore()
 </script>
 
