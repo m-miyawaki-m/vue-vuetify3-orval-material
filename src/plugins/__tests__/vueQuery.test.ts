@@ -10,7 +10,7 @@
 //   [5] MutationCache: ApiError 以外は汎用メッセージ
 // ============================================================
 import { describe, it, expect, beforeEach } from 'vitest'
-import type { Mutation, Query } from '@tanstack/vue-query'
+import type { Mutation, MutationFunctionContext, Query } from '@tanstack/vue-query'
 import { createAppQueryClient } from '../vueQuery'
 import { ApiError } from '@/api/apiError'
 import { useSnackbar } from '@/composables/useSnackbar'
@@ -26,7 +26,7 @@ describe('createAppQueryClient', () => {
   it('onError が ApiError の message を snackbar に流す', () => {
     const client = createAppQueryClient()
     const onError = client.getQueryCache().config.onError
-    onError?.(new ApiError('商品が見つかりません', 404), {} as Query<unknown, Error>)
+    onError?.(new ApiError('商品が見つかりません', 404), {} as Query<unknown, unknown>)
     expect(state.show).toBe(true)
     expect(state.color).toBe('error')
     expect(state.text).toBe('商品が見つかりません')
@@ -34,7 +34,7 @@ describe('createAppQueryClient', () => {
 
   it('ApiError 以外は汎用メッセージ', () => {
     const client = createAppQueryClient()
-    client.getQueryCache().config.onError?.(new Error('raw'), {} as Query<unknown, Error>)
+    client.getQueryCache().config.onError?.(new Error('raw'), {} as Query<unknown, unknown>)
     expect(state.text).toBe('データの取得に失敗しました')
   })
 
@@ -52,7 +52,8 @@ describe('createAppQueryClient', () => {
       new ApiError('在庫が不足しています', 409),
       undefined,
       undefined,
-      {} as Mutation<unknown, Error, unknown, unknown>,
+      {} as Mutation<unknown, unknown, unknown>,
+      {} as MutationFunctionContext,
     )
     expect(state.show).toBe(true)
     expect(state.color).toBe('error')
@@ -63,7 +64,13 @@ describe('createAppQueryClient', () => {
     const client = createAppQueryClient()
     client
       .getMutationCache()
-      .config.onError?.(new Error('raw'), undefined, undefined, {} as Mutation<unknown, Error, unknown, unknown>)
+      .config.onError?.(
+        new Error('raw'),
+        undefined,
+        undefined,
+        {} as Mutation<unknown, unknown, unknown>,
+        {} as MutationFunctionContext,
+      )
     expect(state.text).toBe('処理に失敗しました')
   })
 })
