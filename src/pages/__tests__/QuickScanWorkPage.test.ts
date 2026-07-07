@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import QuickScanWorkPage from '../QuickScanWorkPage.vue'
+import router from '@/router'
 import type { ScanResult } from '@/types/scanner'
 import type { ScanSetWithItems } from '@/types/quickScan'
 
@@ -140,5 +141,61 @@ describe('QuickScanWorkPage', () => {
     const wrapper = await mountPage()
     const confirmBtn = wrapper.find('[data-testid="confirm-btn"]')
     expect(confirmBtn.attributes('disabled')).toBeDefined()
+  })
+
+  it('未知の featureId は quick-scan にリダイレクトし、初期化処理を実行しない', async () => {
+    await mountPage('unknown')
+    expect(router.replace).toHaveBeenCalledWith('/quick-scan')
+    expect(repo.findDraftSets).not.toHaveBeenCalled()
+    expect(mockStart).not.toHaveBeenCalled()
+  })
+
+  it('一覧の削除ボタンで deleteSet が呼ばれ、findDraftSets が再実行される', async () => {
+    repo.findDraftSets.mockResolvedValue([makeSet('set-1', ['a', 'b', 'c'])])
+    const wrapper = await mountPage()
+    const deleteBtn = wrapper.find('.mdi-close')
+    expect(deleteBtn.exists()).toBe(true)
+    await deleteBtn.trigger('click')
+    await flushPromises()
+    expect(repo.deleteSet).toHaveBeenCalledWith('set-1')
+    expect(repo.findDraftSets).toHaveBeenCalledTimes(2) // 初期化 + 削除後の再読込
+  })
+
+  it('クリアボタン→ダイアログの削除ボタンで clearDrafts(featureId) が呼ばれる', async () => {
+    // v-dialog は実 Teleport で document.body 配下に描画されるため、
+    // このテストのみ teleport スタブなしでマウントし document.body を直接操作する
+    repo.findDraftSets.mockResolvedValue([makeSet('set-1', ['a', 'b', 'c'])])
+    const wrapper = mount(QuickScanWorkPage, {
+      props: { featureId: 'inbound' },
+      attachTo: document.body,
+    })
+    await flushPromises()
+
+    const clearBtn = Array.from(document.querySelectorAll('button')).find(
+      (b) => b.textContent?.trim() === 'クリア'
+    )
+    expect(clearBtn).toBeTruthy()
+    clearBtn!.dispatchEvent(new Event('click', { bubbles: true }))
+    await flushPromises()
+
+    const deleteBtn = Array.from(document.querySelectorAll('button')).find(
+      (b) => b.textContent?.trim() === '削除'
+    )
+    expect(deleteBtn).toBeTruthy()
+    deleteBtn!.dispatchEvent(new Event('click', { bubbles: true }))
+    await flushPromises()
+
+    expect(repo.clearDrafts).toHaveBeenCalledWith('inbound')
+    wrapper.unmount()
+  })
+
+  it('DB 初期化に失敗したらエラーバナーを表示し、スキャンを受け付けない', async () => {
+    repo.findDraftSets.mockRejectedValue(new Error('db'))
+    const wrapper = await mountPage()
+    expect(wrapper.text()).toContain('データベースの初期化に失敗しました')
+    capturedOnScan!({ text: 'a', format: 'MOCK', timestamp: 1 })
+    await flushPromises()
+    expect(repo.createDraftSet).not.toHaveBeenCalled()
+    expect(repo.addItem).not.toHaveBeenCalled()
   })
 })

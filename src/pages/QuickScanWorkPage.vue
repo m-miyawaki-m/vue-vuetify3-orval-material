@@ -284,6 +284,7 @@ function notify(text: string) {
 }
 
 onMounted(async () => {
+  if (!resolved) return // 未知の featureId はリダイレクト中。副作用を起こさない
   try {
     await reload()
   } catch {
