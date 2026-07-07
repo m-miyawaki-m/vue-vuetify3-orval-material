@@ -44,10 +44,24 @@ async function open(): Promise<DbExecutor> {
   const sqlite = new SQLiteConnection(CapacitorSQLite)
   if (isWeb) await setupWebStore(sqlite)
 
-  const db = await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false)
-  await db.open()
-  for (const sql of MIGRATIONS) await db.execute(sql)
-  if (isWeb) await sqlite.saveToStore(DB_NAME)
+  // 直前の open() が途中で失敗していても再試行できるよう、
+  // 既存コネクションがあれば再利用し、なければ新規作成する
+  const consistency = await sqlite.checkConnectionsConsistency()
+  const hasConn = (await sqlite.isConnection(DB_NAME, false)).result
+  const db =
+    consistency.result && hasConn
+      ? await sqlite.retrieveConnection(DB_NAME, false)
+      : await sqlite.createConnection(DB_NAME, false, 'no-encryption', DB_VERSION, false)
+
+  try {
+    await db.open()
+    for (const sql of MIGRATIONS) await db.execute(sql)
+    if (isWeb) await sqlite.saveToStore(DB_NAME)
+  } catch (e) {
+    // 失敗時はコネクションを破棄し、次回 open() 呼び出しで再作成できるようにする
+    await sqlite.closeConnection(DB_NAME, false).catch(() => {})
+    throw e
+  }
 
   return {
     async run(statement, values = []) {
