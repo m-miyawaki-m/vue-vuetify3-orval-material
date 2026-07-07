@@ -5,7 +5,7 @@
       variant="flat"
       rounded="xl"
       class="quick-scanner-btn"
-      @click="router.push('/scanner')"
+      @click="router.push('/quick-scan')"
     >
       <div class="quick-scanner-btn__inner">
         <v-icon size="48">mdi-barcode-scan</v-icon>

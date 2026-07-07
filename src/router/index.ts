@@ -29,6 +29,7 @@ const router = createRouter({
     { path: '/sample-input',   component: () => import('@/pages/InputDisplaySamplePage.vue') },
     { path: '/sample-dialog',  component: () => import('@/pages/DialogNotifySamplePage.vue') },
     { path: '/sample-loading', component: () => import('@/pages/LoadingSamplePage.vue')      },
+    { path: '/quick-scan', component: () => import('@/pages/QuickScanMenuPage.vue') },
     { path: '/:pathMatch(.*)*', component: ComingSoonPage },
   ],
 })
