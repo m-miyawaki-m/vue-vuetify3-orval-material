@@ -28,6 +28,11 @@ export default defineConfig({
     }),
   ],
   define: { 'process.env': {} },
+  optimizeDeps: {
+    // autoImport で遅延ルートから初めて import される vuetify/components/* が
+    // dev 中の再最適化（フルリロード＝初回遷移キャンセル）を起こすため事前バンドル対象から外す
+    exclude: ['vuetify'],
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
