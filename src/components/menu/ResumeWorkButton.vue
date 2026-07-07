@@ -50,8 +50,10 @@ function onResume() {
 
 onMounted(async () => {
   try {
-    latestDraft.value = await findLatestDraft()
-    if (latestDraft.value) draftCounts.value = await countDrafts()
+    const draft = await findLatestDraft()
+    const counts = draft ? await countDrafts() : {}
+    latestDraft.value = draft
+    draftCounts.value = counts
   } catch {
     // DB 初期化失敗時は「作業なし」のまま（再開はできないが他機能に影響させない）
   }

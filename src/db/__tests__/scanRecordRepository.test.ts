@@ -126,5 +126,6 @@ describe('scanRecordRepository', () => {
     const latest = await findLatestDraft()
     expect(latest?.id).toBe('set-1')
     expect(latest?.items).toHaveLength(1)
+    expect(query.mock.calls[0][0]).toContain('MAX(scanned_at)')
   })
 })

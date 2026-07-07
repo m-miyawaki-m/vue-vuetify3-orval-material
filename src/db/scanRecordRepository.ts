@@ -142,7 +142,9 @@ export async function countDrafts(): Promise<Record<string, number>> {
 export async function findLatestDraft(): Promise<ScanSetWithItems | null> {
   const db = await getDb()
   const rows = await db.query<SetRow>(
-    `SELECT * FROM scan_sets WHERE status = 'draft' ORDER BY created_at DESC LIMIT 1`
+    `SELECT * FROM scan_sets WHERE status = 'draft'
+     ORDER BY COALESCE((SELECT MAX(scanned_at) FROM scan_items i WHERE i.set_id = scan_sets.id), created_at) DESC
+     LIMIT 1`
   )
   if (rows.length === 0) return null
   const [set] = await attachItems([mapSet(rows[0])])

@@ -207,7 +207,7 @@ Copy-Item node_modules/sql.js/dist/sql-wasm.wasm public/assets/sql-wasm.wasm
 
 `node_modules/sql.js` が無い場合は `node_modules/jeep-sqlite/dist/jeep-sqlite/assets/sql-wasm.wasm` からコピーする（jeep-sqlite の同梱版）。
 
-Expected: `public/assets/sql-wasm.wasm` が存在する（約1.2MB）
+Expected: jeep-sqlite の同梱グルーコードと同一ビルドの sql-wasm.wasm（sql.js@1.11.0, 約652KB）を配置すること。sql.js 最新版の wasm は ABI 不一致で初期化がハングする（実測）。
 
 - [x] **Step 3: DbExecutor インターフェースを書く**
 

@@ -28,6 +28,17 @@ const MIGRATIONS = [
 
 let dbPromise: Promise<DbExecutor> | null = null
 
+const INIT_TIMEOUT_MS = 10_000
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('SQLite の初期化がタイムアウトしました')), ms)
+    }),
+  ])
+}
+
 // Web(開発ブラウザ)では jeep-sqlite カスタム要素 + IndexedDB 永続化が必要
 async function setupWebStore(sqlite: SQLiteConnection): Promise<void> {
   const { defineCustomElements } = await import('jeep-sqlite/loader')
@@ -46,6 +57,8 @@ async function open(): Promise<DbExecutor> {
 
   // 直前の open() が途中で失敗していても再試行できるよう、
   // 既存コネクションがあれば再利用し、なければ新規作成する
+  // この呼び出しが失敗後リトライの要: JS 側の接続辞書が空のとき、プラグイン側に残った
+  // 古い接続を破棄してくれる（下の retrieveConnection 分岐は防御的なもので通常は通らない）
   const consistency = await sqlite.checkConnectionsConsistency()
   const hasConn = (await sqlite.isConnection(DB_NAME, false)).result
   const db =
@@ -80,7 +93,7 @@ async function open(): Promise<DbExecutor> {
 /** 初回アクセス時に遅延初期化する（スキャンを使わない起動を遅くしない） */
 export function getDb(): Promise<DbExecutor> {
   if (!dbPromise) {
-    dbPromise = open().catch((e) => {
+    dbPromise = withTimeout(open(), INIT_TIMEOUT_MS).catch((e) => {
       dbPromise = null // 失敗時は次回再試行できるようにする
       throw e
     })
