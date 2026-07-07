@@ -76,6 +76,7 @@ describe('scanRecordRepository', () => {
     expect(run.mock.calls[0][0]).toContain('DELETE FROM scan_items')
     expect(run.mock.calls[0][0]).toContain("status = 'draft'")
     expect(run.mock.calls[1][0]).toContain('DELETE FROM scan_sets')
+    expect(run.mock.calls[1][0]).toContain("status = 'draft'")
     expect(run.mock.calls[1][1]).toEqual(['inbound'])
   })
 
@@ -85,6 +86,7 @@ describe('scanRecordRepository', () => {
     const [sql, params] = run.mock.calls[0]
     expect(sql).toContain("SET status = 'confirmed'")
     expect(sql).toContain('HAVING COUNT(*) >= ?')
+    expect(sql).toContain('feature_id = ?')
     expect(params[1]).toBe('inbound')
     expect(params[2]).toBe(3)
     expect(n).toBe(2)
