@@ -19,6 +19,7 @@
 | [development-guide.md](./guides/development-guide.md) | 部品の追加とカスタマイズ（ページ・タブ・ダイアログ・レイアウト） |
 | [theme-guide.md](./guides/theme-guide.md) | テーマ・カラー制御（切り替え・追加・CSS 変数） |
 | [vuetify-android-guide.md](./guides/vuetify-android-guide.md) | Android（Capacitor）での Vuetify コンポーネント可用性と注意点 |
+| [capacitor-native-sdk-guide.md](./guides/capacitor-native-sdk-guide.md) | Capacitor 経由でネイティブ SDK（Java）を利用する概念と手順（SampleSdk エコー往復サンプル付き） |
 
 ## design/ — このアプリの設計書
 
