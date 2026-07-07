@@ -27,6 +27,7 @@
     "build:android-mock": "vite build --mode android"
   },
   "dependencies": {
+    "@capacitor-community/sqlite": "^7.0.3",
     "@capacitor/android": "^7.6.6",
     "@capacitor/camera": "^7.0.5",
     "@capacitor/cli": "^7.6.6",
@@ -36,6 +37,7 @@
     "@tanstack/vue-query": "^5.101.0",
     "@zxing/browser": "^0.2.0",
     "axios": "^1.17.0",
+    "jeep-sqlite": "^2.8.0",
     "material-icons": "^1.13.14",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
