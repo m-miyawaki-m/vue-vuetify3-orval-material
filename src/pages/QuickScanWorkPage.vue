@@ -7,7 +7,16 @@
         class="d-flex align-center px-3"
         style="height: 52px; background: rgba(0,0,0,0.75); flex-shrink: 0;"
       >
-        <v-btn icon variant="text" color="white" size="small" @click="router.back()">
+        <!-- 戻る先は常に機能選択画面。作業再開ボタン経由（ホーム→本画面）でも
+             /quick-scan に戻れるよう、履歴 back ではなく明示遷移にする -->
+        <v-btn
+          icon
+          variant="text"
+          color="white"
+          size="small"
+          data-testid="back-btn"
+          @click="router.replace('/quick-scan')"
+        >
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
         <span class="flex-1-1 text-center text-white text-body-1 font-weight-bold">

@@ -137,6 +137,14 @@ describe('QuickScanWorkPage', () => {
     expect(repo.confirmCompletedDrafts).toHaveBeenCalledWith('inbound', 3)
   })
 
+  it('ヘッダーの戻るボタンで機能選択画面（/quick-scan）へ遷移する', async () => {
+    // 作業再開ボタン経由（ホーム→作業画面）で入っても戻り先が機能選択画面になるよう、
+    // router.back() ではなく明示的な replace を使う
+    const wrapper = await mountPage()
+    await wrapper.find('[data-testid="back-btn"]').trigger('click')
+    expect(router.replace).toHaveBeenCalledWith('/quick-scan')
+  })
+
   it('完成セットが0件なら確定ボタンは disabled', async () => {
     const wrapper = await mountPage()
     const confirmBtn = wrapper.find('[data-testid="confirm-btn"]')
