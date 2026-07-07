@@ -71,7 +71,8 @@
       { "label": "入力・表示",       "to": "/sample-input",  "icon": "mdi-form-textbox"   },
       { "label": "ダイアログ・通知", "to": "/sample-dialog", "icon": "mdi-bell-outline"   },
       { "label": "カード",           "to": "/card-samples",  "icon": "mdi-card-multiple"  },
-      { "label": "スキャナー",       "to": "/scanner-sample","icon": "mdi-barcode-scan"   }
+      { "label": "スキャナー",       "to": "/scanner-sample","icon": "mdi-barcode-scan"   },
+      { "label": "SDK エコー",       "to": "/sdk-echo-sample","icon": "mdi-swap-horizontal" }
     ]
   }
 ]
