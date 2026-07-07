@@ -128,14 +128,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useScannerStore } from '@/stores/scannerStore'
-import { useWorkSessionStore } from '@/stores/workSessionStore'
 import { useBarcodeScanner } from '@/composables/useBarcodeScanner'
 import type { ScanResult } from '@/types/scanner'
 
 const isDev = import.meta.env.DEV
 
 const store = useScannerStore()
-const workStore = useWorkSessionStore()
 const videoRef = ref<HTMLVideoElement | null>(null)
 const results = ref<ScanResult[]>([])
 const torchOn = ref(false)
@@ -149,11 +147,9 @@ const { start, stop, error, torchAvailable, switchTorch } = useBarcodeScanner(vi
     if (completing) return
     if (store.mode === 'continuous') {
       results.value.push(result)
-      workStore.updateBarcodes(results.value.map(r => r.text))
     } else {
       completing = true
       stop()
-      workStore.clearSession()
       store.complete([result])
     }
   },
@@ -168,14 +164,12 @@ const cameraAreaStyle = computed(() => ({
 
 function removeResult(i: number) {
   results.value.splice(i, 1)
-  workStore.updateBarcodes(results.value.map(r => r.text))
 }
 
 function onComplete() {
   if (completing) return
   completing = true
   stop()
-  workStore.clearSession()
   store.complete([...results.value])
 }
 
@@ -187,11 +181,9 @@ function onMockScan() {
   if (completing) return
   if (store.mode === 'continuous') {
     results.value.push(result)
-    workStore.updateBarcodes(results.value.map(r => r.text))
   } else {
     completing = true
     stop()
-    workStore.clearSession()
     store.complete([result])
   }
 }
@@ -201,10 +193,7 @@ async function onToggleTorch() {
   await switchTorch(torchOn.value)
 }
 
-onMounted(() => {
-  start()
-  if (!workStore.currentSession) workStore.startScannerSession()
-})
+onMounted(start)
 onUnmounted(stop)
 </script>
 
