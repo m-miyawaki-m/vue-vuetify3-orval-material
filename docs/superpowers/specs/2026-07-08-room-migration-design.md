@@ -48,7 +48,9 @@ SQL の置き場所が TS からネイティブ（DAO）へ移る。これが実
 | `ScanSetEntity.kt` | `scan_sets` テーブル。列は現行と同一（id / feature_id / status / created_at / confirmed_at）。日時は ISO 8601 文字列のまま |
 | `ScanItemEntity.kt` | `scan_items`。**外部キー（set_id → scan_sets.id, onDelete = CASCADE）と index を `@Entity` で宣言**（現行スキーマからの改善） |
 | `ScanSetWithItems.kt` | `@Relation` によるセット + items の一括取得定義 |
-| `ScanRecordDao.kt` | 8操作の suspend 関数。`deleteSet` / `clearDrafts` は `@Transaction`（現行の非トランザクション問題を解消）。`confirmCompletedDrafts` の HAVING クエリ・`findLatestDraft` の COALESCE(MAX) クエリは `@Query` に移植 |
+| `ScanRecordDao.kt` | 8操作の suspend 関数。`confirmCompletedDrafts` の HAVING クエリ・`findLatestDraft` の COALESCE(MAX) クエリは `@Query` に移植 |
+
+> **実装との差分注記（レビュー指摘・2026-07-09 追記）**: 上表では当初 `deleteSet` / `clearDrafts` を `@Transaction` にする想定だったが、実装では外部キーの `ON DELETE CASCADE` により DELETE 1文で items もアトミックに削除されるため `@Transaction` は付与していない（`@Transaction` は `findDraftSets` / `findLatestDraft` など `@Relation` によるリレーション取得クエリ側に付与している）。DAO をこの spec の記述に合わせて修正しないこと。
 | `AppDatabase.kt` | `@Database(version = 1)` のシングルトン。DB 名 `quick_scan.db` |
 | `ScanRecordPlugin.kt` | `@CapacitorPlugin(name = "ScanRecord")`。各メソッドはコルーチン（Dispatchers.IO）で DAO を呼び、camelCase の JSObject にして resolve。**UUID・日時の生成はここ（ネイティブ側）に移動** |
 
@@ -63,7 +65,7 @@ SQL の置き場所が TS からネイティブ（DAO）へ移る。これが実
 | `createDraftSet` | createDraftSet(featureId) | ScanSet を返す |
 | `addItem` | addItem(setId, {seq,itemKey,value,format}) | ScanItem を返す |
 | `deleteSet` | deleteSet(setId) | CASCADE 削除 |
-| `clearDrafts` | clearDrafts(featureId) | @Transaction |
+| `clearDrafts` | clearDrafts(featureId) | CASCADE 削除（実装は @Transaction ではなく DELETE 1文。上の実装との差分注記を参照） |
 | `confirmCompletedDrafts` | confirmCompletedDrafts(featureId, requiredCount) | 確定件数を返す |
 | `findDraftSets` | findDraftSets(featureId) | ScanSetWithItems[]（items は seq 昇順） |
 | `countDrafts` | countDrafts() | Record<featureId, number> |

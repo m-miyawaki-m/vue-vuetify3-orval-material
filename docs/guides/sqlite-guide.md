@@ -24,7 +24,7 @@ AppDatabase.kt（Room）→ /data/data/com.example.myapp/databases/quick_scan.db
 
 - **ブラウザ（`npm run dev`）では動かない**。`scanRecordRepository.ts` の各関数が入口で `Capacitor.getPlatform() === 'web'` を判定し、`SQLite はブラウザでは利用できません。エミュレータまたは実機で確認してください` を throw する。動作確認はエミュレータ/実機で行う
 - SQL・スキーマ定義・ID（UUID）/日時（ISO 8601）の生成は**すべてネイティブ側の責務**。TS 側は文字列も日時も生成しない
-- 旧 TS 実装（`@capacitor-community/sqlite` ・ `sqliteClient.ts` ・ `types.ts`）は撤去済み。旧 DB ファイル `quick_scanSQLite.db` は移行されず放置されている（新 DB は別名 `quick_scan.db`）
+- 旧 TS 実装（`@capacitor-community/sqlite` ・ `sqliteClient.ts` ・ `types.ts`）は撤去済み。旧 DB ファイル `quick_scanSQLite.db` は移行されず放置されている（新 DB は別名 `quick_scan.db`）。旧ファイルはアプリのデータ消去（またはアンインストール）まで端末に残り続ける
 
 ### レイヤーの責務
 
@@ -86,14 +86,14 @@ Room 移行での追加点（旧 TS 実装からの改善）:
 
 ```ts
 import {
-  createDraftSet,           // (featureId) => ScanSet             draft セット作成
-  addItem,                  // (setId, {seq,itemKey,value,format}) => ScanItem
-  deleteSet,                // (setId) => void                    セット1件削除（CASCADEでitemsも消える）
-  clearDrafts,               // (featureId) => void                その機能の draft 全削除
-  confirmCompletedDrafts,    // (featureId, requiredCount) => 確定件数
-  findDraftSets,             // (featureId) => ScanSetWithItems[]  created_at昇順・items seq昇順
-  countDrafts,                // () => Record<featureId, number>    バッジ用
-  findLatestDraft,            // () => ScanSetWithItems | null      作業再開ボタン用（直近更新）
+  createDraftSet,          // (featureId) => ScanSet                             draft セット作成
+  addItem,                 // (setId, {seq,itemKey,value,format}) => ScanItem
+  deleteSet,               // (setId) => void                                    セット1件削除（CASCADEでitemsも消える）
+  clearDrafts,             // (featureId) => void                                その機能の draft 全削除
+  confirmCompletedDrafts,  // (featureId, requiredCount) => 確定件数
+  findDraftSets,           // (featureId) => ScanSetWithItems[]                  created_at昇順・items seq昇順
+  countDrafts,             // () => Record<featureId, number>                    バッジ用
+  findLatestDraft,         // () => ScanSetWithItems | null                      作業再開ボタン用（直近更新）
 } from '@/db/scanRecordRepository'
 ```
 
@@ -109,20 +109,188 @@ import {
 テーブル自体を追加・変更する場合はさらに:
 
 - `@Entity` を新規作成 or 既存の列を変更し、`AppDatabase.kt` の `@Database(entities = [...])` に登録
-- スキーマを変更したら **`@Database(version = ...)` を上げて `Migration` を書く**（§6 参照）
+- スキーマを変更したら **`@Database(version = ...)` を上げて `Migration` を書く**（§7 参照）
 
 TS 側のテストは `src/db/__tests__/scanRecordRepository.test.ts` が見本。`@/plugins/scanRecord` を `vi.mock` し、repository の関数が正しいメソッド・引数でプラグインを呼び、戻り値をそのまま返すことを検証する（SQL 自体の正しさの検証責務はネイティブ側の DAO テストに移った）。
 
 ---
 
-## 4. 中身を見る方法
+## 4. 処理フロー（シーケンス図）
 
-### 4-1. Android 実機 — Database Inspector【リアルタイム】
+### 概要
+
+画面(Vue)からの呼び出しは `scanRecordRepository.ts` → Capacitor ブリッジ（`src/plugins/scanRecord.ts` の `registerPlugin`）→ `ScanRecordPlugin.kt` → `ScanRecordDao.kt`（Room）→ SQLite（`quick_scan.db`）の順に通る。ネイティブ側はすべて Kotlin のコルーチン（`Dispatchers.IO`）で DAO を呼び出す非同期処理で、完了後に `call.resolve()` を呼ぶことで JS 側の `Promise` が resolve される。エラーはブラウザ実行時は `scanRecordRepository.ts` の入口で即座に throw され（ネイティブ層には到達しない）、ネイティブ側の例外は `call.reject()` → JS 側で `Promise` reject → 画面側のエラーハンドリング（エラーバナー表示）という経路で戻る。
+
+### 4-1. スキャン1件の保存（draft セット作成 + アイテム追加）
+
+1項目目のスキャン時は `createDraftSet` で draft セットを作成してから `addItem` を呼ぶ。2項目目以降は既存の `setId` に対して `addItem` のみを呼ぶ。
+
+```mermaid
+sequenceDiagram
+    participant UI as 画面(Vue)
+    participant Repo as scanRecordRepository.ts
+    participant Bridge as Capacitorブリッジ
+    participant Plugin as ScanRecordPlugin.kt
+    participant Dao as ScanRecordDao(Room)
+    participant DB as SQLite(quick_scan.db)
+
+    Note over UI,DB: 1項目目のスキャン時のみ：draft セットがまだ無い場合に作成
+    UI->>Repo: createDraftSet(featureId)
+    Repo->>Bridge: ScanRecord.createDraftSet({featureId})
+    Bridge->>Plugin: createDraftSet(call)
+    Note right of Plugin: UUID・ISO8601日時をここで生成
+    Plugin->>Dao: insertSet(set)　※Dispatchers.IO のコルーチン
+    Dao->>DB: INSERT INTO scan_sets ...
+    DB-->>Dao: OK
+    Plugin-->>Repo: call.resolve(set) → Promise<ScanSet>
+    Repo-->>UI: ScanSet
+```
+
+```mermaid
+sequenceDiagram
+    participant UI as 画面(Vue)
+    participant Repo as scanRecordRepository.ts
+    participant Bridge as Capacitorブリッジ
+    participant Plugin as ScanRecordPlugin.kt
+    participant Dao as ScanRecordDao(Room)
+    participant DB as SQLite(quick_scan.db)
+
+    Note over UI,DB: 2項目目以降（またはdraft作成直後）：読み取り値をセットへ追加
+    UI->>Repo: addItem(setId, {seq, itemKey, value, format})
+    Repo->>Bridge: ScanRecord.addItem({...})
+    Bridge->>Plugin: addItem(call)
+    Note right of Plugin: item の UUID・ISO8601日時をここで生成
+    Plugin->>Dao: insertItem(item)　※Dispatchers.IO のコルーチン
+    Dao->>DB: INSERT INTO scan_items ...
+    DB-->>Dao: OK
+    Plugin-->>Repo: call.resolve(item) → Promise<ScanItem>
+    Repo-->>UI: ScanItem
+```
+
+### 4-2. 確定操作（confirmCompletedDrafts）
+
+完成セット（items が定義項目数 `requiredCount` に達したもの）だけを `HAVING COUNT(*) >= requiredCount` で絞り込み、`status='confirmed'` に UPDATE する。削除ではなく更新であり、確定件数が戻り値として返る。
+
+```mermaid
+sequenceDiagram
+    participant UI as 画面(Vue)
+    participant Repo as scanRecordRepository.ts
+    participant Bridge as Capacitorブリッジ
+    participant Plugin as ScanRecordPlugin.kt
+    participant Dao as ScanRecordDao(Room)
+    participant DB as SQLite(quick_scan.db)
+
+    UI->>Repo: confirmCompletedDrafts(featureId, requiredCount)
+    Repo->>Bridge: ScanRecord.confirmCompletedDrafts({featureId, requiredCount})
+    Bridge->>Plugin: confirmCompletedDrafts(call)
+    Plugin->>Dao: confirmCompletedDrafts(featureId, requiredCount, isoNow())
+    Note right of Dao: UPDATE scan_sets SET status='confirmed', confirmed_at=... WHERE status='draft'<br/>AND id IN (SELECT set_id FROM scan_items GROUP BY set_id HAVING COUNT(*) >= requiredCount)
+    Dao->>DB: 上記 UPDATE を実行
+    DB-->>Dao: 更新件数
+    Dao-->>Plugin: count
+    Plugin-->>Bridge: call.resolve({count})
+    Bridge-->>Repo: Promise<{count}>
+    Repo-->>UI: 確定件数(count)
+```
+
+### 4-3. 作業再開（アプリ再起動後）
+
+SQLite はファイルとして端末に永続化されるため、アプリを再起動しても draft データはそのまま残る。作業再開ボタンの表示判定には `findLatestDraft`、機能ごとのバッジ表示には `countDrafts` を使う。
+
+```mermaid
+sequenceDiagram
+    participant UI as 画面(Vue)
+    participant Repo as scanRecordRepository.ts
+    participant Bridge as Capacitorブリッジ
+    participant Plugin as ScanRecordPlugin.kt
+    participant Dao as ScanRecordDao(Room)
+    participant DB as SQLite(quick_scan.db)
+
+    Note over UI,DB: アプリ再起動後。DB はファイルとして永続化されているため draft がそのまま残っている
+    UI->>Repo: findLatestDraft()
+    Repo->>Bridge: ScanRecord.findLatestDraft()
+    Bridge->>Plugin: findLatestDraft(call)
+    Plugin->>Dao: findLatestDraft()
+    Dao->>DB: SELECT ... ORDER BY COALESCE(MAX(scanned_at), created_at) DESC LIMIT 1
+    DB-->>Dao: ScanSetWithItems | null
+    Dao-->>Plugin: 結果
+    Plugin-->>Repo: call.resolve(set) → Promise
+    Repo-->>UI: ScanSetWithItems | null（作業再開ボタンの表示判定に使用）
+```
+
+```mermaid
+sequenceDiagram
+    participant UI as 画面(Vue)
+    participant Repo as scanRecordRepository.ts
+    participant Bridge as Capacitorブリッジ
+    participant Plugin as ScanRecordPlugin.kt
+    participant Dao as ScanRecordDao(Room)
+    participant DB as SQLite(quick_scan.db)
+
+    UI->>Repo: countDrafts()
+    Repo->>Bridge: ScanRecord.countDrafts()
+    Bridge->>Plugin: countDrafts(call)
+    Plugin->>Dao: countDrafts()
+    Dao->>DB: SELECT feature_id, COUNT(*) AS cnt ... GROUP BY feature_id
+    DB-->>Dao: 件数一覧
+    Dao-->>Plugin: 結果
+    Plugin-->>Repo: call.resolve(counts) → Promise
+    Repo-->>UI: Record<featureId, number>（バッジ表示に使用）
+```
+
+### 4-4. エラー経路
+
+(a) ブラウザ実行時は `scanRecordRepository.ts` の入口（`assertNative()`）で即座に throw し、Capacitor ブリッジより先には到達しない。
+
+```mermaid
+sequenceDiagram
+    participant UI as 画面(Vue)
+    participant Repo as scanRecordRepository.ts
+    participant Bridge as Capacitorブリッジ
+    participant Plugin as ScanRecordPlugin.kt
+    participant Dao as ScanRecordDao(Room)
+    participant DB as SQLite(quick_scan.db)
+
+    UI->>Repo: createDraftSet(featureId) など任意の関数呼び出し
+    Repo->>Repo: assertNative()：Capacitor.getPlatform() === 'web' を判定
+    Repo-->>UI: throw Error('SQLite はブラウザでは利用できません。エミュレータまたは実機で確認してください')
+    Note over Bridge,DB: ブラウザ実行時はここへは到達しない
+```
+
+(b) ネイティブ側で例外（制約違反など）が起きた場合は `call.reject()` → JS 側で `Promise` reject → 画面のエラーバナー表示という経路で戻る。
+
+```mermaid
+sequenceDiagram
+    participant UI as 画面(Vue)
+    participant Repo as scanRecordRepository.ts
+    participant Bridge as Capacitorブリッジ
+    participant Plugin as ScanRecordPlugin.kt
+    participant Dao as ScanRecordDao(Room)
+    participant DB as SQLite(quick_scan.db)
+
+    UI->>Repo: 任意の関数呼び出し
+    Repo->>Bridge: ScanRecord.xxx({...})
+    Bridge->>Plugin: xxx(call)
+    Plugin->>Dao: DAO メソッド呼び出し
+    Dao->>DB: SQL 実行
+    Note right of DB: 制約違反などで例外発生
+    Dao-->>Plugin: Exception をそのまま送出
+    Note right of Plugin: launchDb の catch(e: Exception) で捕捉
+    Plugin-->>Bridge: call.reject(e.message, e)
+    Bridge-->>Repo: Promise reject
+    Repo-->>UI: throw → 画面のエラーバナー表示
+```
+
+---
+
+## 5. 中身を見る方法
+
+### 5-1. Android 実機 — Database Inspector【リアルタイム】
 
 Android Studio でアプリをデバッグ実行 → View → Tool Windows → **App Inspection** → Database Inspector。
 `quick_scan.db` のテーブルが live 表示され、クエリ実行・値の編集もできる。
 
-### 4-2. Android 実機のファイルを吸い出して A5M2 / DB Browser で見る
+### 5-2. Android 実機のファイルを吸い出して A5M2 / DB Browser で見る
 
 ```powershell
 adb exec-out run-as com.example.myapp cat databases/quick_scan.db > quick_scan.db
@@ -132,12 +300,12 @@ adb exec-out run-as com.example.myapp cat databases/quick_scan.db > quick_scan.d
 
 ### 注意
 
-- 4-2 で取り出したファイルは**その時点のスナップショット**。ツール上で編集してもアプリには反映されない（読み取り専用の確認用と割り切る）
-- リアルタイムに見たいなら 4-1
+- 5-2 で取り出したファイルは**その時点のスナップショット**。ツール上で編集してもアプリには反映されない（読み取り専用の確認用と割り切る）
+- リアルタイムに見たいなら 5-1
 
 ---
 
-## 5. データのリセット方法
+## 6. データのリセット方法
 
 | 環境 | 方法 |
 |---|---|
@@ -146,7 +314,7 @@ adb exec-out run-as com.example.myapp cat databases/quick_scan.db > quick_scan.d
 
 ---
 
-## 6. ハマりどころ（実際に踏んだもの・踏みやすいもの）
+## 7. ハマりどころ（実際に踏んだもの・踏みやすいもの）
 
 ### ローカルプラグインは MainActivity での登録が必須
 
@@ -158,7 +326,7 @@ adb exec-out run-as com.example.myapp cat databases/quick_scan.db > quick_scan.d
 
 ### スキーマ変更時は version を上げて Migration を書く
 
-`AppDatabase.kt` の `@Database(version = 1, ...)` はスキーマ変更のたびに上げる必要がある。version を据え置いたままエンティティだけ変更すると、実機では「Room cannot verify the data integrity. Look for inconsistencies in your schema.」でクラッシュする。本来は `Migration` オブジェクトを書いて `databaseBuilder(...).addMigrations(...)` に渡すのが正しい対応。開発中でデータを消してよいなら、アプリのデータ消去（§5）で DB ファイルごと作り直す回避策もある。
+`AppDatabase.kt` の `@Database(version = 1, ...)` はスキーマ変更のたびに上げる必要がある。version を据え置いたままエンティティだけ変更すると、実機では「Room cannot verify the data integrity. Look for inconsistencies in your schema.」でクラッシュする。本来は `Migration` オブジェクトを書いて `databaseBuilder(...).addMigrations(...)` に渡すのが正しい対応。開発中でデータを消してよいなら、アプリのデータ消去（§6）で DB ファイルごと作り直す回避策もある。実案件へ展開する際は `exportSchema = true` とスキーマ出力ディレクトリの設定を最初から入れておくべき（`MigrationTestHelper` によるマイグレーションテストとスキーマ差分レビューが使えるようになる）。この PoC では `exportSchema = false` のままにしている。
 
 ### DAO テストはエミュレータ必須
 
