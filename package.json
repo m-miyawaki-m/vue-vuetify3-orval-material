@@ -27,7 +27,6 @@
     "build:android-mock": "vite build --mode android"
   },
   "dependencies": {
-    "@capacitor-community/sqlite": "^7.0.3",
     "@capacitor/android": "^7.6.6",
     "@capacitor/camera": "^7.0.5",
     "@capacitor/cli": "^7.6.6",
