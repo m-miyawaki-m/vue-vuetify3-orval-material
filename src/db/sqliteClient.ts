@@ -39,21 +39,12 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ])
 }
 
-// Web(開発ブラウザ)では jeep-sqlite カスタム要素 + IndexedDB 永続化が必要
-async function setupWebStore(sqlite: SQLiteConnection): Promise<void> {
-  const { defineCustomElements } = await import('jeep-sqlite/loader')
-  defineCustomElements(window)
-  if (!document.querySelector('jeep-sqlite')) {
-    document.body.appendChild(document.createElement('jeep-sqlite'))
-  }
-  await customElements.whenDefined('jeep-sqlite')
-  await sqlite.initWebStore()
-}
-
 async function open(): Promise<DbExecutor> {
-  const isWeb = Capacitor.getPlatform() === 'web'
+  // ブラウザ開発時は SQLite 非対応（エミュレータ/実機でのみ動作確認する方針）
+  if (Capacitor.getPlatform() === 'web') {
+    throw new Error('SQLite はブラウザでは利用できません。エミュレータまたは実機で確認してください')
+  }
   const sqlite = new SQLiteConnection(CapacitorSQLite)
-  if (isWeb) await setupWebStore(sqlite)
 
   // 直前の open() が途中で失敗していても再試行できるよう、
   // 既存コネクションがあれば再利用し、なければ新規作成する
@@ -69,7 +60,6 @@ async function open(): Promise<DbExecutor> {
   try {
     await db.open()
     for (const sql of MIGRATIONS) await db.execute(sql)
-    if (isWeb) await sqlite.saveToStore(DB_NAME)
   } catch (e) {
     // 失敗時はコネクションを破棄し、次回 open() 呼び出しで再作成できるようにする
     await sqlite.closeConnection(DB_NAME, false).catch(() => {})
@@ -79,8 +69,6 @@ async function open(): Promise<DbExecutor> {
   return {
     async run(statement, values = []) {
       const res = await db.run(statement, values)
-      // web 実装はメモリ上の sql.js のため、書き込みごとに IndexedDB へ保存する
-      if (isWeb) await sqlite.saveToStore(DB_NAME)
       return { changes: res.changes?.changes ?? 0 }
     },
     async query<T>(statement: string, values: unknown[] = []) {

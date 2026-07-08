@@ -13,22 +13,21 @@
   ↓ 関数呼び出しのみ（SQL は書かない）
 src/db/scanRecordRepository.ts   ← SQL はここに集約（将来 Room に差し替える時の境界）
   ↓ DbExecutor インターフェース
-src/db/sqliteClient.ts           ← 接続・テーブル作成・プラットフォーム差異の吸収
+src/db/sqliteClient.ts           ← 接続・テーブル作成
   ↓
 Android 実機: ネイティブ SQLite（/data/data/com.example.myapp/databases/quick_scanSQLite.db）
-Web 開発時 : jeep-sqlite + sql.js WASM（実体は IndexedDB 内にDBファイル丸ごと保存）
 ```
 
 - DB 名は `quick_scan`（実ファイル名は `quick_scanSQLite.db`）
 - 初期化は**初回 DB アクセス時に遅延実行**（10秒でタイムアウトし、失敗時は次回アクセスで再試行）
-- Web では書き込みごとに `saveToStore` で IndexedDB へ永続化される
+- **ブラウザ（`npm run dev`）では動かない**。`getDb()` が明示エラーを投げ、画面はエラーバナー表示になる。動作確認はエミュレータ/実機で行う（以前あった jeep-sqlite + WASM のブラウザ対応は 2026-07-08 に撤去）
 
 ### レイヤーの責務
 
 | ファイル | 責務 | 触ってよい人 |
 |---|---|---|
 | `src/db/types.ts` | `DbExecutor`（run / query の2メソッド） | 基本変更しない |
-| `src/db/sqliteClient.ts` | 接続シングルトン・migration・Web対応 | テーブル追加時のみ |
+| `src/db/sqliteClient.ts` | 接続シングルトン・migration | テーブル追加時のみ |
 | `src/db/scanRecordRepository.ts` | 業務CRUD関数（全SQL） | 機能追加時はここ |
 | 画面・composable | repository の関数を呼ぶだけ | SQL 直書き禁止 |
 
@@ -95,64 +94,23 @@ import {
 
 ## 4. 中身を見る方法
 
-### 4-1. ブラウザ開発時（`npm run dev`）— コンソールから直接 SQL【最速】
-
-Vite はブラウザコンソールからソースを import できるので、アプリと同じ接続でクエリできる：
-
-```js
-// F12 → Console
-const { getDb } = await import('/src/db/sqliteClient.ts')
-const db = await getDb()
-
-console.table(await db.query('SELECT * FROM scan_sets'))
-console.table(await db.query('SELECT * FROM scan_items ORDER BY set_id, seq'))
-await db.query("SELECT feature_id, status, COUNT(*) cnt FROM scan_sets GROUP BY feature_id, status")
-```
-
-repository 経由でも可：
-
-```js
-const repo = await import('/src/db/scanRecordRepository.ts')
-await repo.findDraftSets('inbound')
-await repo.countDrafts()
-```
-
-### 4-2. ブラウザのデータを A5M2 / DB Browser で見る（GUI 派）
-
-データの実体は IndexedDB に「DBファイル丸ごとのバイナリ」で入っているため、まずファイルに書き出す。
-DevTools コンソールで実行すると `quick_scan.db` がダウンロードされる：
-
-```js
-const req = indexedDB.open('jeepSqliteStore')
-req.onsuccess = () => {
-  const store = req.result.transaction('databases', 'readonly').objectStore('databases')
-  const get = store.get('quick_scanSQLite.db')
-  get.onsuccess = () => {
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(new Blob([get.result]))
-    a.download = 'quick_scan.db'
-    a.click()
-  }
-}
-```
-
-あとは A5:SQL Mk-2（データベースの追加と削除 → SQLite）や DB Browser for SQLite で開く。
-
-### 4-3. Android 実機 — Database Inspector【リアルタイム】
+### 4-1. Android 実機 — Database Inspector【リアルタイム】
 
 Android Studio でアプリをデバッグ実行 → View → Tool Windows → **App Inspection** → Database Inspector。
 `quick_scanSQLite.db` のテーブルが live 表示され、クエリ実行・値の編集もできる。
 
-### 4-4. Android 実機のファイルを吸い出して A5M2 で見る
+### 4-2. Android 実機のファイルを吸い出して A5M2 / DB Browser で見る
 
 ```powershell
 adb exec-out run-as com.example.myapp cat databases/quick_scanSQLite.db > quick_scan.db
 ```
 
+あとは A5:SQL Mk-2（データベースの追加と削除 → SQLite）や DB Browser for SQLite で開く。
+
 ### 注意
 
-- 4-2 / 4-4 で取り出したファイルは**その時点のスナップショット**。ツール上で編集してもアプリには反映されない（読み取り専用の確認用と割り切る）
-- リアルタイムに見たいなら 4-1（Web）か 4-3（Android）
+- 4-2 で取り出したファイルは**その時点のスナップショット**。ツール上で編集してもアプリには反映されない（読み取り専用の確認用と割り切る）
+- リアルタイムに見たいなら 4-1
 
 ---
 
@@ -160,7 +118,6 @@ adb exec-out run-as com.example.myapp cat databases/quick_scanSQLite.db > quick_
 
 | 環境 | 方法 |
 |---|---|
-| ブラウザ | DevTools → Application → IndexedDB → `jeepSqliteStore` を右クリック → Delete database（リロードで空DBが再作成される） |
 | Android | 設定 → アプリ → アプリ情報 → ストレージ → データを消去 |
 | コードから | `clearDrafts(featureId)` は draft のみ。全消しの関数は現状なし（必要になったら repository に追加） |
 
@@ -168,15 +125,9 @@ adb exec-out run-as com.example.myapp cat databases/quick_scanSQLite.db > quick_
 
 ## 6. ハマりどころ（実際に踏んだもの）
 
-### sql-wasm.wasm は差し替え禁止
+### ブラウザ対応（jeep-sqlite + WASM）は撤去済み
 
-`public/assets/sql-wasm.wasm` は **jeep-sqlite@2.8.0 のグルーコードと同一ビルド（sql.js@1.11.0、約652KB）** でなければならない。
-sql.js 最新版の wasm に差し替えると **ABI 不一致で初期化が永久ハングする**（エラーにならず固まる。実測済み）。
-jeep-sqlite をバージョンアップした場合は、対応する sql.js ビルドの wasm に合わせて更新すること。
-
-### Web の永続化は saveToStore 前提
-
-sql.js はメモリ上で動くため、書き込み後に `saveToStore` しないとリロードで消える。`sqliteClient.ts` の `run()` が毎回呼んでいるので、**DB アクセスを自前実装せず必ず sqliteClient 経由にする**こと。
+2026-07-08 に撤去した。復活させる場合の注意: `public/assets/sql-wasm.wasm` は jeep-sqlite のグルーコードと**完全同一ビルド**の sql.js でなければならず、バージョン不一致だと ABI 不整合で初期化が永久ハングする（エラーにならず固まる。実測済み）。この保守コストが撤去理由の一つ。
 
 ### 初期化失敗の挙動
 
