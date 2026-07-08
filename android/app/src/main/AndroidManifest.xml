@@ -38,4 +38,8 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- バーコード読み取り（WebView の getUserMedia）に必須。宣言がないと WebView のカメラ要求が即拒否される -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- カメラ非搭載端末でもインストール可にする（Play 配布時のフィルタリング回避） -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>
