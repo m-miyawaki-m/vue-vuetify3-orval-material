@@ -1,10 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const run = vi.fn()
-const query = vi.fn()
+const state = vi.hoisted(() => ({ platform: 'android' }))
 
-vi.mock('@/db/sqliteClient', () => ({
-  getDb: () => Promise.resolve({ run, query }),
+const plugin = vi.hoisted(() => ({
+  createDraftSet: vi.fn(),
+  addItem: vi.fn(),
+  deleteSet: vi.fn(),
+  clearDrafts: vi.fn(),
+  confirmCompletedDrafts: vi.fn(),
+  findDraftSets: vi.fn(),
+  countDrafts: vi.fn(),
+  findLatestDraft: vi.fn(),
+}))
+
+vi.mock('@/plugins/scanRecord', () => ({ ScanRecord: plugin }))
+vi.mock('@capacitor/core', () => ({
+  Capacitor: { getPlatform: () => state.platform },
 }))
 
 import {
@@ -18,114 +29,89 @@ import {
   findLatestDraft,
 } from '@/db/scanRecordRepository'
 
-const setRow = {
+const scanSet = {
   id: 'set-1',
-  feature_id: 'inbound',
-  status: 'draft',
-  created_at: '2026-07-07T10:00:00.000Z',
-  confirmed_at: null,
+  featureId: 'inbound',
+  status: 'draft' as const,
+  createdAt: '2026-07-08T10:00:00.000Z',
+  confirmedAt: null,
 }
-const itemRow = {
+const scanItem = {
   id: 'item-1',
-  set_id: 'set-1',
+  setId: 'set-1',
   seq: 1,
-  item_key: 'part_no',
+  itemKey: 'part_no',
   value: '4901234567894',
   format: 'EAN_13',
-  scanned_at: '2026-07-07T10:00:01.000Z',
+  scannedAt: '2026-07-08T10:00:01.000Z',
 }
 
-describe('scanRecordRepository', () => {
+describe('scanRecordRepository (ScanRecord プラグイン呼び出し)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    run.mockResolvedValue({ changes: 0 })
-    query.mockResolvedValue([])
+    state.platform = 'android'
   })
 
-  it('createDraftSet: scan_sets に draft を INSERT し ScanSet を返す', async () => {
+  it('createDraftSet: featureId を渡しプラグインの戻り値をそのまま返す', async () => {
+    plugin.createDraftSet.mockResolvedValue(scanSet)
     const set = await createDraftSet('inbound')
-    expect(run).toHaveBeenCalledTimes(1)
-    const [sql, params] = run.mock.calls[0]
-    expect(sql).toContain('INSERT INTO scan_sets')
-    expect(params[0]).toBe(set.id)
-    expect(params[1]).toBe('inbound')
-    expect(set.status).toBe('draft')
-    expect(set.featureId).toBe('inbound')
-    expect(set.confirmedAt).toBeNull()
+    expect(plugin.createDraftSet).toHaveBeenCalledWith({ featureId: 'inbound' })
+    expect(set).toEqual(scanSet)
   })
 
-  it('addItem: scan_items に INSERT し ScanItem を返す', async () => {
-    const item = await addItem('set-1', { seq: 2, itemKey: 'lot', value: 'LOT-1', format: 'QR_CODE' })
-    const [sql, params] = run.mock.calls[0]
-    expect(sql).toContain('INSERT INTO scan_items')
-    expect(params).toEqual([item.id, 'set-1', 2, 'lot', 'LOT-1', 'QR_CODE', item.scannedAt])
-    expect(item.setId).toBe('set-1')
-    expect(item.seq).toBe(2)
+  it('addItem: setId と入力値を1つのオプションにまとめて渡す', async () => {
+    plugin.addItem.mockResolvedValue(scanItem)
+    const item = await addItem('set-1', { seq: 1, itemKey: 'part_no', value: '4901234567894', format: 'EAN_13' })
+    expect(plugin.addItem).toHaveBeenCalledWith({
+      setId: 'set-1',
+      seq: 1,
+      itemKey: 'part_no',
+      value: '4901234567894',
+      format: 'EAN_13',
+    })
+    expect(item).toEqual(scanItem)
   })
 
-  it('deleteSet: items → set の順に DELETE する', async () => {
+  it('deleteSet / clearDrafts: 引数をそのまま渡す', async () => {
+    plugin.deleteSet.mockResolvedValue(undefined)
+    plugin.clearDrafts.mockResolvedValue(undefined)
     await deleteSet('set-1')
-    expect(run.mock.calls[0][0]).toContain('DELETE FROM scan_items')
-    expect(run.mock.calls[0][1]).toEqual(['set-1'])
-    expect(run.mock.calls[1][0]).toContain('DELETE FROM scan_sets')
-    expect(run.mock.calls[1][1]).toEqual(['set-1'])
-  })
-
-  it('clearDrafts: 対象機能の draft の items と sets を DELETE する', async () => {
     await clearDrafts('inbound')
-    expect(run.mock.calls[0][0]).toContain('DELETE FROM scan_items')
-    expect(run.mock.calls[0][0]).toContain("status = 'draft'")
-    expect(run.mock.calls[1][0]).toContain('DELETE FROM scan_sets')
-    expect(run.mock.calls[1][0]).toContain("status = 'draft'")
-    expect(run.mock.calls[1][1]).toEqual(['inbound'])
+    expect(plugin.deleteSet).toHaveBeenCalledWith({ setId: 'set-1' })
+    expect(plugin.clearDrafts).toHaveBeenCalledWith({ featureId: 'inbound' })
   })
 
-  it('confirmCompletedDrafts: 完成セットのみ confirmed に更新し件数を返す', async () => {
-    run.mockResolvedValue({ changes: 2 })
+  it('confirmCompletedDrafts: count を剥がして数値で返す', async () => {
+    plugin.confirmCompletedDrafts.mockResolvedValue({ count: 2 })
     const n = await confirmCompletedDrafts('inbound', 3)
-    const [sql, params] = run.mock.calls[0]
-    expect(sql).toContain("SET status = 'confirmed'")
-    expect(sql).toContain('HAVING COUNT(*) >= ?')
-    expect(sql).toContain('feature_id = ?')
-    expect(params[1]).toBe('inbound')
-    expect(params[2]).toBe(3)
+    expect(plugin.confirmCompletedDrafts).toHaveBeenCalledWith({ featureId: 'inbound', requiredCount: 3 })
     expect(n).toBe(2)
   })
 
-  it('findDraftSets: セットと items を ScanSetWithItems に組み立てる', async () => {
-    query
-      .mockResolvedValueOnce([setRow])   // sets
-      .mockResolvedValueOnce([itemRow])  // items
+  it('findDraftSets: sets を剥がして配列で返す', async () => {
+    plugin.findDraftSets.mockResolvedValue({ sets: [{ ...scanSet, items: [scanItem] }] })
     const sets = await findDraftSets('inbound')
     expect(sets).toHaveLength(1)
-    expect(sets[0].id).toBe('set-1')
-    expect(sets[0].featureId).toBe('inbound')
-    expect(sets[0].items).toHaveLength(1)
     expect(sets[0].items[0].itemKey).toBe('part_no')
-    expect(sets[0].items[0].scannedAt).toBe('2026-07-07T10:00:01.000Z')
   })
 
-  it('countDrafts: featureId → 件数 のマップを返す', async () => {
-    query.mockResolvedValueOnce([
-      { feature_id: 'inbound', cnt: 3 },
-      { feature_id: 'outbound', cnt: 1 },
-    ])
-    const counts = await countDrafts()
-    expect(counts).toEqual({ inbound: 3, outbound: 1 })
+  it('countDrafts: counts を剥がしてマップで返す', async () => {
+    plugin.countDrafts.mockResolvedValue({ counts: { inbound: 3, outbound: 1 } })
+    expect(await countDrafts()).toEqual({ inbound: 3, outbound: 1 })
   })
 
-  it('findLatestDraft: draft がなければ null', async () => {
-    query.mockResolvedValueOnce([])
+  it('findLatestDraft: set を剥がして返し、null はそのまま null', async () => {
+    plugin.findLatestDraft.mockResolvedValue({ set: { ...scanSet, items: [] } })
+    expect((await findLatestDraft())?.id).toBe('set-1')
+    plugin.findLatestDraft.mockResolvedValue({ set: null })
     expect(await findLatestDraft()).toBeNull()
   })
 
-  it('findLatestDraft: 最新 draft を items 付きで返す', async () => {
-    query
-      .mockResolvedValueOnce([setRow])   // 最新セット
-      .mockResolvedValueOnce([itemRow])  // items
-    const latest = await findLatestDraft()
-    expect(latest?.id).toBe('set-1')
-    expect(latest?.items).toHaveLength(1)
-    expect(query.mock.calls[0][0]).toContain('MAX(scanned_at)')
+  it('Web プラットフォームでは明示エラーを投げ、プラグインを呼ばない', async () => {
+    state.platform = 'web'
+    await expect(createDraftSet('inbound')).rejects.toThrow(
+      'SQLite はブラウザでは利用できません。エミュレータまたは実機で確認してください'
+    )
+    expect(plugin.createDraftSet).not.toHaveBeenCalled()
   })
 })
