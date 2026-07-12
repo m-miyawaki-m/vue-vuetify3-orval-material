@@ -1,6 +1,6 @@
 import type { ScanSet, ScanItem, ScanSetWithItems } from '@/types/quickScan'
 
-// Room/SQLite 撤去に伴う保存層のメモリ実装。アプリ再起動で下書きは消える
+// 保存層のメモリ実装。アプリ再起動で下書きは消える
 const sets = new Map<string, ScanSetWithItems>()
 
 /** テスト専用: 保持中のセットを全消去する */
