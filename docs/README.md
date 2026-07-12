@@ -28,6 +28,7 @@
 |---------|------|
 | [vue-query-orval-zod-store-guide.md](./guides/data-fetching/vue-query-orval-zod-store-guide.md) | **入口**。4技術の責務分離と連携点の学習ガイド（学習順路・演習つき） |
 | [orval-zod-data-fetching-flow.md](./guides/data-fetching/orval-zod-data-fetching-flow.md) | openapi.yaml → orval 生成 → composable → ページのデータ取得フロー（現行構成の解説） |
+| [store-design-guide.md](./guides/data-fetching/store-design-guide.md) | Pinia store 設計ガイド（作成単位・作る/作らないの判断フロー・state/actions/getters・雛形） |
 | [query-key-and-cache-lifecycle.md](./guides/data-fetching/query-key-and-cache-lifecycle.md) | queryKey の実形状とキャッシュ寿命の深堀り（staleTime / invalidate の波及 / keepPreviousData） |
 | [testing-vue-query-composables.md](./guides/data-fetching/testing-vue-query-composables.md) | vue-query composable のテストの書き方深堀り（QueryClient 差し替え / モック境界 / mutation） |
 | [add-endpoint-hands-on.md](./guides/data-fetching/add-endpoint-hands-on.md) | 新エンドポイント追加ハンズオン演習（yaml 追記 → 生成 → composable → ページ → テスト → Prism 確認） |
