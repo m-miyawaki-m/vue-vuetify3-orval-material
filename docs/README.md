@@ -15,6 +15,7 @@
 | [team-guide.md](./guides/team-guide.md) | チーム製造ガイド（ページの作り方・テストの書き方・ESLint 対応・FAQ）— **製造する人はまずこれ** |
 | [common-layer-architecture.md](./guides/common-layer-architecture.md) | 共通層の設計意図・データフロー・エラー処理3段構えの全体像 |
 | [orval-zod-data-fetching-flow.md](./guides/orval-zod-data-fetching-flow.md) | openapi.yaml → orval 生成 → composable → ページのデータ取得フロー（現行構成の解説） |
+| [vue-query-orval-zod-store-guide.md](./guides/vue-query-orval-zod-store-guide.md) | vue-query + orval + zod + Pinia の責務分離と連携点の学習ガイド（学習順路・演習つき） |
 | [new-page-flow.md](./guides/new-page-flow.md) | 新規ページ作成フローチャート（openapi.yaml 起点） |
 | [development-guide.md](./guides/development-guide.md) | 部品の追加とカスタマイズ（ページ・タブ・ダイアログ・レイアウト） |
 | [theme-guide.md](./guides/theme-guide.md) | テーマ・カラー制御（切り替え・追加・CSS 変数） |
