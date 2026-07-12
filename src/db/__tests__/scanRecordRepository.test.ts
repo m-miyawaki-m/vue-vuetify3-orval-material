@@ -104,6 +104,15 @@ describe('scanRecordRepository (メモリ実装)', () => {
     expect((await findLatestDraft())?.id).toBe(latest.id)
   })
 
+  it('findLatestDraft: 後から作成された draft より、最後にスキャンした draft を優先する', async () => {
+    const first = await createDraftSet('inbound')
+    const second = await createDraftSet('outbound')
+    // second の方が後に作成されているが、first に後からアイテムを追加する
+    await addItem(first.id, { seq: 1, itemKey: 'a', value: '1', format: 'MOCK' })
+    expect((await findLatestDraft())?.id).toBe(first.id)
+    void second
+  })
+
   it('読み取り結果を変更しても内部状態に影響しない（コピーを返す）', async () => {
     const set = await createDraftSet('inbound')
     await addItem(set.id, { seq: 1, itemKey: 'a', value: '1', format: 'MOCK' })
