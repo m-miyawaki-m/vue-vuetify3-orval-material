@@ -1,7 +1,7 @@
 # vue-query composable のテストの書き方 — QueryClient 差し替えパターンの深堀り
 
 `docs/guides/team-guide.md` の
-[5. テストの書き方](./team-guide.md#5-テストの書き方) で3層構造（純関数 / composable / コンポーネント /
+[5. テストの書き方](../team-guide.md#5-テストの書き方) で3層構造（純関数 / composable / コンポーネント /
 ページ）と定番観点は説明済みです。このドキュメントはそのうち **composable 層で vue-query が絡む部分**だけを、
 実在するテストコードを引用しながら深堀りします。
 
@@ -300,6 +300,6 @@ describe('useXxxYyy', () => {
 
 ## 関連資料
 
-- [チーム製造ガイド 5. テストの書き方](./team-guide.md#5-テストの書き方) — 3層構造・観点の洗い出し方の全体像
-- [共通層の考え方とアーキテクチャ](./common-layer-architecture.md) — vue-query 入門・エラー処理3段構え
-- [vue-query-architecture.md](../reference/vue-query-architecture.md) — QueryClient・QueryKey・状態機械の詳細
+- [チーム製造ガイド 5. テストの書き方](../team-guide.md#5-テストの書き方) — 3層構造・観点の洗い出し方の全体像
+- [共通層の考え方とアーキテクチャ](../common-layer-architecture.md) — vue-query 入門・エラー処理3段構え
+- [vue-query-architecture.md](../../reference/vue-query-architecture.md) — QueryClient・QueryKey・状態機械の詳細

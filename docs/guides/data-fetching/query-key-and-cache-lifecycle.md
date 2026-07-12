@@ -2,7 +2,7 @@
 
 このプロジェクト（`@tanstack/vue-query` `^5.101.0`。`package.json` で確認）で **実際に生成・記述されている queryKey** を素材に、キャッシュがいつ新鮮で、いつ古くなり、いつ消えるか、`invalidateQueries` がどこまで波及するかを一次情報（実コード）だけで追う。
 
-vue-query の一般論（QueryClient とは何か・状態機械・useMutation の基本など）は [`docs/reference/vue-query-architecture.md`](../reference/vue-query-architecture.md) に既にあるので、そちらを前提とし、本書は重複させない。**この文書は「このリポジトリでは実際にどうなるか」に徹する。**
+vue-query の一般論（QueryClient とは何か・状態機械・useMutation の基本など）は [`docs/reference/vue-query-architecture.md`](../../reference/vue-query-architecture.md) に既にあるので、そちらを前提とし、本書は重複させない。**この文書は「このリポジトリでは実際にどうなるか」に徹する。**
 
 ---
 
@@ -304,7 +304,7 @@ beforeEach(() => {
 
 ### 6.2 queryKey 手書きの禁止と `useStockSearch` の意図的な例外
 
-`docs/guides/orval-zod-data-fetching-flow.md` の方針表にある通り、`src/api/index.ts` は自動生成物であり編集禁止。同様に、一覧・詳細のような openapi 定義済みエンドポイントの queryKey は生成された `getGetProductsQueryKey` / `getGetProductByIdQueryKey` を使うべきで、手書きすべきではない（表記ゆれによる cache miss を防ぐため）。
+`docs/guides/data-fetching/orval-zod-data-fetching-flow.md` の方針表にある通り、`src/api/index.ts` は自動生成物であり編集禁止。同様に、一覧・詳細のような openapi 定義済みエンドポイントの queryKey は生成された `getGetProductsQueryKey` / `getGetProductByIdQueryKey` を使うべきで、手書きすべきではない（表記ゆれによる cache miss を防ぐため）。
 
 `useStockSearch.ts` はこの原則の**意図的な例外**である。理由はコード冒頭のコメントに明記されている。
 

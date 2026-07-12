@@ -14,16 +14,23 @@
 |---------|------|
 | [team-guide.md](./guides/team-guide.md) | チーム製造ガイド（ページの作り方・テストの書き方・ESLint 対応・FAQ）— **製造する人はまずこれ** |
 | [common-layer-architecture.md](./guides/common-layer-architecture.md) | 共通層の設計意図・データフロー・エラー処理3段構えの全体像 |
-| [orval-zod-data-fetching-flow.md](./guides/orval-zod-data-fetching-flow.md) | openapi.yaml → orval 生成 → composable → ページのデータ取得フロー（現行構成の解説） |
-| [vue-query-orval-zod-store-guide.md](./guides/vue-query-orval-zod-store-guide.md) | vue-query + orval + zod + Pinia の責務分離と連携点の学習ガイド（学習順路・演習つき） |
-| [query-key-and-cache-lifecycle.md](./guides/query-key-and-cache-lifecycle.md) | queryKey の実形状とキャッシュ寿命の深堀り（staleTime / invalidate の波及 / keepPreviousData） |
-| [testing-vue-query-composables.md](./guides/testing-vue-query-composables.md) | vue-query composable のテストの書き方深堀り（QueryClient 差し替え / モック境界 / mutation） |
-| [add-endpoint-hands-on.md](./guides/add-endpoint-hands-on.md) | 新エンドポイント追加ハンズオン演習（yaml 追記 → 生成 → composable → ページ → テスト → Prism 確認） |
 | [new-page-flow.md](./guides/new-page-flow.md) | 新規ページ作成フローチャート（openapi.yaml 起点） |
 | [development-guide.md](./guides/development-guide.md) | 部品の追加とカスタマイズ（ページ・タブ・ダイアログ・レイアウト） |
 | [theme-guide.md](./guides/theme-guide.md) | テーマ・カラー制御（切り替え・追加・CSS 変数） |
 | [vuetify-android-guide.md](./guides/vuetify-android-guide.md) | Android（Capacitor）での Vuetify コンポーネント可用性と注意点 |
 | [capacitor-native-sdk-guide.md](./guides/capacitor-native-sdk-guide.md) | Capacitor 経由でネイティブ SDK（Java）を利用する概念と手順（SampleSdk エコー往復サンプル付き） |
+
+### guides/data-fetching/ — データ取得スタック専門（orval + zod + vue-query + Pinia）
+
+高度に専門的なため別ディレクトリに分離。入口は [data-fetching/README.md](./guides/data-fetching/README.md)（読む順つき索引）。
+
+| ファイル | 内容 |
+|---------|------|
+| [vue-query-orval-zod-store-guide.md](./guides/data-fetching/vue-query-orval-zod-store-guide.md) | **入口**。4技術の責務分離と連携点の学習ガイド（学習順路・演習つき） |
+| [orval-zod-data-fetching-flow.md](./guides/data-fetching/orval-zod-data-fetching-flow.md) | openapi.yaml → orval 生成 → composable → ページのデータ取得フロー（現行構成の解説） |
+| [query-key-and-cache-lifecycle.md](./guides/data-fetching/query-key-and-cache-lifecycle.md) | queryKey の実形状とキャッシュ寿命の深堀り（staleTime / invalidate の波及 / keepPreviousData） |
+| [testing-vue-query-composables.md](./guides/data-fetching/testing-vue-query-composables.md) | vue-query composable のテストの書き方深堀り（QueryClient 差し替え / モック境界 / mutation） |
+| [add-endpoint-hands-on.md](./guides/data-fetching/add-endpoint-hands-on.md) | 新エンドポイント追加ハンズオン演習（yaml 追記 → 生成 → composable → ページ → テスト → Prism 確認） |
 
 ## design/ — このアプリの設計書
 

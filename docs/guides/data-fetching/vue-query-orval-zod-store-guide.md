@@ -1,7 +1,7 @@
 # vue-query + orval + zod + Pinia 連携ガイド — 責務分離と学習順路
 
 4つの技術がどう役割分担し、どこで連携するかを実コードに沿って解説する学習ガイド。
-データ取得フローの手順詳細は [orval-zod-data-fetching-flow.md](./orval-zod-data-fetching-flow.md)、共通層の設計意図は [common-layer-architecture.md](./common-layer-architecture.md) を参照。
+データ取得フローの手順詳細は [orval-zod-data-fetching-flow.md](./orval-zod-data-fetching-flow.md)、共通層の設計意図は [common-layer-architecture.md](../common-layer-architecture.md) を参照。
 
 ---
 
@@ -178,7 +178,7 @@ const hasMemo = computed(() => memoStore.hasMemo(product.value.id))
 4. `src/composables/mutations/useRegisterProduct.ts` — 更新と invalidate
 5. `src/plugins/vueQuery.ts` ＋ `src/composables/useGlobalLoading.ts` — グローバル横断処理（Snackbar・ローディングオーバーレイ）
 6. 各 composable の `__tests__/` — QueryClient を差し替えてテストするパターン
-7. 概念の深掘りは [reference/vue-query-architecture.md](../reference/vue-query-architecture.md)（キャッシュ / QueryKey / 状態機械）
+7. 概念の深掘りは [reference/vue-query-architecture.md](../../reference/vue-query-architecture.md)（キャッシュ / QueryKey / 状態機械）
 
 ### テーマ別の深堀りドキュメント
 
@@ -190,4 +190,4 @@ const hasMemo = computed(() => memoStore.hasMemo(product.value.id))
 
 1. **キャッシュ観察**: `npm run dev:mock` で一覧 → 詳細 → 一覧と遷移し、Network タブで2回目の一覧に HTTP が飛ばない（staleTime 5分内）ことを確認する
 2. **invalidate 観察**: 商品登録後に一覧・在庫検索が自動再取得されることを Network タブで確認する
-3. **新エンドポイント追加**: `openapi/api.yaml` に GET を1本足して `npm run orval` → 生成された `useXxx()` をページで呼ぶ → Prism が同じ yaml から応答することを確認する（手順は [new-page-flow.md](./new-page-flow.md)）
+3. **新エンドポイント追加**: `openapi/api.yaml` に GET を1本足して `npm run orval` → 生成された `useXxx()` をページで呼ぶ → Prism が同じ yaml から応答することを確認する（手順は [new-page-flow.md](../new-page-flow.md)）

@@ -3,8 +3,8 @@
 `openapi/api.yaml` を唯一の真実の源として、orval が型・vue-query composable・zod スキーマを自動生成し、ページが値を取得して表示するまでの流れをまとめる。
 
 関連ドキュメント:
-- 設計スペック: [superpowers/specs/2026-07-03-data-fetching-architecture-design.md](../superpowers/specs/2026-07-03-data-fetching-architecture-design.md)
-- 実装プラン: [superpowers/plans/2026-07-03-data-fetching-architecture.md](../superpowers/plans/2026-07-03-data-fetching-architecture.md)
+- 設計スペック: [superpowers/specs/2026-07-03-data-fetching-architecture-design.md](../../superpowers/specs/2026-07-03-data-fetching-architecture-design.md)
+- 実装プラン: [superpowers/plans/2026-07-03-data-fetching-architecture.md](../../superpowers/plans/2026-07-03-data-fetching-architecture.md)
 
 ---
 

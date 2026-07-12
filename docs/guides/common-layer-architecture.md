@@ -415,4 +415,4 @@ AI 利用時にしか効かず機械的強制がないため不採用）。
 - [2026-07-03-data-fetching-architecture-design.md](../superpowers/specs/2026-07-03-data-fetching-architecture-design.md) — 前提となるデータ取得アーキテクチャの設計スペック
 - [vue-query-architecture.md](../reference/vue-query-architecture.md) — vue-query 自体の詳しい解説（QueryClient・QueryKey・状態機械・Q&A）
 - [architecture.md](../design/architecture.md) — アプリ全体の技術スタック・レイヤー構成図・ディレクトリ構成
-- [openapi-orval-vue-query.md](../archive/openapi-orval-vue-query.md) / [orval-zod-data-fetching-flow.md](./orval-zod-data-fetching-flow.md) — openapi.yaml 起点の orval 生成フロー
+- [openapi-orval-vue-query.md](../archive/openapi-orval-vue-query.md) / [orval-zod-data-fetching-flow.md](./data-fetching/orval-zod-data-fetching-flow.md) — openapi.yaml 起点の orval 生成フロー

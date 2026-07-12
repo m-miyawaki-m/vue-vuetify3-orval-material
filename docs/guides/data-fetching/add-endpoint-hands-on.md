@@ -4,9 +4,9 @@
 
 関連ドキュメント（本書と役割分担）:
 
-- 全体のフローチャート・ファイル一覧: [new-page-flow.md](./new-page-flow.md)
+- 全体のフローチャート・ファイル一覧: [new-page-flow.md](../new-page-flow.md)
 - orval / zod / vue-query の仕組みの解説: [orval-zod-data-fetching-flow.md](./orval-zod-data-fetching-flow.md)
-- 手順のテンプレート版（抽象形）: [team-guide.md](./team-guide.md) §3「新しい API を使いたい」— 本書はその具体的な一巡演習
+- 手順のテンプレート版（抽象形）: [team-guide.md](../team-guide.md) §3「新しい API を使いたい」— 本書はその具体的な一巡演習
 
 本書はそれらを読んだ前提で、**1本の具体的なエンドポイント（`GET /categories`）を最初から最後まで実装する手順**だけに絞る。仕組みの説明は上記2本を参照。
 
