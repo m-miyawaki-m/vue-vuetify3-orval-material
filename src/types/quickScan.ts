@@ -1,6 +1,6 @@
 export type ScanSetStatus = 'draft' | 'confirmed'
 
-/** scan_sets テーブルの1行（1セット = 1〜3個の読み取り値のまとまり） */
+/** スキャンセット（1セット = 1〜3個の読み取り値のまとまり） */
 export interface ScanSet {
   id: string
   featureId: string
@@ -9,7 +9,7 @@ export interface ScanSet {
   confirmedAt: string | null
 }
 
-/** scan_items テーブルの1行（セット内の1読み取り値） */
+/** セット内の1読み取り値 */
 export interface ScanItem {
   id: string
   setId: string
