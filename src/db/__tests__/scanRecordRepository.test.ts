@@ -1,23 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-
-const state = vi.hoisted(() => ({ platform: 'android' }))
-
-const plugin = vi.hoisted(() => ({
-  createDraftSet: vi.fn(),
-  addItem: vi.fn(),
-  deleteSet: vi.fn(),
-  clearDrafts: vi.fn(),
-  confirmCompletedDrafts: vi.fn(),
-  findDraftSets: vi.fn(),
-  countDrafts: vi.fn(),
-  findLatestDraft: vi.fn(),
-}))
-
-vi.mock('@/plugins/scanRecord', () => ({ ScanRecord: plugin }))
-vi.mock('@capacitor/core', () => ({
-  Capacitor: { getPlatform: () => state.platform },
-}))
-
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
   createDraftSet,
   addItem,
@@ -27,91 +8,107 @@ import {
   findDraftSets,
   countDrafts,
   findLatestDraft,
+  __resetForTest,
 } from '@/db/scanRecordRepository'
 
-const scanSet = {
-  id: 'set-1',
-  featureId: 'inbound',
-  status: 'draft' as const,
-  createdAt: '2026-07-08T10:00:00.000Z',
-  confirmedAt: null,
-}
-const scanItem = {
-  id: 'item-1',
-  setId: 'set-1',
-  seq: 1,
-  itemKey: 'part_no',
-  value: '4901234567894',
-  format: 'EAN_13',
-  scannedAt: '2026-07-08T10:00:01.000Z',
-}
-
-describe('scanRecordRepository (ScanRecord プラグイン呼び出し)', () => {
+describe('scanRecordRepository (メモリ実装)', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    state.platform = 'android'
+    __resetForTest()
   })
 
-  it('createDraftSet: featureId を渡しプラグインの戻り値をそのまま返す', async () => {
-    plugin.createDraftSet.mockResolvedValue(scanSet)
+  it('createDraftSet: draft ステータスのセットを新規作成する', async () => {
     const set = await createDraftSet('inbound')
-    expect(plugin.createDraftSet).toHaveBeenCalledWith({ featureId: 'inbound' })
-    expect(set).toEqual(scanSet)
+    expect(set.id).toBeTruthy()
+    expect(set.featureId).toBe('inbound')
+    expect(set.status).toBe('draft')
+    expect(set.confirmedAt).toBeNull()
+    expect(new Date(set.createdAt).getTime()).not.toBeNaN()
   })
 
-  it('addItem: setId と入力値を1つのオプションにまとめて渡す', async () => {
-    plugin.addItem.mockResolvedValue(scanItem)
-    const item = await addItem('set-1', { seq: 1, itemKey: 'part_no', value: '4901234567894', format: 'EAN_13' })
-    expect(plugin.addItem).toHaveBeenCalledWith({
-      setId: 'set-1',
+  it('addItem: セットにアイテムを追加し findDraftSets で参照できる', async () => {
+    const set = await createDraftSet('inbound')
+    const item = await addItem(set.id, {
       seq: 1,
       itemKey: 'part_no',
       value: '4901234567894',
       format: 'EAN_13',
     })
-    expect(item).toEqual(scanItem)
-  })
+    expect(item.setId).toBe(set.id)
+    expect(item.seq).toBe(1)
+    expect(new Date(item.scannedAt).getTime()).not.toBeNaN()
 
-  it('deleteSet / clearDrafts: 引数をそのまま渡す', async () => {
-    plugin.deleteSet.mockResolvedValue(undefined)
-    plugin.clearDrafts.mockResolvedValue(undefined)
-    await deleteSet('set-1')
-    await clearDrafts('inbound')
-    expect(plugin.deleteSet).toHaveBeenCalledWith({ setId: 'set-1' })
-    expect(plugin.clearDrafts).toHaveBeenCalledWith({ featureId: 'inbound' })
-  })
-
-  it('confirmCompletedDrafts: count を剥がして数値で返す', async () => {
-    plugin.confirmCompletedDrafts.mockResolvedValue({ count: 2 })
-    const n = await confirmCompletedDrafts('inbound', 3)
-    expect(plugin.confirmCompletedDrafts).toHaveBeenCalledWith({ featureId: 'inbound', requiredCount: 3 })
-    expect(n).toBe(2)
-  })
-
-  it('findDraftSets: sets を剥がして配列で返す', async () => {
-    plugin.findDraftSets.mockResolvedValue({ sets: [{ ...scanSet, items: [scanItem] }] })
     const sets = await findDraftSets('inbound')
     expect(sets).toHaveLength(1)
-    expect(sets[0].items[0].itemKey).toBe('part_no')
+    expect(sets[0].items).toHaveLength(1)
+    expect(sets[0].items[0].value).toBe('4901234567894')
   })
 
-  it('countDrafts: counts を剥がしてマップで返す', async () => {
-    plugin.countDrafts.mockResolvedValue({ counts: { inbound: 3, outbound: 1 } })
-    expect(await countDrafts()).toEqual({ inbound: 3, outbound: 1 })
+  it('addItem: 存在しない setId はエラー', async () => {
+    await expect(
+      addItem('missing', { seq: 1, itemKey: 'k', value: 'v', format: 'MOCK' })
+    ).rejects.toThrow('セットが見つかりません')
   })
 
-  it('findLatestDraft: set を剥がして返し、null はそのまま null', async () => {
-    plugin.findLatestDraft.mockResolvedValue({ set: { ...scanSet, items: [] } })
-    expect((await findLatestDraft())?.id).toBe('set-1')
-    plugin.findLatestDraft.mockResolvedValue({ set: null })
+  it('deleteSet: 指定セットのみ削除する', async () => {
+    const a = await createDraftSet('inbound')
+    const b = await createDraftSet('inbound')
+    await deleteSet(a.id)
+    const sets = await findDraftSets('inbound')
+    expect(sets.map((s) => s.id)).toEqual([b.id])
+  })
+
+  it('clearDrafts: 対象 featureId の draft のみ全削除する', async () => {
+    await createDraftSet('inbound')
+    await createDraftSet('inbound')
+    await createDraftSet('outbound')
+    await clearDrafts('inbound')
+    expect(await findDraftSets('inbound')).toHaveLength(0)
+    expect(await findDraftSets('outbound')).toHaveLength(1)
+  })
+
+  it('confirmCompletedDrafts: requiredCount に達した draft を confirmed にして件数を返す', async () => {
+    const done = await createDraftSet('inbound')
+    await addItem(done.id, { seq: 1, itemKey: 'a', value: '1', format: 'MOCK' })
+    await addItem(done.id, { seq: 2, itemKey: 'b', value: '2', format: 'MOCK' })
+    const incomplete = await createDraftSet('inbound')
+    await addItem(incomplete.id, { seq: 1, itemKey: 'a', value: '1', format: 'MOCK' })
+
+    const count = await confirmCompletedDrafts('inbound', 2)
+    expect(count).toBe(1)
+    // confirmed になったセットは draft 一覧から消える
+    const drafts = await findDraftSets('inbound')
+    expect(drafts.map((s) => s.id)).toEqual([incomplete.id])
+  })
+
+  it('findDraftSets: 他 featureId や confirmed を含まず、作成順で返す', async () => {
+    const first = await createDraftSet('inbound')
+    const second = await createDraftSet('inbound')
+    await createDraftSet('outbound')
+    const sets = await findDraftSets('inbound')
+    expect(sets.map((s) => s.id)).toEqual([first.id, second.id])
+  })
+
+  it('countDrafts: featureId ごとの draft 件数を返す（confirmed は数えない）', async () => {
+    await createDraftSet('inbound')
+    await createDraftSet('inbound')
+    const done = await createDraftSet('outbound')
+    await addItem(done.id, { seq: 1, itemKey: 'a', value: '1', format: 'MOCK' })
+    await confirmCompletedDrafts('outbound', 1)
+    expect(await countDrafts()).toEqual({ inbound: 2 })
+  })
+
+  it('findLatestDraft: 最後に作成された draft を返し、なければ null', async () => {
     expect(await findLatestDraft()).toBeNull()
+    await createDraftSet('inbound')
+    const latest = await createDraftSet('outbound')
+    expect((await findLatestDraft())?.id).toBe(latest.id)
   })
 
-  it('Web プラットフォームでは明示エラーを投げ、プラグインを呼ばない', async () => {
-    state.platform = 'web'
-    await expect(createDraftSet('inbound')).rejects.toThrow(
-      'SQLite はブラウザでは利用できません。エミュレータまたは実機で確認してください'
-    )
-    expect(plugin.createDraftSet).not.toHaveBeenCalled()
+  it('読み取り結果を変更しても内部状態に影響しない（コピーを返す）', async () => {
+    const set = await createDraftSet('inbound')
+    await addItem(set.id, { seq: 1, itemKey: 'a', value: '1', format: 'MOCK' })
+    const sets = await findDraftSets('inbound')
+    sets[0].items.pop()
+    expect((await findDraftSets('inbound'))[0].items).toHaveLength(1)
   })
 })
