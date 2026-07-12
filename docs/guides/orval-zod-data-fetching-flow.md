@@ -258,7 +258,7 @@ sequenceDiagram
     S->>L: router.push({ path: '/products', query: { q, category, inStock } })
     L->>L: params = computed(route.query + page)
     L->>Q: useGetProducts(params)
-    Q->>Q: queryKey = ['/products', params] を確認
+    Q->>Q: queryKey = ['products', params] を確認
     alt キャッシュなし（初回）
         Q->>G: queryFn 実行
         G->>A: customAxiosInstance({ url: '/products', params })

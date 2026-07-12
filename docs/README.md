@@ -16,6 +16,9 @@
 | [common-layer-architecture.md](./guides/common-layer-architecture.md) | 共通層の設計意図・データフロー・エラー処理3段構えの全体像 |
 | [orval-zod-data-fetching-flow.md](./guides/orval-zod-data-fetching-flow.md) | openapi.yaml → orval 生成 → composable → ページのデータ取得フロー（現行構成の解説） |
 | [vue-query-orval-zod-store-guide.md](./guides/vue-query-orval-zod-store-guide.md) | vue-query + orval + zod + Pinia の責務分離と連携点の学習ガイド（学習順路・演習つき） |
+| [query-key-and-cache-lifecycle.md](./guides/query-key-and-cache-lifecycle.md) | queryKey の実形状とキャッシュ寿命の深堀り（staleTime / invalidate の波及 / keepPreviousData） |
+| [testing-vue-query-composables.md](./guides/testing-vue-query-composables.md) | vue-query composable のテストの書き方深堀り（QueryClient 差し替え / モック境界 / mutation） |
+| [add-endpoint-hands-on.md](./guides/add-endpoint-hands-on.md) | 新エンドポイント追加ハンズオン演習（yaml 追記 → 生成 → composable → ページ → テスト → Prism 確認） |
 | [new-page-flow.md](./guides/new-page-flow.md) | 新規ページ作成フローチャート（openapi.yaml 起点） |
 | [development-guide.md](./guides/development-guide.md) | 部品の追加とカスタマイズ（ページ・タブ・ダイアログ・レイアウト） |
 | [theme-guide.md](./guides/theme-guide.md) | テーマ・カラー制御（切り替え・追加・CSS 変数） |

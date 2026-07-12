@@ -180,6 +180,12 @@ const hasMemo = computed(() => memoStore.hasMemo(product.value.id))
 6. 各 composable の `__tests__/` — QueryClient を差し替えてテストするパターン
 7. 概念の深掘りは [reference/vue-query-architecture.md](../reference/vue-query-architecture.md)（キャッシュ / QueryKey / 状態機械）
 
+### テーマ別の深堀りドキュメント
+
+- [query-key-and-cache-lifecycle.md](./query-key-and-cache-lifecycle.md) — queryKey の実形状・staleTime/invalidate の動き
+- [testing-vue-query-composables.md](./testing-vue-query-composables.md) — QueryClient 差し替え・モック境界・テストパターン
+- [add-endpoint-hands-on.md](./add-endpoint-hands-on.md) — 新エンドポイントを画面まで通すハンズオン演習
+
 ### 演習課題（手を動かす）
 
 1. **キャッシュ観察**: `npm run dev:mock` で一覧 → 詳細 → 一覧と遷移し、Network タブで2回目の一覧に HTTP が飛ばない（staleTime 5分内）ことを確認する
