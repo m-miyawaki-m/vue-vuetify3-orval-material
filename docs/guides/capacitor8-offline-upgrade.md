@@ -1,5 +1,7 @@
 # Capacitor 7 → 8 制限ネットワーク環境アップグレード手順書
 
+> **注記（2026-07-12）**: Room/SQLite はプロジェクトから撤去済み（`docs/superpowers/specs/2026-07-12-remove-room-sqlite-design.md`）。本書の Room・Kotlin・KSP に関する手順（バージョン更新・Nexus proxy・データ残存確認・トラブルシューティング）は実施不要。`docs/guides/sqlite-guide.md` も削除済み。
+
 **対象**: 外部接続が制限された環境（VSCode + gradle CLI + エミュレータ、Android Studio は任意）で Capacitor 8 へ更新するための構成と手順
 **環境の前提**:
 - 外部への直接接続は不可。**Nexus（社内リポジトリマネージャ）経由で dl.google.com 等への到達は可能**
