@@ -58,10 +58,13 @@ src/sample/scan/
 | ファイル | 責務 |
 |---|---|
 | `useScanEngine.ts` | 読取エンジンの抽象化。`ScanEngine` インターフェース(start/stop/onResult)。qr/barcode は既存 `@/composables/useBarcodeScanner`(zxing)へ委譲。**OCR はプレビュー+シャッターボタンでダミー文字列を返すスタブ**(実案件で Tesseract 等に差し替え可能な同一インターフェース) |
-| `useScanSession.ts` | 読取セッション操作。`single`: 1件読取で停止し結果画面へ / `continuous`: `items[]` へ蓄積・削除・クリア・完了遷移。状態本体は `scanSessionStore` に置き、この composable が読み書きを仲介する |
-| `useScanResolve.ts` | 値の解決戦略。`raw`(そのまま)/ `api`(orval 生成の商品 API + vue-query で照会。スキャン値=商品コードとして照会) |
+| `useScanScreen.ts` | スキャン画面の結線。`single`: 1件読取で結果画面へ遷移 / `continuous`: `items[]` へ蓄積・完了遷移。状態本体は `scanSessionStore` に置き、この composable が読み書きを仲介する |
+| `useResultScreen.ts` | 結果画面の結線。再スキャン(単発は破棄/連続は保持)・確定・行削除・直接アクセスガード |
+| `patterns.ts` | 5パターンの定義(id・タイトル・モード・項目定義・parser・resolve 種別・ルートパス)。parser 関数を含むため store には入れず両画面が import 共有 |
 | `parsers.ts` | 値の加工。`passthrough`(そのまま)/ `split`(区切り文字で商品コード・ロット・数量に分割)。純関数でユニットテスト対象 |
-| `useXxxPage.ts` | パターンページごとの結線(セッション+resolver+parser の組み合わせ)。ページ vue はこれを import してバインドするだけ |
+
+値の API 解決は専用 composable を作らず、照会型の結果ページが既存
+`@/composables/queries/useProductDetail`(スキャン値=商品 id として照会)を直接使う。
 
 ## stores/
 
@@ -169,7 +172,9 @@ list-raw ではカード内が「読取値/形式/時刻」、list-split では�
 ## エラー処理
 
 - カメラ権限エラー: `ScanCameraView` 内に表示(既存 `useBarcodeScanner` の error を流用)
-- API 照会失敗: 結果画面内に error 表示(vue-query の isError)+既存 `useSnackbar` で通知
+- API 照会失敗: 既存 `useProductDetail` がモック JSON へフォールバックするため、結果画面では
+  「該当する商品が見つかりません」表示で完結(snackbar は確定時の成功通知のみ)。
+  読取値が数値でない場合は警告表示
 - 結果画面への直接アクセスで store 空: スキャン画面へリダイレクト
 
 ## テスト
