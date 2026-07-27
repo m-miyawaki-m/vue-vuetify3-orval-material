@@ -39,16 +39,18 @@ export function useScanEngine(
 
   const isOcr = computed(() => scanType.value === 'ocr')
 
-  function start() {
-    scanner.start()
+  async function start() {
+    await scanner.start()
   }
   function stop() {
     scanner.stop()
   }
-  // formats は start 時に固定されるため、種別変更時は再起動が必要
-  function restart() {
+  // formats は start 時に固定されるため、種別変更時は再起動が必要。
+  // start() は非同期(カメラ起動待ち)のため、stop → start を直列化して
+  // 前のセッションが解決する前に次の start が始まらないようにする。
+  async function restart() {
     stop()
-    start()
+    await start()
   }
   function captureOcr() {
     if (!isOcr.value) return
