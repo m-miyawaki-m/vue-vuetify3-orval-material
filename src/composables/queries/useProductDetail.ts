@@ -12,9 +12,13 @@ const mockProducts: Product[] = z.array(GetProductByIdResponse).parse(mockProduc
 /**
  * 商品詳細取得。id の変化で自動再フェッチ・同一 id はキャッシュから即表示。
  * API エラー時はモック JSON の同 id 商品にフォールバック（オフラインモード）。
+ *
+ * @param id - 商品ID。null を渡すと照会は発火しない（生成コードの enabled ガードが実行時に null を無効化）
  */
-export function useProductDetail(id: MaybeRef<number>) {
-  const query = useGetProductById(id)
+export function useProductDetail(id: MaybeRef<number | null>) {
+  // 型が MaybeRef<number> を要求するため、null を型レベルで無視してキャスト
+  // 実行時の enabled ガードが null チェックを行うため、安全性は担保される
+  const query = useGetProductById(id as MaybeRef<number>)
 
   const product = computed<Product | null>(() =>
     query.isError.value

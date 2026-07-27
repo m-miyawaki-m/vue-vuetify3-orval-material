@@ -41,7 +41,10 @@ import { useProductDetail } from '@/composables/queries/useProductDetail'
 
 const { single, rescan, confirm, title } = useResultScreen(getPattern('single-lookup'))
 
-const productId = computed(() => Number.parseInt(single.value?.raw ?? '', 10))
-const isValidId = computed(() => Number.isFinite(productId.value))
+const rawValue = computed(() => single.value?.raw ?? '')
+const isValidId = computed(() => /^\d+$/.test(rawValue.value))
+const productId = computed<number | null>(() =>
+  isValidId.value ? Number.parseInt(rawValue.value, 10) : null,
+)
 const { product, isLoading } = useProductDetail(productId)
 </script>

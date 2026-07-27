@@ -112,4 +112,10 @@ describe('SingleLookupResultPage', () => {
     const w = mount(SingleLookupResultPage, mountOpts)
     expect(w.text()).toContain('商品コードが数値ではありません')
   })
+
+  it('数字と非数字が混在する読取値もエラーとして扱う', () => {
+    seedStore('12X3')
+    const w = mount(SingleLookupResultPage, mountOpts)
+    expect(w.text()).toContain('商品コードが数値ではありません')
+  })
 })
