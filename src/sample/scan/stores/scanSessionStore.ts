@@ -18,6 +18,8 @@ export const useScanSessionStore = defineStore('sampleScanSession', () => {
   const single = computed(() => items.value[0] ?? null)
 
   function startSession(id: string, m: ScanSessionMode) {
+    // scanType は意図的にリセットしない: ユーザーの直前の読取種別を
+    // 好みとして次のセッションにも引き継ぐ(バーコード続きの利用が多い想定)。
     patternId.value = id
     mode.value = m
     items.value = []

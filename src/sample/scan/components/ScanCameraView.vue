@@ -52,9 +52,12 @@ const engine = useScanEngine(videoRef, toRef(props, 'scanType'), (r) => emit('sc
 const { error, torchAvailable, isOcr, captureOcr } = engine
 
 onMounted(engine.start)
-watch(() => props.scanType, () => engine.restart())
-
 const torchOn = ref(false)
+watch(() => props.scanType, () => {
+  // 新しいストリームはトーチ OFF で始まるため、表示状態を実態に合わせてリセットする
+  torchOn.value = false
+  engine.restart()
+})
 async function toggleTorch() {
   torchOn.value = !torchOn.value
   await engine.switchTorch(torchOn.value)

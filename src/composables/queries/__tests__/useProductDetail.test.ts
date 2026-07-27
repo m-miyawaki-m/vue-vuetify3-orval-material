@@ -11,9 +11,10 @@
 //   [1] API 成功時: レスポンスの商品を返す
 //   [2] API エラー時: モック JSON の同 id 商品にフォールバック
 //   [3] API エラーかつモックにも無い id: null
+//   [4] id に ref(null) を渡すと product は null、クエリは発火しない
 // ============================================================
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import { customAxiosInstance } from '@/plugins/axios'
 import { ApiError } from '@/api/apiError'
@@ -75,5 +76,12 @@ describe('useProductDetail', () => {
     const { product, isLoading } = mountComposable(() => useProductDetail(99999))
     await vi.waitFor(() => expect(isLoading.value).toBe(false))
     expect(product.value).toBeNull()
+  })
+
+  it('id に ref(null) を渡すと product は null になり、クエリは発火しない', () => {
+    const { product, isLoading } = mountComposable(() => useProductDetail(ref(null)))
+    expect(product.value).toBeNull()
+    expect(isLoading.value).toBe(false)
+    expect(mockedAxios).not.toHaveBeenCalled()
   })
 })
