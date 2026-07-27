@@ -32,6 +32,18 @@ const router = createRouter({
     { path: '/sdk-echo-sample', component: () => import('@/pages/SdkEchoSamplePage.vue')     },
     { path: '/quick-scan', component: () => import('@/pages/QuickScanMenuPage.vue') },
     { path: '/quick-scan/:featureId', component: () => import('@/pages/QuickScanWorkPage.vue'), props: true },
+    // スキャンパターン集(sample/scan)
+    { path: '/sample/scan', component: () => import('@/sample/scan/pages/ScanPatternIndexPage.vue') },
+    { path: '/sample/scan/single-raw', component: () => import('@/sample/scan/pages/SingleRawScanPage.vue') },
+    { path: '/sample/scan/single-raw/result', component: () => import('@/sample/scan/pages/SingleRawResultPage.vue') },
+    { path: '/sample/scan/single-split', component: () => import('@/sample/scan/pages/SingleSplitScanPage.vue') },
+    { path: '/sample/scan/single-split/result', component: () => import('@/sample/scan/pages/SingleSplitResultPage.vue') },
+    { path: '/sample/scan/single-lookup', component: () => import('@/sample/scan/pages/SingleLookupScanPage.vue') },
+    { path: '/sample/scan/single-lookup/result', component: () => import('@/sample/scan/pages/SingleLookupResultPage.vue') },
+    { path: '/sample/scan/list-raw', component: () => import('@/sample/scan/pages/ListRawScanPage.vue') },
+    { path: '/sample/scan/list-raw/result', component: () => import('@/sample/scan/pages/ListRawResultPage.vue') },
+    { path: '/sample/scan/list-split', component: () => import('@/sample/scan/pages/ListSplitScanPage.vue') },
+    { path: '/sample/scan/list-split/result', component: () => import('@/sample/scan/pages/ListSplitResultPage.vue') },
     { path: '/:pathMatch(.*)*', component: ComingSoonPage },
   ],
 })
