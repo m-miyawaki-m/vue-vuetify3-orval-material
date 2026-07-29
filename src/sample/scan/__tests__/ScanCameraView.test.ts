@@ -45,19 +45,21 @@ describe('ScanCameraView', () => {
     ])
   })
 
-  it('ocr のときシャッターボタンが表示され、押すとダミー文字列を emit する', async () => {
+  it('オーバーレイのシャッターは廃止され captureOcr が expose される', async () => {
     const w = mount(ScanCameraView, { props: { scanType: 'ocr' as const } })
-    const shutter = w.find('.shutter-btn')
-    expect(shutter.exists()).toBe(true)
-    await shutter.trigger('click')
+    expect(w.find('.shutter-btn').exists()).toBe(false)
+    ;(w.vm as unknown as { captureOcr: () => void }).captureOcr()
+    await w.vm.$nextTick()
     const emitted = w.emitted('scan')?.[0]?.[0] as ScanResult
     expect(emitted.text).toBe(OCR_DUMMY_TEXT)
     expect(emitted.format).toBe('OCR')
   })
 
-  it('barcode のときシャッターボタンは表示されない', () => {
+  it('captureOcr は ocr 以外では何も emit しない(expose 経由)', async () => {
     const w = mount(ScanCameraView, { props: { scanType: 'barcode' as const } })
-    expect(w.find('.shutter-btn').exists()).toBe(false)
+    ;(w.vm as unknown as { captureOcr: () => void }).captureOcr()
+    await w.vm.$nextTick()
+    expect(w.emitted('scan')).toBeUndefined()
   })
 
   it('種別変更でエンジンを再起動する', async () => {

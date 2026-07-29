@@ -1,6 +1,11 @@
 <template>
   <ScanFixedLayout :title="title">
-    <ScanCameraView :scan-type="scanType" @scan="handleScan" @manual-request="openManual" />
+    <ScanCameraView
+      ref="cameraRef"
+      :scan-type="scanType"
+      @scan="handleScan"
+      @manual-request="openManual"
+    />
     <p class="text-caption text-medium-emphasis pa-4">
       読み取ると結果画面へ遷移します
     </p>
@@ -9,11 +14,19 @@
       <v-btn @click="cancel">キャンセル</v-btn>
       <ScanTypeMenuButton v-model="scanType" />
       <v-btn class="manual-input-btn" @click="openManual">手入力</v-btn>
+      <v-btn
+        v-if="scanType === 'ocr'"
+        class="shutter-btn"
+        icon="mdi-camera"
+        color="primary"
+        @click="cameraRef?.captureOcr()"
+      />
     </template>
   </ScanFixedLayout>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import ScanFixedLayout from '../components/ScanFixedLayout.vue'
 import ScanTypeMenuButton from '../components/ScanTypeMenuButton.vue'
 import ScanCameraView from '../components/ScanCameraView.vue'
@@ -23,4 +36,6 @@ import { useScanScreen } from '../logic/useScanScreen'
 
 const { scanType, handleScan, cancel, title, manualOpen, openManual, handleManualSubmit } =
   useScanScreen(getPattern('single-raw'))
+
+const cameraRef = ref<InstanceType<typeof ScanCameraView> | null>(null)
 </script>

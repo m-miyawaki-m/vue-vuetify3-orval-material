@@ -194,3 +194,33 @@ describe('フッター手入力', () => {
     expect(w.findComponent(ScanManualInputDialog).props('modelValue')).toBe(true)
   })
 })
+
+describe('フッター OCR シャッター', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    capturedOnScan = null
+  })
+
+  it('barcode のときフッターにシャッターは表示されない', () => {
+    const w = mount(SingleRawScanPage, mountOpts)
+    expect(w.find('.shutter-btn').exists()).toBe(false)
+  })
+
+  it('ocr のとき単発ページのシャッター押下で読取が発生し結果画面へ遷移する', async () => {
+    useScanSessionStore().setScanType('ocr')
+    const w = mount(SingleRawScanPage, mountOpts)
+    await w.find('.shutter-btn').trigger('click')
+    const store = useScanSessionStore()
+    expect(store.single?.format).toBe('OCR')
+    expect(mockPush).toHaveBeenCalledWith('/sample/scan/single-raw/result')
+  })
+
+  it('ocr のとき連続ページのシャッター押下で確認ダイアログに入る', async () => {
+    useScanSessionStore().setScanType('ocr')
+    const w = mount(ListSplitScanPage, mountOpts)
+    await w.find('.shutter-btn').trigger('click')
+    await w.vm.$nextTick()
+    expect(useScanSessionStore().count).toBe(0)
+    expect(w.findComponent(ScanOcrConfirmDialog).props('modelValue')).toBe(true)
+  })
+})

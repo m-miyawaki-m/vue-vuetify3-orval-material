@@ -10,14 +10,6 @@
       size="small"
       @click="toggleTorch"
     />
-    <v-btn
-      v-if="isOcr && !error"
-      class="shutter-btn"
-      icon="mdi-camera"
-      size="large"
-      color="primary"
-      @click="captureOcr"
-    />
 
     <!-- カメラ起動失敗時: ×プレースホルダー + 手入力導線 -->
     <div v-if="error" class="camera-fallback">
@@ -55,6 +47,9 @@ const emit = defineEmits<{ scan: [result: ScanResult]; 'manual-request': [] }>()
 const videoRef = ref<HTMLVideoElement | null>(null)
 const engine = useScanEngine(videoRef, toRef(props, 'scanType'), (r) => emit('scan', r))
 const { error, torchAvailable, isOcr, captureOcr } = engine
+
+// フッター側のシャッターボタン(ページ所有)から撮影を起動できるように公開する
+defineExpose({ captureOcr })
 
 onMounted(engine.start)
 const torchOn = ref(false)
@@ -108,12 +103,6 @@ function simulate() {
   position: absolute;
   top: 8px;
   right: 8px;
-}
-.shutter-btn {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 .camera-fallback {
   position: absolute;
