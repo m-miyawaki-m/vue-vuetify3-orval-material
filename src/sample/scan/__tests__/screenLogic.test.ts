@@ -106,6 +106,33 @@ describe('useScanScreen', () => {
     expect(useScanSessionStore().items).toHaveLength(1)
     expect(pendingOcrItem.value).toBeNull()
   })
+
+  it('openManual で manualOpen が true になる', () => {
+    const { manualOpen, openManual } = useScanScreen(getPattern('single-raw'))
+    expect(manualOpen.value).toBe(false)
+    openManual()
+    expect(manualOpen.value).toBe(true)
+  })
+
+  it('handleManualSubmit: 単発は MANUAL として保存し結果画面へ遷移する', () => {
+    const { handleManualSubmit } = useScanScreen(getPattern('single-raw'))
+    handleManualSubmit('ABC-123')
+    const store = useScanSessionStore()
+    expect(store.single?.raw).toBe('ABC-123')
+    expect(store.single?.format).toBe('MANUAL')
+    expect(mockPush).toHaveBeenCalledWith('/sample/scan/single-raw/result')
+  })
+
+  it('handleManualSubmit: 連続は分割済みでリストに追加され OCR 確認には入らない', () => {
+    const { handleManualSubmit, pendingOcrItem } = useScanScreen(getPattern('list-split'))
+    handleManualSubmit('ITEM01,LOT-A,12')
+    handleManualSubmit('ITEM02,LOT-B,5')
+    const store = useScanSessionStore()
+    expect(store.items).toHaveLength(2)
+    expect(store.items[0].format).toBe('MANUAL')
+    expect(store.items[0].fields).toEqual({ productCode: 'ITEM01', lot: 'LOT-A', qty: '12' })
+    expect(pendingOcrItem.value).toBeNull()
+  })
 })
 
 describe('useResultScreen', () => {

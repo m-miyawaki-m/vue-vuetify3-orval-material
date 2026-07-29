@@ -53,6 +53,16 @@ export function useScanScreen(config: ScanPatternConfig) {
     pendingOcrItem.value = null
   }
 
+  // フッター常設の手入力。submit は MANUAL として既存の読取経路に流す
+  // (単発は結果画面へ遷移、連続は addItem。MANUAL は OCR 確認フローに入らない)
+  const manualOpen = ref(false)
+  function openManual() {
+    manualOpen.value = true
+  }
+  function handleManualSubmit(text: string) {
+    handleScan({ text, format: 'MANUAL', timestamp: Date.now() })
+  }
+
   function finish() {
     router.push(config.resultPath)
   }
@@ -64,6 +74,7 @@ export function useScanScreen(config: ScanPatternConfig) {
   return {
     scanType, count, latest, handleScan, finish, cancel,
     pendingOcrItem, confirmOcr, discardOcr,
+    manualOpen, openManual, handleManualSubmit,
     isContinuous: config.mode === 'continuous',
     title: config.title,
     fields: config.fields,
