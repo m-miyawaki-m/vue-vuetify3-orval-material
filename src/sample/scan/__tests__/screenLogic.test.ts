@@ -60,6 +60,52 @@ describe('useScanScreen', () => {
     expect(store.hasSession).toBe(false)
     expect(mockBack).toHaveBeenCalled()
   })
+
+  it('continuous + OCR: pendingOcrItem に入り items には積まれない', () => {
+    const { handleScan, pendingOcrItem } = useScanScreen(getPattern('list-split'))
+    handleScan({ text: 'ITEM01,LOT-A,12', format: 'OCR', timestamp: 1 })
+    const store = useScanSessionStore()
+    expect(store.items).toHaveLength(0)
+    expect(pendingOcrItem.value?.raw).toBe('ITEM01,LOT-A,12')
+    expect(pendingOcrItem.value?.fields.productCode).toBe('ITEM01')
+  })
+
+  it('confirmOcr で items に追加され pending がクリアされる', () => {
+    const { handleScan, pendingOcrItem, confirmOcr } = useScanScreen(getPattern('list-split'))
+    handleScan({ text: 'A,B,1', format: 'OCR', timestamp: 1 })
+    confirmOcr({
+      raw: 'X,Y,2',
+      format: 'OCR',
+      timestamp: 1,
+      fields: { productCode: 'X', lot: 'Y', qty: '2' },
+    })
+    const store = useScanSessionStore()
+    expect(store.items).toHaveLength(1)
+    expect(store.items[0].raw).toBe('X,Y,2')
+    expect(pendingOcrItem.value).toBeNull()
+  })
+
+  it('discardOcr は items に積まず pending をクリアする', () => {
+    const { handleScan, pendingOcrItem, discardOcr } = useScanScreen(getPattern('list-raw'))
+    handleScan({ text: 'A', format: 'OCR', timestamp: 1 })
+    discardOcr()
+    expect(useScanSessionStore().items).toHaveLength(0)
+    expect(pendingOcrItem.value).toBeNull()
+  })
+
+  it('single + OCR は従来どおり保存して結果画面へ遷移する', () => {
+    const { handleScan } = useScanScreen(getPattern('single-raw'))
+    handleScan({ text: 'ABC', format: 'OCR', timestamp: 1 })
+    expect(useScanSessionStore().items).toHaveLength(1)
+    expect(mockPush).toHaveBeenCalledWith('/sample/scan/single-raw/result')
+  })
+
+  it('continuous + OCR 以外(バーコード等)は従来どおり直接積む', () => {
+    const { handleScan, pendingOcrItem } = useScanScreen(getPattern('list-raw'))
+    handleScan({ text: '4901234567890', format: 'EAN_13', timestamp: 1 })
+    expect(useScanSessionStore().items).toHaveLength(1)
+    expect(pendingOcrItem.value).toBeNull()
+  })
 })
 
 describe('useResultScreen', () => {

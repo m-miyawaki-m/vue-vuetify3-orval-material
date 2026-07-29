@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ScanResult } from '@/types/scanner'
 import { useScanSessionStore } from '../stores/scanSessionStore'
@@ -26,13 +26,29 @@ export function useScanScreen(config: ScanPatternConfig) {
     return { raw: r.text, format: r.format, timestamp: r.timestamp, fields: config.parser(r.text) }
   }
 
+  // OCR は誤読前提のため、連続モードでは確認ダイアログを挟んでから積む
+  const pendingOcrItem = ref<ScanItem | null>(null)
+
   function handleScan(r: ScanResult) {
+    const item = toItem(r)
+    if (config.mode === 'continuous' && r.format === 'OCR') {
+      pendingOcrItem.value = item
+      return
+    }
     if (config.mode === 'single') {
-      store.setSingleResult(toItem(r))
+      store.setSingleResult(item)
       router.push(config.resultPath)
     } else {
-      store.addItem(toItem(r))
+      store.addItem(item)
     }
+  }
+
+  function confirmOcr(item: ScanItem) {
+    store.addItem(item)
+    pendingOcrItem.value = null
+  }
+  function discardOcr() {
+    pendingOcrItem.value = null
   }
 
   function finish() {
@@ -45,8 +61,10 @@ export function useScanScreen(config: ScanPatternConfig) {
 
   return {
     scanType, count, latest, handleScan, finish, cancel,
+    pendingOcrItem, confirmOcr, discardOcr,
     isContinuous: config.mode === 'continuous',
     title: config.title,
     fields: config.fields,
+    parser: config.parser,
   }
 }
