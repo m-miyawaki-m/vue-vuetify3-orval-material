@@ -3,12 +3,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockPush = vi.fn()
 const mockBack = vi.fn()
 const mockReplace = vi.fn()
+const mockRouteParams: Record<string, string> = {}
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockPush, back: mockBack, replace: mockReplace }),
+  useRoute: () => ({ params: mockRouteParams }),
 }))
 
 import { useScanScreen } from '../logic/useScanScreen'
 import { useResultScreen } from '../logic/useResultScreen'
+import { useItemDetailScreen } from '../logic/useItemDetailScreen'
 import { getPattern } from '../logic/patterns'
 import { useScanSessionStore } from '../stores/scanSessionStore'
 
@@ -172,5 +175,54 @@ describe('useResultScreen', () => {
     confirm()
     expect(store.hasSession).toBe(false)
     expect(mockPush).toHaveBeenCalledWith('/sample/scan')
+  })
+})
+
+describe('openDetail / useItemDetailScreen', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    delete mockRouteParams.index
+  })
+
+  it('openDetail で明細ルートへ遷移する', () => {
+    const store = useScanSessionStore()
+    store.startSession('list-split', 'continuous')
+    store.addItem({ raw: 'A,B,1', format: 'QR_CODE', timestamp: 1, fields: {} })
+    const { openDetail } = useResultScreen(getPattern('list-split'))
+    openDetail(0)
+    expect(mockPush).toHaveBeenCalledWith('/sample/scan/list-split/result/0')
+  })
+
+  it('useItemDetailScreen: 正常 index で item を返す', () => {
+    const store = useScanSessionStore()
+    store.startSession('list-split', 'continuous')
+    store.addItem({
+      raw: 'ITEM01,LOT-A,12',
+      format: 'QR_CODE',
+      timestamp: 1,
+      fields: { productCode: 'ITEM01', lot: 'LOT-A', qty: '12' },
+    })
+    mockRouteParams.index = '0'
+    const { item, index } = useItemDetailScreen(getPattern('list-split'))
+    expect(index).toBe(0)
+    expect(item.value?.raw).toBe('ITEM01,LOT-A,12')
+    expect(mockReplace).not.toHaveBeenCalled()
+  })
+
+  it('useItemDetailScreen: 範囲外 index は一覧へ replace する', () => {
+    const store = useScanSessionStore()
+    store.startSession('list-split', 'continuous')
+    mockRouteParams.index = '5'
+    useItemDetailScreen(getPattern('list-split'))
+    expect(mockReplace).toHaveBeenCalledWith('/sample/scan/list-split/result')
+  })
+
+  it('useItemDetailScreen: 別パターンのセッションは一覧へ replace する', () => {
+    const store = useScanSessionStore()
+    store.startSession('list-raw', 'continuous')
+    store.addItem({ raw: 'A', format: 'X', timestamp: 1, fields: {} })
+    mockRouteParams.index = '0'
+    useItemDetailScreen(getPattern('list-split'))
+    expect(mockReplace).toHaveBeenCalledWith('/sample/scan/list-split/result')
   })
 })

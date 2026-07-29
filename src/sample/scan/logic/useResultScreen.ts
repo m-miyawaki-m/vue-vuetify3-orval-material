@@ -33,9 +33,12 @@ export function useResultScreen(config: ScanPatternConfig) {
   function clearItems() {
     store.clearItems()
   }
+  function openDetail(index: number) {
+    router.push(`${config.resultPath}/${index}`)
+  }
 
   return {
-    items, single, rescan, confirm, removeItem, clearItems,
+    items, single, rescan, confirm, removeItem, clearItems, openDetail,
     title: config.title,
     fields: config.fields,
   }
