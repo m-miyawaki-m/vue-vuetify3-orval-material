@@ -30,6 +30,8 @@ export function useScanScreen(config: ScanPatternConfig) {
   const pendingOcrItem = ref<ScanItem | null>(null)
 
   function handleScan(r: ScanResult) {
+    // 毎回新しいオブジェクトを生成して渡す — ScanOcrConfirmDialog の watch は
+    // props.item の参照同一性で発火するため、再利用すると再シャッター時に編集状態がリセットされない
     const item = toItem(r)
     if (config.mode === 'continuous' && r.format === 'OCR') {
       pendingOcrItem.value = item

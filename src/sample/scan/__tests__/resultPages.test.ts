@@ -120,6 +120,17 @@ describe('SingleLookupResultPage', () => {
     const w = mount(SingleLookupResultPage, mountOpts)
     expect(w.text()).toContain('商品コードが数値ではありません')
   })
+
+  it('OCR 読取は値を編集でき、数値に修正すると再照会される', async () => {
+    const store = useScanSessionStore()
+    store.startSession('single-lookup', 'single')
+    store.setSingleResult({ raw: 'ABC', format: 'OCR', timestamp: 1000, fields: {} })
+    const w = mount(SingleLookupResultPage, mountOpts)
+    expect(w.text()).toContain('商品コードが数値ではありません')
+    await w.find('.raw-input input').setValue('1')
+    await w.vm.$nextTick()
+    expect(w.text()).toContain('サンプル商品A')
+  })
 })
 
 describe('SingleRawResultPage (OCR 編集)', () => {
