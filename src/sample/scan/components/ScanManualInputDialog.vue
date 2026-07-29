@@ -1,31 +1,34 @@
 <template>
-  <teleport to="body">
-    <div v-if="modelValue" class="scan-manual-dialog-scrim">
-      <v-card class="scan-manual-dialog-card">
-        <v-card-title class="text-subtitle-1">手入力</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="text"
-            label="読取値"
-            variant="outlined"
-            density="compact"
-            hide-details
-            autofocus
-            @keydown.enter="submit"
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn class="close-btn" variant="text" @click="emit('update:modelValue', false)">
-            閉じる
-          </v-btn>
-          <v-btn class="submit-btn" color="primary" variant="tonal" @click="submit">
-            追加
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </div>
-  </teleport>
+  <v-dialog
+    :model-value="modelValue"
+    max-width="360"
+    eager
+    @update:model-value="emit('update:modelValue', $event)"
+  >
+    <v-card>
+      <v-card-title class="text-subtitle-1">手入力</v-card-title>
+      <v-card-text>
+        <v-text-field
+          v-model="text"
+          label="読取値"
+          variant="outlined"
+          density="compact"
+          hide-details
+          autofocus
+          @keydown.enter="submit"
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn class="close-btn" variant="text" @click="emit('update:modelValue', false)">
+          閉じる
+        </v-btn>
+        <v-btn class="submit-btn" color="primary" variant="tonal" @click="submit">
+          追加
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
