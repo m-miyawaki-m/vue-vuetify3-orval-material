@@ -23,7 +23,6 @@ vi.mock('@/composables/useBarcodeScanner', () => ({
 }))
 
 import ScanCameraView from '../components/ScanCameraView.vue'
-import ScanManualInputDialog from '../components/ScanManualInputDialog.vue'
 import { OCR_DUMMY_TEXT } from '../logic/useScanEngine'
 
 describe('ScanCameraView', () => {
@@ -80,34 +79,21 @@ describe('ScanCameraView', () => {
     expect(w.find('.camera-frame').exists()).toBe(false)
   })
 
-  it('error 発生で手入力ダイアログが自動表示される', async () => {
+  it('error 発生で manual-request を emit する', async () => {
     const w = mount(ScanCameraView, { props: { scanType: 'barcode' as const } })
-    expect(w.findComponent(ScanManualInputDialog).props('modelValue')).toBe(false)
+    expect(w.emitted('manual-request')).toBeUndefined()
     mockError.value = 'カメラの起動に失敗しました。'
     await w.vm.$nextTick()
-    expect(w.findComponent(ScanManualInputDialog).props('modelValue')).toBe(true)
+    expect(w.emitted('manual-request')).toHaveLength(1)
   })
 
-  it('ダイアログの submit を format MANUAL の scan として emit する', async () => {
+  it('プレースホルダーの手入力ボタンでも manual-request を emit する', async () => {
     const w = mount(ScanCameraView, { props: { scanType: 'barcode' as const } })
     mockError.value = 'カメラの起動に失敗しました。'
     await w.vm.$nextTick()
-    w.findComponent(ScanManualInputDialog).vm.$emit('submit', 'ITEM01,LOT-A,12')
-    const emitted = w.emitted('scan')?.at(-1)?.[0] as ScanResult
-    expect(emitted.text).toBe('ITEM01,LOT-A,12')
-    expect(emitted.format).toBe('MANUAL')
-  })
-
-  it('閉じた後も「手入力する」ボタンで再表示できる', async () => {
-    const w = mount(ScanCameraView, { props: { scanType: 'barcode' as const } })
-    mockError.value = 'カメラの起動に失敗しました。'
-    await w.vm.$nextTick()
-    const dialog = w.findComponent(ScanManualInputDialog)
-    dialog.vm.$emit('update:modelValue', false)
-    await w.vm.$nextTick()
-    expect(dialog.props('modelValue')).toBe(false)
     await w.find('.manual-btn').trigger('click')
-    expect(dialog.props('modelValue')).toBe(true)
+    // 自動検知の1回 + ボタンの1回
+    expect(w.emitted('manual-request')).toHaveLength(2)
   })
 
   it('error 時は疑似スキャン入力(DEV)は残る', async () => {

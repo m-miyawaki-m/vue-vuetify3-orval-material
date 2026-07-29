@@ -23,7 +23,7 @@
     <div v-if="error" class="camera-fallback">
       <v-icon icon="mdi-camera-off" size="64" />
       <p class="text-body-2 px-4 text-center">{{ error }}</p>
-      <v-btn class="manual-btn" color="primary" variant="tonal" @click="manualOpen = true">
+      <v-btn class="manual-btn" color="primary" variant="tonal" @click="emit('manual-request')">
         手入力する
       </v-btn>
     </div>
@@ -40,8 +40,6 @@
         @keydown.enter="simulate"
       />
     </div>
-
-    <ScanManualInputDialog v-model="manualOpen" @submit="onManualSubmit" />
   </div>
 </template>
 
@@ -50,10 +48,9 @@ import { onMounted, ref, toRef, watch } from 'vue'
 import type { ScanResult } from '@/types/scanner'
 import type { ScanType } from '../types'
 import { useScanEngine } from '../logic/useScanEngine'
-import ScanManualInputDialog from './ScanManualInputDialog.vue'
 
 const props = defineProps<{ scanType: ScanType }>()
-const emit = defineEmits<{ scan: [result: ScanResult] }>()
+const emit = defineEmits<{ scan: [result: ScanResult]; 'manual-request': [] }>()
 
 const videoRef = ref<HTMLVideoElement | null>(null)
 const engine = useScanEngine(videoRef, toRef(props, 'scanType'), (r) => emit('scan', r))
@@ -71,16 +68,12 @@ async function toggleTorch() {
   await engine.switchTorch(torchOn.value)
 }
 
-// カメラ起動失敗時の手入力フォールバック。失敗検知で自動表示し、
-// 閉じた後もプレースホルダーのボタンから再表示できる
-const manualOpen = ref(false)
+// カメラ起動失敗時の手入力導線。失敗検知で親に手入力を要求し(=ページ側ダイアログの自動表示)、
+// 閉じた後もプレースホルダーのボタンから再要求できる。ダイアログはページが所有する。
 // エラーが再発するたび(タブ切替での再起動失敗を含む)自動で開き直すのは意図的
 watch(error, (e) => {
-  if (e) manualOpen.value = true
+  if (e) emit('manual-request')
 })
-function onManualSubmit(text: string) {
-  emit('scan', { text, format: 'MANUAL', timestamp: Date.now() })
-}
 
 // ブラウザ開発時にカメラなしで動作確認するための疑似入力
 const isDev = import.meta.env.DEV

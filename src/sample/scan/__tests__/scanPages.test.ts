@@ -29,6 +29,8 @@ import SingleRawScanPage from '../pages/SingleRawScanPage.vue'
 import ListSplitScanPage from '../pages/ListSplitScanPage.vue'
 import ScanTypeMenuButton from '../components/ScanTypeMenuButton.vue'
 import ScanOcrConfirmDialog from '../components/ScanOcrConfirmDialog.vue'
+import ScanCameraView from '../components/ScanCameraView.vue'
+import ScanManualInputDialog from '../components/ScanManualInputDialog.vue'
 import { useScanSessionStore } from '../stores/scanSessionStore'
 
 const mountOpts = { global: { stubs: { teleport: true } } }
@@ -146,5 +148,49 @@ describe('連続ページの OCR 確認フロー', () => {
     await w.vm.$nextTick()
     expect(useScanSessionStore().count).toBe(0)
     expect(w.findComponent(ScanOcrConfirmDialog).props('modelValue')).toBe(false)
+  })
+})
+
+describe('フッター手入力', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    capturedOnScan = null
+  })
+
+  it('手入力ボタンでダイアログが開く', async () => {
+    const w = mount(SingleRawScanPage, mountOpts)
+    expect(w.findComponent(ScanManualInputDialog).props('modelValue')).toBe(false)
+    await w.find('.manual-input-btn').trigger('click')
+    expect(w.findComponent(ScanManualInputDialog).props('modelValue')).toBe(true)
+  })
+
+  it('単発: ダイアログ submit で MANUAL として保存し結果画面へ遷移する', async () => {
+    const w = mount(SingleRawScanPage, mountOpts)
+    await w.find('.manual-input-btn').trigger('click')
+    w.findComponent(ScanManualInputDialog).vm.$emit('submit', 'ABC-123')
+    await w.vm.$nextTick()
+    const store = useScanSessionStore()
+    expect(store.single?.format).toBe('MANUAL')
+    expect(mockPush).toHaveBeenCalledWith('/sample/scan/single-raw/result')
+  })
+
+  it('連続: ダイアログ submit で分割済みリストに追加されダイアログは開いたまま', async () => {
+    const w = mount(ListSplitScanPage, mountOpts)
+    await w.find('.manual-input-btn').trigger('click')
+    const dialog = w.findComponent(ScanManualInputDialog)
+    dialog.vm.$emit('submit', 'ITEM01,LOT-A,12')
+    dialog.vm.$emit('submit', 'ITEM02,LOT-B,5')
+    await w.vm.$nextTick()
+    const store = useScanSessionStore()
+    expect(store.count).toBe(2)
+    expect(store.items[0].fields.productCode).toBe('ITEM01')
+    expect(dialog.props('modelValue')).toBe(true)
+  })
+
+  it('カメラの manual-request でもダイアログが開く', async () => {
+    const w = mount(SingleRawScanPage, mountOpts)
+    w.findComponent(ScanCameraView).vm.$emit('manual-request')
+    await w.vm.$nextTick()
+    expect(w.findComponent(ScanManualInputDialog).props('modelValue')).toBe(true)
   })
 })
