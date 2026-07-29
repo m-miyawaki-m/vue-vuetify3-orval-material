@@ -60,4 +60,22 @@ describe('ScanItemList', () => {
     expect(w.text()).toContain('読み取り結果がありません')
     expect(w.find('.clear-btn').exists()).toBe(false)
   })
+
+  it('カードクリックで select(index) を emit する', async () => {
+    const w = mount(ScanItemList, { props: { items, fields } })
+    await w.findAll('.scan-item-card')[1].trigger('click')
+    expect(w.emitted('select')?.[0]).toEqual([1])
+  })
+
+  it('削除ボタンクリックでは select は emit されない', async () => {
+    const w = mount(ScanItemList, { props: { items, fields } })
+    await w.findAll('.remove-btn')[0].trigger('click')
+    expect(w.emitted('remove')?.[0]).toEqual([0])
+    expect(w.emitted('select')).toBeUndefined()
+  })
+
+  it('遷移可能を示す chevron アイコンが各カードに表示される', () => {
+    const w = mount(ScanItemList, { props: { items, fields } })
+    expect(w.findAll('.detail-icon')).toHaveLength(2)
+  })
 })

@@ -18,6 +18,8 @@
         :key="`${item.timestamp}-${i}`"
         class="scan-item-card mb-2"
         variant="outlined"
+        link
+        @click="emit('select', i)"
       >
         <v-card-text class="py-2 d-flex justify-space-between align-start">
           <div class="min-width-0">
@@ -33,13 +35,17 @@
               </p>
             </template>
           </div>
-          <v-btn
-            class="remove-btn"
-            icon="mdi-delete-outline"
-            variant="text"
-            size="small"
-            @click="emit('remove', i)"
-          />
+          <div class="d-flex flex-column align-center">
+            <v-btn
+              class="remove-btn"
+              icon="mdi-delete-outline"
+              variant="text"
+              size="small"
+              @click.stop="emit('remove', i)"
+            />
+            <!-- カードタップで明細へ遷移できることを示す -->
+            <v-icon class="detail-icon text-medium-emphasis" icon="mdi-chevron-right" />
+          </div>
         </v-card-text>
       </v-card>
 
@@ -57,7 +63,7 @@ defineProps<{
   items: ScanItem[]
   fields: ScanFieldDef[]
 }>()
-const emit = defineEmits<{ remove: [index: number]; clear: [] }>()
+const emit = defineEmits<{ remove: [index: number]; clear: []; select: [index: number] }>()
 
 function formatTime(ts: number) {
   return new Date(ts).toLocaleTimeString()
