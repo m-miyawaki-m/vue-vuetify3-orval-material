@@ -1,19 +1,19 @@
 <template>
   <ScanFixedLayout :title="title">
-    <ScanTypeTabs v-model="scanType" />
     <ScanCameraView :scan-type="scanType" @scan="handleScan" />
     <p class="text-caption text-medium-emphasis pa-4">
       商品コード(数値)を読み取ると、API で商品情報を照会して表示します
     </p>
     <template #footer>
       <v-btn @click="cancel">キャンセル</v-btn>
+      <ScanTypeMenuButton v-model="scanType" />
     </template>
   </ScanFixedLayout>
 </template>
 
 <script setup lang="ts">
 import ScanFixedLayout from '../components/ScanFixedLayout.vue'
-import ScanTypeTabs from '../components/ScanTypeTabs.vue'
+import ScanTypeMenuButton from '../components/ScanTypeMenuButton.vue'
 import ScanCameraView from '../components/ScanCameraView.vue'
 import { getPattern } from '../logic/patterns'
 import { useScanScreen } from '../logic/useScanScreen'

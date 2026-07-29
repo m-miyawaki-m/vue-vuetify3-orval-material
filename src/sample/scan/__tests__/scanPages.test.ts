@@ -27,6 +27,8 @@ vi.mock('@/composables/useBarcodeScanner', () => ({
 
 import SingleRawScanPage from '../pages/SingleRawScanPage.vue'
 import ListSplitScanPage from '../pages/ListSplitScanPage.vue'
+import ScanTypeMenuButton from '../components/ScanTypeMenuButton.vue'
+import ScanOcrConfirmDialog from '../components/ScanOcrConfirmDialog.vue'
 import { useScanSessionStore } from '../stores/scanSessionStore'
 
 const mountOpts = { global: { stubs: { teleport: true } } }
@@ -85,5 +87,64 @@ describe('ListSplitScanPage', () => {
     const w = mount(ListSplitScanPage, mountOpts)
     const finishBtn = w.findAll('button').find((b) => b.text().includes('読取完了'))!
     expect(finishBtn.attributes('disabled')).toBeDefined()
+  })
+})
+
+describe('種別メニュー(フッター)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    capturedOnScan = null
+  })
+
+  it('フッターの種別メニューで種別を切り替えられる', async () => {
+    const w = mount(SingleRawScanPage, mountOpts)
+    const menuBtn = w.findComponent(ScanTypeMenuButton)
+    expect(menuBtn.exists()).toBe(true)
+    menuBtn.vm.$emit('update:modelValue', 'qr')
+    await w.vm.$nextTick()
+    expect(useScanSessionStore().scanType).toBe('qr')
+  })
+
+  it('タブ(v-tabs)は表示されない', () => {
+    const w = mount(SingleRawScanPage, mountOpts)
+    expect(w.find('.v-tabs').exists()).toBe(false)
+  })
+})
+
+describe('連続ページの OCR 確認フロー', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    capturedOnScan = null
+  })
+
+  it('OCR スキャンは確認ダイアログに入り confirm でリストへ追加される', async () => {
+    const w = mount(ListSplitScanPage, mountOpts)
+    capturedOnScan!({ text: 'ITEM01,LOT-A,12', format: 'OCR', timestamp: 1 })
+    await w.vm.$nextTick()
+    const store = useScanSessionStore()
+    expect(store.count).toBe(0)
+    const dialog = w.findComponent(ScanOcrConfirmDialog)
+    expect(dialog.props('modelValue')).toBe(true)
+    dialog.vm.$emit('confirm', {
+      raw: 'ITEM09,LOT-Z,7',
+      format: 'OCR',
+      timestamp: 1,
+      fields: { productCode: 'ITEM09', lot: 'LOT-Z', qty: '7' },
+    })
+    await w.vm.$nextTick()
+    expect(store.count).toBe(1)
+    expect(store.items[0].raw).toBe('ITEM09,LOT-Z,7')
+    expect(w.findComponent(ScanOcrConfirmDialog).props('modelValue')).toBe(false)
+  })
+
+  it('discard でリストに積まれない', async () => {
+    const w = mount(ListSplitScanPage, mountOpts)
+    capturedOnScan!({ text: 'ITEM01,LOT-A,12', format: 'OCR', timestamp: 1 })
+    await w.vm.$nextTick()
+    const dialog = w.findComponent(ScanOcrConfirmDialog)
+    dialog.vm.$emit('discard')
+    await w.vm.$nextTick()
+    expect(useScanSessionStore().count).toBe(0)
+    expect(w.findComponent(ScanOcrConfirmDialog).props('modelValue')).toBe(false)
   })
 })
