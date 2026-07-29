@@ -11,7 +11,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    exclude: ['**/node_modules/**', 'e2e/**'],
+    // .claude/worktrees 配下の作業ツリー複製を拾うと全テストが二重実行されるため除外
+    exclude: ['**/node_modules/**', 'e2e/**', '**/.claude/**'],
     setupFiles: ['src/test/setup.ts'],
     typecheck: {
       tsconfig: './tsconfig.vitest.json',
