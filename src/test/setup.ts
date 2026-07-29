@@ -1,6 +1,5 @@
 import { config } from '@vue/test-utils'
 import { createVuetify } from 'vuetify'
-import { h } from 'vue'
 
 // jsdom にない Vuetify 依存ブラウザ API をモック
 Object.defineProperty(window, 'visualViewport', {

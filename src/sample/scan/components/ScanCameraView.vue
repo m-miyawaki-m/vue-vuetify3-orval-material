@@ -21,8 +21,8 @@
 
     <!-- カメラ起動失敗時: ×プレースホルダー + 手入力導線 -->
     <div v-if="error" class="camera-fallback">
-      <v-icon icon="mdi-camera-off" size="64" class="text-medium-emphasis" />
-      <p class="text-body-2 text-medium-emphasis px-4 text-center">{{ error }}</p>
+      <v-icon icon="mdi-camera-off" size="64" />
+      <p class="text-body-2 px-4 text-center">{{ error }}</p>
       <v-btn class="manual-btn" color="primary" variant="tonal" @click="manualOpen = true">
         手入力する
       </v-btn>
@@ -74,6 +74,7 @@ async function toggleTorch() {
 // カメラ起動失敗時の手入力フォールバック。失敗検知で自動表示し、
 // 閉じた後もプレースホルダーのボタンから再表示できる
 const manualOpen = ref(false)
+// エラーが再発するたび(タブ切替での再起動失敗を含む)自動で開き直すのは意図的
 watch(error, (e) => {
   if (e) manualOpen.value = true
 })
@@ -129,6 +130,8 @@ function simulate() {
   align-items: center;
   justify-content: center;
   gap: 12px;
+  /* 背景が固定黒のためテーマ非依存の明色にする */
+  color: rgba(255, 255, 255, 0.7);
 }
 .dev-sim {
   position: absolute;
