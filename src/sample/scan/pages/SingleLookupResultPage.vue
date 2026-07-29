@@ -1,8 +1,20 @@
 <template>
   <ScanFixedLayout :title="`${title} - 結果`">
     <div class="pa-4">
-      <p class="text-caption text-medium-emphasis mb-3" style="word-break: break-all">
-        読取値: {{ single?.raw }}
+      <div v-if="isOcr" class="mb-3">
+        <p class="text-caption text-medium-emphasis mb-3">
+          OCR 読取のため商品コードを修正できます(修正すると再照会します)
+        </p>
+        <ScanValueEditForm
+          :raw="rawValue"
+          :fields="{}"
+          :field-defs="[]"
+          :parser="pattern.parser"
+          @update:raw="rawValue = $event"
+        />
+      </div>
+      <p v-else class="text-caption text-medium-emphasis mb-3" style="word-break: break-all">
+        読取値: {{ rawValue }}
       </p>
 
       <v-alert v-if="!isValidId" type="warning" density="compact">
@@ -33,15 +45,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import ScanFixedLayout from '../components/ScanFixedLayout.vue'
+import ScanValueEditForm from '../components/ScanValueEditForm.vue'
 import { getPattern } from '../logic/patterns'
 import { useResultScreen } from '../logic/useResultScreen'
 import { useProductDetail } from '@/composables/queries/useProductDetail'
 
-const { single, rescan, confirm, title } = useResultScreen(getPattern('single-lookup'))
+const pattern = getPattern('single-lookup')
+const { single, rescan, confirm, title } = useResultScreen(pattern)
 
-const rawValue = computed(() => single.value?.raw ?? '')
+// OCR のときは商品コードを編集可能にし、編集値で再照会する
+const isOcr = computed(() => single.value?.format === 'OCR')
+const rawValue = ref('')
+watch(single, (s) => { rawValue.value = s?.raw ?? '' }, { immediate: true })
 const isValidId = computed(() => /^\d+$/.test(rawValue.value))
 const productId = computed<number | null>(() =>
   isValidId.value ? Number.parseInt(rawValue.value, 10) : null,

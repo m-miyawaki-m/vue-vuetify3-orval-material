@@ -27,6 +27,8 @@ vi.mock('@/composables/queries/useProductDetail', () => ({
 
 import ListSplitResultPage from '../pages/ListSplitResultPage.vue'
 import SingleLookupResultPage from '../pages/SingleLookupResultPage.vue'
+import SingleRawResultPage from '../pages/SingleRawResultPage.vue'
+import ScanValueEditForm from '../components/ScanValueEditForm.vue'
 import { useScanSessionStore } from '../stores/scanSessionStore'
 
 const mountOpts = { global: { stubs: { teleport: true } } }
@@ -117,5 +119,34 @@ describe('SingleLookupResultPage', () => {
     seedStore('12X3')
     const w = mount(SingleLookupResultPage, mountOpts)
     expect(w.text()).toContain('商品コードが数値ではありません')
+  })
+})
+
+describe('SingleRawResultPage (OCR 編集)', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  function seed(format: string) {
+    const store = useScanSessionStore()
+    store.startSession('single-raw', 'single')
+    store.setSingleResult({ raw: 'ITEM01,LOT-A,12', format, timestamp: 1000, fields: {} })
+  }
+
+  it('OCR 読取時は編集フォームを表示し値を修正できる', async () => {
+    seed('OCR')
+    const w = mount(SingleRawResultPage, mountOpts)
+    const form = w.findComponent(ScanValueEditForm)
+    expect(form.exists()).toBe(true)
+    expect((w.find('.raw-input input').element as HTMLInputElement).value).toBe(
+      'ITEM01,LOT-A,12',
+    )
+    await w.find('.raw-input input').setValue('ITEM09')
+    expect((w.find('.raw-input input').element as HTMLInputElement).value).toBe('ITEM09')
+  })
+
+  it('OCR でない読取は従来の結果カード表示', () => {
+    seed('EAN_13')
+    const w = mount(SingleRawResultPage, mountOpts)
+    expect(w.findComponent(ScanValueEditForm).exists()).toBe(false)
+    expect(w.text()).toContain('ITEM01,LOT-A,12')
   })
 })
