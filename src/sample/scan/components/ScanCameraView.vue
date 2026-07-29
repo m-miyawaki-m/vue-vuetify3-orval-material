@@ -1,17 +1,17 @@
 <template>
   <div class="camera-wrap">
-    <video ref="videoRef" class="camera-video" autoplay muted playsinline />
-    <div class="camera-frame" />
+    <video v-show="!error" ref="videoRef" class="camera-video" autoplay muted playsinline />
+    <div v-if="!error" class="camera-frame" />
 
     <v-btn
-      v-if="torchAvailable && !isOcr"
+      v-if="torchAvailable && !isOcr && !error"
       class="torch-btn"
       :icon="torchOn ? 'mdi-flashlight-off' : 'mdi-flashlight'"
       size="small"
       @click="toggleTorch"
     />
     <v-btn
-      v-if="isOcr"
+      v-if="isOcr && !error"
       class="shutter-btn"
       icon="mdi-camera"
       size="large"
@@ -19,9 +19,14 @@
       @click="captureOcr"
     />
 
-    <v-alert v-if="error" class="camera-error" type="error" density="compact">
-      {{ error }}
-    </v-alert>
+    <!-- カメラ起動失敗時: ×プレースホルダー + 手入力導線 -->
+    <div v-if="error" class="camera-fallback">
+      <v-icon icon="mdi-camera-off" size="64" class="text-medium-emphasis" />
+      <p class="text-body-2 text-medium-emphasis px-4 text-center">{{ error }}</p>
+      <v-btn class="manual-btn" color="primary" variant="tonal" @click="manualOpen = true">
+        手入力する
+      </v-btn>
+    </div>
 
     <div v-if="isDev" class="dev-sim">
       <v-text-field
@@ -35,6 +40,8 @@
         @keydown.enter="simulate"
       />
     </div>
+
+    <ScanManualInputDialog v-model="manualOpen" @submit="onManualSubmit" />
   </div>
 </template>
 
@@ -43,6 +50,7 @@ import { onMounted, ref, toRef, watch } from 'vue'
 import type { ScanResult } from '@/types/scanner'
 import type { ScanType } from '../types'
 import { useScanEngine } from '../logic/useScanEngine'
+import ScanManualInputDialog from './ScanManualInputDialog.vue'
 
 const props = defineProps<{ scanType: ScanType }>()
 const emit = defineEmits<{ scan: [result: ScanResult] }>()
@@ -61,6 +69,16 @@ watch(() => props.scanType, () => {
 async function toggleTorch() {
   torchOn.value = !torchOn.value
   await engine.switchTorch(torchOn.value)
+}
+
+// カメラ起動失敗時の手入力フォールバック。失敗検知で自動表示し、
+// 閉じた後もプレースホルダーのボタンから再表示できる
+const manualOpen = ref(false)
+watch(error, (e) => {
+  if (e) manualOpen.value = true
+})
+function onManualSubmit(text: string) {
+  emit('scan', { text, format: 'MANUAL', timestamp: Date.now() })
 }
 
 // ブラウザ開発時にカメラなしで動作確認するための疑似入力
@@ -103,11 +121,14 @@ function simulate() {
   left: 50%;
   transform: translateX(-50%);
 }
-.camera-error {
+.camera-fallback {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 .dev-sim {
   position: absolute;
