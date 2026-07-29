@@ -25,6 +25,7 @@
         class="shutter-btn"
         icon="mdi-camera"
         color="primary"
+        aria-label="撮影"
         @click="cameraRef?.captureOcr()"
       />
       <v-btn color="primary" :disabled="!count" @click="finish">読取完了</v-btn>

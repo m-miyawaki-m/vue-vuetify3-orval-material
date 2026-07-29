@@ -16,15 +16,15 @@
 
 ## 構成
 
-- `pages/` — 側(ガワ)のみ。各パターン=スキャン画面+結果画面の2ルート
+- `pages/` — 側(ガワ)のみ。単発系=スキャン画面+結果画面の2ルート、連続系=スキャン画面+結果画面+明細画面の3ルート
 - `components/` — props/emits のみの表示部品(store 非依存)
-- `logic/` — 結線ロジック(useScanScreen/useResultScreen)・エンジン抽象化(useScanEngine)・
+- `logic/` — 結線ロジック(useScanScreen/useResultScreen/useItemDetailScreen)・エンジン抽象化(useScanEngine)・
   パターン定義(patterns.ts)・値加工(parsers.ts)
 - `stores/` — scanSessionStore(画面またぎ用・シリアライズ可能なデータのみ)
 
 ## 設計ポイント
 
-- 新パターン追加 = patterns.ts に定義追加 + ページ2枚(既存部品の組み合わせ)+ ルート2本
+- 新パターン追加 = patterns.ts に定義追加 + ページ2枚(既存部品の組み合わせ、連続系なら明細ページも)+ ルート2本(連続系ならルート1本追加)
 - 種別(QR/バーコード/OCR)はフッターの「種別」メニューボタンで切替(タブは廃止)
 - 手入力はフッターの「手入力」ボタンから常時可能(MANUAL は OCR 確認フローに入らない)。カメラ起動失敗時は自動でダイアログが開く
 - OCR 読取は誤読前提のため確認・修正フローが入る:
@@ -33,4 +33,4 @@
 - OCR は captureOcr() がダミー文字列を返すスタブ。実案件では Tesseract 等に差し替え
 - 開発時(npm run dev)はカメラなしでも「疑似スキャン」入力で動作確認できる
 
-詳細設計: `docs/superpowers/specs/2026-07-28-sample-scan-patterns-design.md`, `docs/superpowers/specs/2026-07-30-scan-type-footer-ocr-edit-design.md`, `docs/superpowers/specs/2026-07-30-manual-input-footer-design.md`
+詳細設計: `docs/superpowers/specs/2026-07-28-sample-scan-patterns-design.md`, `docs/superpowers/specs/2026-07-30-scan-type-footer-ocr-edit-design.md`, `docs/superpowers/specs/2026-07-30-manual-input-footer-design.md`, `docs/superpowers/specs/2026-07-30-ocr-shutter-footer-item-detail-design.md`

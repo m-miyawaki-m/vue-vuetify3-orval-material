@@ -8,6 +8,7 @@
       class="torch-btn"
       :icon="torchOn ? 'mdi-flashlight-off' : 'mdi-flashlight'"
       size="small"
+      aria-label="ライト切替"
       @click="toggleTorch"
     />
 

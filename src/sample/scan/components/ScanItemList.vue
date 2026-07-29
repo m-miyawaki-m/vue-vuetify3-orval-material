@@ -41,10 +41,11 @@
               icon="mdi-delete-outline"
               variant="text"
               size="small"
+              aria-label="削除"
               @click.stop="emit('remove', i)"
             />
             <!-- カードタップで明細へ遷移できることを示す -->
-            <v-icon class="detail-icon text-medium-emphasis" icon="mdi-chevron-right" />
+            <v-icon class="detail-icon text-medium-emphasis" icon="mdi-chevron-right" aria-hidden="true" />
           </div>
         </v-card-text>
       </v-card>

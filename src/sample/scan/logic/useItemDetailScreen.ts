@@ -20,7 +20,7 @@ export function useItemDetailScreen(config: ScanPatternConfig) {
 
   return {
     item,
-    index,
+    index: Number.isInteger(index) ? index : 0,
     title: config.title,
     fields: config.fields,
   }

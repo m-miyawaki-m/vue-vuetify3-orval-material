@@ -19,6 +19,7 @@
         class="shutter-btn"
         icon="mdi-camera"
         color="primary"
+        aria-label="撮影"
         @click="cameraRef?.captureOcr()"
       />
     </template>
