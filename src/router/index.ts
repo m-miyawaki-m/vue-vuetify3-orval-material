@@ -42,8 +42,10 @@ const router = createRouter({
     { path: '/sample/scan/single-lookup/result', component: () => import('@/sample/scan/pages/SingleLookupResultPage.vue') },
     { path: '/sample/scan/list-raw', component: () => import('@/sample/scan/pages/ListRawScanPage.vue') },
     { path: '/sample/scan/list-raw/result', component: () => import('@/sample/scan/pages/ListRawResultPage.vue') },
+    { path: '/sample/scan/list-raw/result/:index', component: () => import('@/sample/scan/pages/ListRawItemDetailPage.vue') },
     { path: '/sample/scan/list-split', component: () => import('@/sample/scan/pages/ListSplitScanPage.vue') },
     { path: '/sample/scan/list-split/result', component: () => import('@/sample/scan/pages/ListSplitResultPage.vue') },
+    { path: '/sample/scan/list-split/result/:index', component: () => import('@/sample/scan/pages/ListSplitItemDetailPage.vue') },
     { path: '/:pathMatch(.*)*', component: ComingSoonPage },
   ],
 })

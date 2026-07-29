@@ -5,8 +5,10 @@ import { ref, computed } from 'vue'
 const mockPush = vi.fn()
 const mockBack = vi.fn()
 const mockReplace = vi.fn()
+const mockRouteParams: Record<string, string> = {}
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockPush, back: mockBack, replace: mockReplace }),
+  useRoute: () => ({ params: mockRouteParams }),
 }))
 
 const mockProduct = ref<Record<string, unknown> | null>({
@@ -26,9 +28,11 @@ vi.mock('@/composables/queries/useProductDetail', () => ({
 }))
 
 import ListSplitResultPage from '../pages/ListSplitResultPage.vue'
+import ListSplitItemDetailPage from '../pages/ListSplitItemDetailPage.vue'
 import SingleLookupResultPage from '../pages/SingleLookupResultPage.vue'
 import SingleRawResultPage from '../pages/SingleRawResultPage.vue'
 import ScanValueEditForm from '../components/ScanValueEditForm.vue'
+import ScanItemList from '../components/ScanItemList.vue'
 import { useScanSessionStore } from '../stores/scanSessionStore'
 
 const mountOpts = { global: { stubs: { teleport: true } } }
@@ -159,5 +163,49 @@ describe('SingleRawResultPage (OCR 編集)', () => {
     const w = mount(SingleRawResultPage, mountOpts)
     expect(w.findComponent(ScanValueEditForm).exists()).toBe(false)
     expect(w.text()).toContain('ITEM01,LOT-A,12')
+  })
+})
+
+describe('明細画面', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    delete mockRouteParams.index
+  })
+
+  function seedListSplit() {
+    const store = useScanSessionStore()
+    store.startSession('list-split', 'continuous')
+    store.addItem({
+      raw: 'ITEM01,LOT-A,12',
+      format: 'QR_CODE',
+      timestamp: 1000,
+      fields: { productCode: 'ITEM01', lot: 'LOT-A', qty: '12' },
+    })
+    return store
+  }
+
+  it('一覧カードの select で明細ルートへ push される', async () => {
+    seedListSplit()
+    const w = mount(ListSplitResultPage, mountOpts)
+    w.findComponent(ScanItemList).vm.$emit('select', 0)
+    await w.vm.$nextTick()
+    expect(mockPush).toHaveBeenCalledWith('/sample/scan/list-split/result/0')
+  })
+
+  it('明細ページが読取値・形式・分割項目を表示する', () => {
+    seedListSplit()
+    mockRouteParams.index = '0'
+    const w = mount(ListSplitItemDetailPage, mountOpts)
+    expect(w.text()).toContain('ITEM01,LOT-A,12')
+    expect(w.text()).toContain('QR_CODE')
+    expect(w.text()).toContain('商品コード: ITEM01')
+    expect(mockReplace).not.toHaveBeenCalled()
+  })
+
+  it('範囲外 index の明細ページは一覧へ replace する', () => {
+    seedListSplit()
+    mockRouteParams.index = '9'
+    mount(ListSplitItemDetailPage, mountOpts)
+    expect(mockReplace).toHaveBeenCalledWith('/sample/scan/list-split/result')
   })
 })

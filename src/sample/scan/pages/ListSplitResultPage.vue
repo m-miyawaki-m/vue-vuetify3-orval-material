@@ -5,6 +5,7 @@
       :fields="fields"
       @remove="removeItem"
       @clear="clearItems"
+      @select="openDetail"
     />
     <template #footer>
       <v-btn @click="rescan">再スキャン</v-btn>
@@ -19,6 +20,6 @@ import ScanItemList from '../components/ScanItemList.vue'
 import { getPattern } from '../logic/patterns'
 import { useResultScreen } from '../logic/useResultScreen'
 
-const { items, fields, rescan, confirm, removeItem, clearItems, title } =
+const { items, fields, rescan, confirm, removeItem, clearItems, openDetail, title } =
   useResultScreen(getPattern('list-split'))
 </script>
