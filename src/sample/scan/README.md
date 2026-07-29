@@ -26,10 +26,11 @@
 
 - 新パターン追加 = patterns.ts に定義追加 + ページ2枚(既存部品の組み合わせ)+ ルート2本
 - 種別(QR/バーコード/OCR)はフッターの「種別」メニューボタンで切替(タブは廃止)
+- 手入力はフッターの「手入力」ボタンから常時可能(MANUAL は OCR 確認フローに入らない)。カメラ起動失敗時は自動でダイアログが開く
 - OCR 読取は誤読前提のため確認・修正フローが入る:
   - 連続系はシャッターごとに確認ダイアログ(値+項目編集)
   - 単発系は結果画面が編集フォームになる(lookup は編集で再照会)
 - OCR は captureOcr() がダミー文字列を返すスタブ。実案件では Tesseract 等に差し替え
 - 開発時(npm run dev)はカメラなしでも「疑似スキャン」入力で動作確認できる
 
-詳細設計: `docs/superpowers/specs/2026-07-28-sample-scan-patterns-design.md`, `docs/superpowers/specs/2026-07-30-scan-type-footer-ocr-edit-design.md`
+詳細設計: `docs/superpowers/specs/2026-07-28-sample-scan-patterns-design.md`, `docs/superpowers/specs/2026-07-30-scan-type-footer-ocr-edit-design.md`, `docs/superpowers/specs/2026-07-30-manual-input-footer-design.md`

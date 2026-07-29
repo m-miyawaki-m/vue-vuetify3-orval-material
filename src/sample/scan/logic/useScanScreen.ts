@@ -55,6 +55,8 @@ export function useScanScreen(config: ScanPatternConfig) {
 
   // フッター常設の手入力。submit は MANUAL として既存の読取経路に流す
   // (単発は結果画面へ遷移、連続は addItem。MANUAL は OCR 確認フローに入らない)
+  // なおダイアログ表示中もカメラのデコードは動き続ける
+  // (単発でスキャンが成立すると結果画面へ遷移し入力途中の値は破棄される — サンプルでは許容)
   const manualOpen = ref(false)
   function openManual() {
     manualOpen.value = true

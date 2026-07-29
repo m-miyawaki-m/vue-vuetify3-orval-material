@@ -41,7 +41,7 @@
 - `ScanManualInputDialog` をページに配置:
   `<ScanManualInputDialog v-model="manualOpen" @submit="handleManualSubmit" />`
 - `ScanCameraView` に `@manual-request="openManual"` を追加
-- フッターに手入力ボタンを追加(アイコン `mdi-keyboard-outline` + ラベル「手入力」、
+- フッターに手入力ボタンを追加(ラベル「手入力」(他のフッターボタンと同じくラベルのみ・幅確保のため)、
   class `.manual-input-btn`):
   - 単発系: `[キャンセル][種別 ▴][手入力]`
   - 連続系: `[キャンセル][種別 ▴][手入力][読取完了]`
