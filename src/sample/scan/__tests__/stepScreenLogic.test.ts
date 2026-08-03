@@ -8,6 +8,7 @@ vi.mock('vue-router', () => ({
 }))
 
 import { useStepScanScreen } from '../logic/useStepScanScreen'
+import { useStepResultScreen } from '../logic/useStepResultScreen'
 import { getStepPattern } from '../logic/stepPatterns'
 import { useStepScanSessionStore } from '../stores/stepScanSessionStore'
 
@@ -106,5 +107,59 @@ describe('useStepScanScreen', () => {
     cancel()
     expect(useStepScanSessionStore().hasSession).toBe(false)
     expect(mockBack).toHaveBeenCalled()
+  })
+})
+
+describe('useStepResultScreen', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('セッションなしの直接アクセスはスキャン画面へ replace する', () => {
+    useStepResultScreen(getStepPattern('pair-single'))
+    expect(mockReplace).toHaveBeenCalledWith('/sample/scan/pair-single')
+  })
+
+  it('rescan: single は組を破棄して back する(セッション維持)', () => {
+    const store = useStepScanSessionStore()
+    store.startSession('pair-single', 'single')
+    store.addPart({ raw: 'A', format: 'X', timestamp: 1, fields: {} })
+    store.addPart({ raw: 'B', format: 'X', timestamp: 2, fields: {} })
+    store.completeSet()
+    const { rescan } = useStepResultScreen(getStepPattern('pair-single'))
+    rescan()
+    expect(store.setCount).toBe(0)
+    expect(store.hasSession).toBe(true)
+    expect(mockBack).toHaveBeenCalled()
+  })
+
+  it('rescan: continuous は組を保持して back する', () => {
+    const store = useStepScanSessionStore()
+    store.startSession('pair-list', 'continuous')
+    store.addPart({ raw: 'A', format: 'X', timestamp: 1, fields: {} })
+    store.completeSet()
+    const { rescan } = useStepResultScreen(getStepPattern('pair-list'))
+    rescan()
+    expect(store.setCount).toBe(1)
+    expect(mockBack).toHaveBeenCalled()
+  })
+
+  it('confirm: セッションを reset して索引へ遷移する', () => {
+    const store = useStepScanSessionStore()
+    store.startSession('pair-list', 'continuous')
+    store.addPart({ raw: 'A', format: 'X', timestamp: 1, fields: {} })
+    store.completeSet()
+    const { confirm } = useStepResultScreen(getStepPattern('pair-list'))
+    confirm()
+    expect(store.hasSession).toBe(false)
+    expect(mockPush).toHaveBeenCalledWith('/sample/scan')
+  })
+
+  it('removeSet で組を削除できる', () => {
+    const store = useStepScanSessionStore()
+    store.startSession('pair-list', 'continuous')
+    store.addPart({ raw: 'A', format: 'X', timestamp: 1, fields: {} })
+    store.completeSet()
+    const { removeSet, sets } = useStepResultScreen(getStepPattern('pair-list'))
+    removeSet(0)
+    expect(sets.value).toHaveLength(0)
   })
 })
