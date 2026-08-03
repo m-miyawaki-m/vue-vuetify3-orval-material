@@ -19,3 +19,8 @@ export interface ScanItem {
   /** parser の分割結果。passthrough の場合は空オブジェクト */
   fields: Record<string, string>
 }
+
+/** ステップ読取の1組分。parts はステップ定義と同じ順序 */
+export interface ScanSetItem {
+  parts: ScanItem[]
+}
