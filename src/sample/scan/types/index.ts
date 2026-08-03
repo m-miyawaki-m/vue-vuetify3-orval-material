@@ -1,4 +1,8 @@
 export type ScanType = 'qr' | 'barcode' | 'ocr'
+
+/** ステップ読取で受け付ける種別。qr-or-barcode は QR とバーコードの同時待ち受け */
+export type ScanAcceptType = ScanType | 'qr-or-barcode'
+
 export type ScanSessionMode = 'single' | 'continuous'
 
 /** 分割表示・フォーム項目の定義(ラベル+格納キー) */
@@ -14,4 +18,9 @@ export interface ScanItem {
   timestamp: number
   /** parser の分割結果。passthrough の場合は空オブジェクト */
   fields: Record<string, string>
+}
+
+/** ステップ読取の1組分。parts はステップ定義と同じ順序 */
+export interface ScanSetItem {
+  parts: ScanItem[]
 }

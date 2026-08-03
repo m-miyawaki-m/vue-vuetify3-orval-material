@@ -14,6 +14,25 @@
 | list-raw | 連続 | そのまま | そのまま |
 | list-split | 連続 | 分割 | そのまま |
 
+### ステップ式(複数読み取り)
+
+| id | モード | ステップ |
+|---|---|---|
+| pair-single | 単発ペア | ①バーコード → ②QR/バーコード(同時待ち受け) |
+| pair-list | 連続ペア | ①→②で1組をリストに蓄積し、一括確定 |
+
+## 起動方法(動作確認)
+
+1. `npm run dev` で開発サーバーを起動(既定ポート 3000。使用中なら自動で 3001 等にずれる)
+2. ブラウザで `http://localhost:3000/#/sample/scan` を開く(ルーターはハッシュモード)。
+   アプリのメニュー「スキャンパターン」からも遷移できる
+3. 一覧のカードから各パターンへ。ステップ式は以下の直リンクでも開ける
+   - 単発ペア: `/#/sample/scan/pair-single`
+   - 連続ペア: `/#/sample/scan/pair-list`
+4. カメラがない環境でも、開発時はプレビュー上部の「開発用: 疑似スキャン」欄に値を入れて
+   Enter で読取を再現できる(ステップ式は①バーコード→②QR/バーコードの順に2回入力)。
+   カメラ起動失敗時は手入力ダイアログが自動で開く
+
 ## 構成
 
 - `pages/` — 側(ガワ)のみ。単発系=スキャン画面+結果画面の2ルート、連続系=スキャン画面+結果画面+明細画面の3ルート
@@ -32,5 +51,8 @@
   - 単発系は結果画面が編集フォームになる(lookup は編集で再照会)
 - OCR は captureOcr() がダミー文字列を返すスタブ。実案件では Tesseract 等に差し替え
 - 開発時(npm run dev)はカメラなしでも「疑似スキャン」入力で動作確認できる
+- ステップ式は stepPatterns.ts(steps 配列)+ useStepScanScreen/useStepResultScreen +
+  stepScanSessionStore の別モジュール構成。導線は ScanStepHeader(v-stepper)で表示し、
+  ステップの受付種別は accept('qr-or-barcode' は QR+バーコード同時待ち受け)で決まる
 
-詳細設計: `docs/superpowers/specs/2026-07-28-sample-scan-patterns-design.md`, `docs/superpowers/specs/2026-07-30-scan-type-footer-ocr-edit-design.md`, `docs/superpowers/specs/2026-07-30-manual-input-footer-design.md`, `docs/superpowers/specs/2026-07-30-ocr-shutter-footer-item-detail-design.md`
+詳細設計: `docs/superpowers/specs/2026-07-28-sample-scan-patterns-design.md`, `docs/superpowers/specs/2026-07-30-scan-type-footer-ocr-edit-design.md`, `docs/superpowers/specs/2026-07-30-manual-input-footer-design.md`, `docs/superpowers/specs/2026-07-30-ocr-shutter-footer-item-detail-design.md`, `docs/superpowers/specs/2026-08-04-step-scan-patterns-design.md`
