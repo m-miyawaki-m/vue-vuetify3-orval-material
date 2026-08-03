@@ -47,7 +47,9 @@ const router = createRouter({
     { path: '/sample/scan/list-split/result', component: () => import('@/sample/scan/pages/ListSplitResultPage.vue') },
     { path: '/sample/scan/list-split/result/:index', component: () => import('@/sample/scan/pages/ListSplitItemDetailPage.vue') },
     { path: '/sample/scan/pair-single', component: () => import('@/sample/scan/pages/PairSingleScanPage.vue') },
+    { path: '/sample/scan/pair-single/result', component: () => import('@/sample/scan/pages/PairSingleResultPage.vue') },
     { path: '/sample/scan/pair-list', component: () => import('@/sample/scan/pages/PairListScanPage.vue') },
+    { path: '/sample/scan/pair-list/result', component: () => import('@/sample/scan/pages/PairListResultPage.vue') },
     { path: '/:pathMatch(.*)*', component: ComingSoonPage },
   ],
 })
