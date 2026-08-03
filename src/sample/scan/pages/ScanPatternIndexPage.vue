@@ -20,6 +20,25 @@
           </div>
         </v-card-text>
       </v-card>
+      <p class="text-caption text-medium-emphasis mb-4 mt-6">
+        ステップ式(複数読み取り)のパターンです。①バーコード → ②QR/バーコードの順に
+        読み取り、1組のデータとして扱います。
+      </p>
+      <v-card
+        v-for="p in STEP_SCAN_PATTERNS"
+        :key="p.id"
+        class="mb-3"
+        variant="outlined"
+        :to="p.scanPath"
+      >
+        <v-card-text class="d-flex align-center">
+          <v-icon :icon="p.icon" size="32" color="primary" class="mr-4" />
+          <div>
+            <p class="text-subtitle-2 font-weight-bold">{{ p.title }}</p>
+            <p class="text-caption text-medium-emphasis">{{ p.description }}</p>
+          </div>
+        </v-card-text>
+      </v-card>
     </v-container>
   </SubLayout>
 </template>
@@ -27,4 +46,5 @@
 <script setup lang="ts">
 import SubLayout from '@/components/layout/SubLayout.vue'
 import { SCAN_PATTERNS } from '../logic/patterns'
+import { STEP_SCAN_PATTERNS } from '../logic/stepPatterns'
 </script>
