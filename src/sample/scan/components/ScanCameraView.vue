@@ -39,10 +39,10 @@
 <script setup lang="ts">
 import { onMounted, ref, toRef, watch } from 'vue'
 import type { ScanResult } from '@/types/scanner'
-import type { ScanType } from '../types'
+import type { ScanAcceptType } from '../types'
 import { useScanEngine } from '../logic/useScanEngine'
 
-const props = defineProps<{ scanType: ScanType }>()
+const props = defineProps<{ scanType: ScanAcceptType }>()
 const emit = defineEmits<{ scan: [result: ScanResult]; 'manual-request': [] }>()
 
 const videoRef = ref<HTMLVideoElement | null>(null)

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ref } from 'vue'
 import type { Ref } from 'vue'
 import type { ScanResult } from '@/types/scanner'
-import type { ScanType } from '../types'
+import type { ScanAcceptType } from '../types'
 
 const mockStart = vi.fn()
 const mockStop = vi.fn()
@@ -27,8 +27,8 @@ vi.mock('@/composables/useBarcodeScanner', () => ({
 
 import { useScanEngine, QR_FORMATS, BARCODE_FORMATS, OCR_DUMMY_TEXT } from '../logic/useScanEngine'
 
-function setup(type: ScanType) {
-  const scanType = ref<ScanType>(type)
+function setup(type: ScanAcceptType) {
+  const scanType = ref<ScanAcceptType>(type)
   const onScan = vi.fn()
   const engine = useScanEngine(ref(null) as Ref<HTMLVideoElement | null>, scanType, onScan)
   return { scanType, onScan, engine }
@@ -80,5 +80,16 @@ describe('useScanEngine', () => {
     engine.restart()
     expect(mockStop).toHaveBeenCalledTimes(1)
     expect(mockStart).toHaveBeenCalledTimes(2)
+  })
+
+  it('qr-or-barcode のとき formats は QR+バーコードの結合を返す', () => {
+    setup('qr-or-barcode')
+    expect(capturedOptions!.formats!()).toEqual([...QR_FORMATS, ...BARCODE_FORMATS])
+  })
+
+  it('qr-or-barcode のとき zxing の読取は通知される', () => {
+    const { onScan } = setup('qr-or-barcode')
+    capturedOptions!.onScan({ text: 'A', format: 'QR_CODE', timestamp: 1 })
+    expect(onScan).toHaveBeenCalledTimes(1)
   })
 })

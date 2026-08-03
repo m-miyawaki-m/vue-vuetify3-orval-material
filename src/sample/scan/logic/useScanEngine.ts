@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { BarcodeFormat } from '@zxing/browser'
 import { useBarcodeScanner } from '@/composables/useBarcodeScanner'
 import type { ScanResult } from '@/types/scanner'
-import type { ScanType } from '../types'
+import type { ScanAcceptType } from '../types'
 
 export const QR_FORMATS: BarcodeFormat[] = [BarcodeFormat.QR_CODE]
 export const BARCODE_FORMATS: BarcodeFormat[] = [
@@ -26,7 +26,7 @@ export const OCR_DUMMY_TEXT = 'ITEM01,LOT-A,12'
  */
 export function useScanEngine(
   videoRef: Ref<HTMLVideoElement | null>,
-  scanType: Ref<ScanType>,
+  scanType: Ref<ScanAcceptType>,
   onScan: (result: ScanResult) => void,
 ) {
   const scanner = useBarcodeScanner(videoRef, {
@@ -34,7 +34,12 @@ export function useScanEngine(
       if (scanType.value === 'ocr') return
       onScan(r)
     },
-    formats: () => (scanType.value === 'qr' ? QR_FORMATS : BARCODE_FORMATS),
+    formats: () =>
+      scanType.value === 'qr'
+        ? QR_FORMATS
+        : scanType.value === 'qr-or-barcode'
+          ? [...QR_FORMATS, ...BARCODE_FORMATS]
+          : BARCODE_FORMATS,
   })
 
   const isOcr = computed(() => scanType.value === 'ocr')
